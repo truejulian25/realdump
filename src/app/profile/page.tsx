@@ -1,13 +1,15 @@
 "use client";
 
 import { useState } from "react";
+import ProfileVideoCard from "@/components/ProfileVideoCard";
+
 
 export default function ProfilePage() {
   const [following, setFollowing] = useState(false);
 
   return (
     <div className="flex min-h-screen flex-col pt-14 pb-20">
-      <div className="flex flex-col items-center gap-0.5 border-b border-zinc-800 px-4 py-2">
+      <div className="flex flex-col items-center gap-0 border-b border-zinc-800 bg-zinc-900 px-4 py-1">
         {/* Avatar */}
         <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-full bg-zinc-800">
           <img
@@ -18,14 +20,14 @@ export default function ProfilePage() {
         </div>
 
         {/* Nombre grande */}
-        <h1 className="text-8xl font-black text-white">Joan Robayo</h1>
+        <h1 className="text-lg font-black text-white">Joan Robayo</h1>
 
         {/* Username */}
-        <p className="text-sm text-zinc-400">joan</p>
+        <p className="text-sm text-zinc-500">@joan</p>
 
         {/* Descripción + lápiz de editar */}
         <div className="flex items-center gap-2">
-          <p className="text-sm text-zinc-400">Tatuador profesional | Diseño personalizado</p>
+          <p className="text-sm text-zinc-500">Tatuador profesional | Diseño personalizado</p>
           <button className="text-zinc-400 transition-colors hover:text-white">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
@@ -50,26 +52,23 @@ export default function ProfilePage() {
         <div className="flex items-center gap-8 text-center">
           <div>
             <p className="text-lg font-bold text-white">3</p>
-            <p className="text-xs text-zinc-500">Videos</p>
+            <p className="text-sm text-zinc-500">Videos</p>
           </div>
           <div>
             <p className="text-lg font-bold text-white">0</p>
-            <p className="text-xs text-zinc-500">Seguidores</p>
+            <p className="text-sm text-zinc-500">Seguidores</p>
           </div>
           <div>
             <p className="text-lg font-bold text-white">0</p>
-            <p className="text-xs text-zinc-500">Siguiendo</p>
+            <p className="text-sm text-zinc-500">Siguiendo</p>
           </div>
         </div>
       </div>
 
       {/* Grid de videos */}
       <div className="grid grid-cols-3 gap-0.5 p-0.5">
-        {[1, 2, 3].map((id) => (
-          <div
-            key={id}
-            className="aspect-[9/16] bg-zinc-800"
-          />
+        {["/videos/video1.mp4", "/videos/video2.mp4", "/videos/video3.mp4"].map((src, i) => (
+          <ProfileVideoCard key={i} src={src} />
         ))}
       </div>
     </div>
