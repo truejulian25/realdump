@@ -22,7 +22,7 @@ export default function InteractionBar() {
   };
 
   return (
-    <div className="flex items-center justify-end px-1">
+    <div className="flex items-center px-1">
       <div className="flex items-center gap-4">
         <button
           onClick={handleLike}

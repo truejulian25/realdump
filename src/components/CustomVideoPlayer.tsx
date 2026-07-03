@@ -132,7 +132,7 @@ export default function CustomVideoPlayer({ src }: Props) {
 
   return (
     <div
-      className="group relative cursor-pointer"
+      className="group relative h-full cursor-pointer"
       onMouseMove={showControlsTemporarily}
       onMouseLeave={() => playing && setShowControls(false)}
       onTouchStart={showControlsTemporarily}

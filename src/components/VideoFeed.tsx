@@ -115,13 +115,15 @@ export default function VideoFeed() {
           className="flex h-screen w-full snap-center items-center justify-center px-4"
         >
           <div className="flex w-full max-w-sm flex-col gap-3">
-            <div className="relative max-h-[65vh] overflow-hidden rounded-lg bg-zinc-900">
+            <div className="relative h-[65vh] overflow-hidden rounded-lg bg-zinc-900">
               <CustomVideoPlayer src={video.src} />
             </div>
 
             <div className="flex flex-col gap-1">
-              <ProfileRow username={video.username} />
-              <InteractionBar />
+              <div className="flex items-center justify-between">
+                <ProfileRow username={video.username} />
+                <InteractionBar />
+              </div>
               <p className="text-sm text-zinc-300">{video.description}</p>
               <p className="text-sm text-blue-400">
                 {video.hashtags.join(" ")}
