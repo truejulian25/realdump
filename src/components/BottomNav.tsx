@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 
 const navItems = [
   { href: "/", label: "Inicio", icon: HomeIcon },
-  { href: "/upload", label: "Subir", icon: UploadIcon },
+  { href: "/search", label: "Buscar", icon: SearchIcon },
   { href: "/profile", label: "Perfil", icon: ProfileIcon },
 ];
 
@@ -13,21 +13,23 @@ export default function BottomNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed bottom-0 z-50 flex w-full items-center justify-around border-t border-zinc-800 bg-black/80 px-4 py-2 backdrop-blur-sm">
-      {navItems.map(({ href, label, icon: Icon }) => (
-        <Link
-          key={href}
-          href={href}
-          className={`flex flex-col items-center gap-0.5 px-4 py-1 text-xs transition-colors ${
-            pathname === href
-              ? "text-white"
-              : "text-zinc-500 hover:text-zinc-300"
-          }`}
-        >
-          <Icon />
-          {label}
-        </Link>
-      ))}
+    <nav className="fixed bottom-0 z-50 flex w-full items-center justify-center border-t border-zinc-800 bg-black/80 px-4 py-2 backdrop-blur-sm">
+      <div className="flex w-full max-w-sm items-center justify-between">
+        {navItems.map(({ href, label, icon: Icon }) => (
+          <Link
+            key={href}
+            href={href}
+            className={`flex flex-col items-center gap-0.5 px-4 py-1 text-xs transition-colors ${
+              pathname === href
+                ? "text-white"
+                : "text-zinc-500 hover:text-zinc-300"
+            }`}
+          >
+            <Icon />
+            {label}
+          </Link>
+        ))}
+      </div>
     </nav>
   );
 }
@@ -41,21 +43,23 @@ function HomeIcon() {
   );
 }
 
-function UploadIcon() {
+function SearchIcon() {
   return (
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-      <line x1="12" y1="8" x2="12" y2="16" />
-      <line x1="8" y1="12" x2="16" y2="12" />
+      <circle cx="11" cy="11" r="8" />
+      <line x1="21" y1="21" x2="16.65" y2="16.65" />
     </svg>
   );
 }
 
 function ProfileIcon() {
   return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-      <circle cx="12" cy="7" r="4" />
-    </svg>
+    <div className="h-6 w-6 overflow-hidden rounded-md border border-zinc-500 bg-zinc-700">
+      <img
+        src="https://ui-avatars.com/api/?name=user&background=6366f1&color=fff&size=24"
+        alt="Perfil"
+        className="h-full w-full object-cover"
+      />
+    </div>
   );
 }
