@@ -1,8 +1,5 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-# old project dir (files moved to root)
-/dumpstack/
-
 # dependencies
 /node_modules
 /.pnp
