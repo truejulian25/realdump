@@ -5,17 +5,17 @@ import { useAuth } from "@/contexts/AuthContext";
 import AuthButton from "@/components/AuthButton";
 
 export default function Header() {
-  const { user, loading } = useAuth();
+  const { user, profile, loading } = useAuth();
 
   return (
     <header className="fixed top-0 z-50 flex w-full items-center justify-center border-b border-zinc-800 bg-black/80 px-4 py-3 backdrop-blur-sm">
       <div className="flex w-full max-w-sm items-center justify-between">
-        <h1 className="text-lg font-bold tracking-tight text-white">
+        <Link href="/" className="text-lg font-bold tracking-tight text-white">
           realdump
-        </h1>
+        </Link>
         <div className="flex items-center gap-3">
           {loading ? null : user ? (
-            <AuthButton email={user.email ?? null} />
+            <AuthButton email={user.email ?? null} avatarUrl={profile?.avatar_url ?? null} />
           ) : (
             <>
               <Link

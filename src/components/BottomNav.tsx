@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useAuth } from "@/contexts/AuthContext";
 
 const navItems = [
   { href: "/", label: "Inicio", icon: HomeIcon },
@@ -11,6 +12,7 @@ const navItems = [
 
 export default function BottomNav() {
   const pathname = usePathname();
+  const { profile } = useAuth();
 
   return (
     <nav className="fixed bottom-0 z-50 flex w-full items-center justify-center border-t border-zinc-800 bg-black/80 px-4 py-2 backdrop-blur-sm">
@@ -25,7 +27,7 @@ export default function BottomNav() {
                 : "text-zinc-500 hover:text-zinc-300"
             }`}
           >
-            <Icon />
+            <Icon profile={profile} />
             {label}
           </Link>
         ))}
@@ -52,11 +54,14 @@ function SearchIcon() {
   );
 }
 
-function ProfileIcon() {
+function ProfileIcon({ profile }: { profile?: { avatar_url?: string | null; display_name?: string | null } | null }) {
+  const src = profile?.avatar_url
+    ?? `https://ui-avatars.com/api/?name=${profile?.display_name ?? "user"}&background=6366f1&color=fff&size=24`;
+
   return (
     <div className="h-6 w-6 overflow-hidden rounded-md border border-zinc-500 bg-zinc-700">
       <img
-        src="https://ui-avatars.com/api/?name=user&background=6366f1&color=fff&size=24"
+        src={src}
         alt="Perfil"
         className="h-full w-full object-cover"
       />
