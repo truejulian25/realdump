@@ -47,7 +47,7 @@ export default function ProfilePage() {
 
         {/* Descripción + lápiz de editar */}
         <div className="flex items-center gap-2">
-          <p className="text-sm text-zinc-500">{profile.bio ?? "Sin bio"}</p>
+          <p className="text-sm text-zinc-500 whitespace-pre-wrap">{profile.bio ?? "Sin bio"}</p>
           <Link
             href="/profile/edit"
             className="text-zinc-400 transition-colors hover:text-white"
