@@ -1,19 +1,77 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import { createClient } from "@/lib/supabase/client";
 
-export default function InteractionBar() {
+interface Props {
+  videoId: number;
+}
+
+export default function InteractionBar({ videoId }: Props) {
+  const { user } = useAuth();
+  const supabase = createClient();
   const [liked, setLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
+  const [loading, setLoading] = useState(true);
   const [saved, setSaved] = useState(false);
 
-  const handleLike = () => {
+  useEffect(() => {
+    const fetchLikes = async () => {
+      if (!user) {
+        const { count } = await supabase
+          .from("likes")
+          .select("*", { count: "exact", head: true })
+          .eq("video_id", videoId);
+        setLikeCount(count ?? 0);
+        setLoading(false);
+        return;
+      }
+
+      const [likeResponse, countResponse] = await Promise.all([
+        supabase
+          .from("likes")
+          .select("id")
+          .eq("video_id", videoId)
+          .eq("user_id", user.id)
+          .maybeSingle(),
+        supabase
+          .from("likes")
+          .select("*", { count: "exact", head: true })
+          .eq("video_id", videoId),
+      ]);
+
+      setLiked(!!likeResponse.data);
+      setLikeCount(countResponse.count ?? 0);
+      setLoading(false);
+    };
+
+    fetchLikes();
+  }, [videoId, user, supabase]);
+
+  const handleLike = async () => {
+    if (!user || loading) return;
+
     if (liked) {
-      setLiked(false);
-      setLikeCount((c) => c - 1);
+      const { error } = await supabase
+        .from("likes")
+        .delete()
+        .eq("video_id", videoId)
+        .eq("user_id", user.id);
+
+      if (!error) {
+        setLiked(false);
+        setLikeCount((c) => c - 1);
+      }
     } else {
-      setLiked(true);
-      setLikeCount((c) => c + 1);
+      const { error } = await supabase
+        .from("likes")
+        .insert({ video_id: videoId, user_id: user.id });
+
+      if (!error) {
+        setLiked(true);
+        setLikeCount((c) => c + 1);
+      }
     }
   };
 

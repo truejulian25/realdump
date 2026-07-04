@@ -122,7 +122,7 @@ export default function VideoFeed() {
             <div className="flex flex-col gap-1">
               <div className="flex items-center justify-between">
                 <ProfileRow username={video.username} />
-                <InteractionBar />
+                <InteractionBar videoId={video.id} />
               </div>
               <p className="text-sm text-zinc-300">{video.description}</p>
               <p className="text-sm text-blue-400">

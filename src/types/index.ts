@@ -8,3 +8,10 @@ export interface Profile {
   created_at: string;
   updated_at: string;
 }
+
+export interface Like {
+  id: string;
+  user_id: string;
+  video_id: number;
+  created_at: string;
+}
