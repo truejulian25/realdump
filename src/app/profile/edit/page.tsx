@@ -13,6 +13,7 @@ export default function EditProfilePage() {
   const [displayName, setDisplayName] = useState("");
   const [username, setUsername] = useState("");
   const [bio, setBio] = useState("");
+  const [website, setWebsite] = useState("");
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -31,6 +32,7 @@ export default function EditProfilePage() {
       setDisplayName(profile.display_name ?? "");
       setUsername(profile.username ?? "");
       setBio(profile.bio ?? "");
+      setWebsite(profile.website ?? "");
     }
   }, [profile]);
 
@@ -75,6 +77,7 @@ export default function EditProfilePage() {
         display_name: displayName,
         username,
         bio,
+        website: website || null,
         avatar_url,
         updated_at: new Date().toISOString(),
       })
@@ -164,6 +167,18 @@ export default function EditProfilePage() {
             placeholder="Cuéntanos sobre ti..."
             rows={3}
             className="resize-none rounded-lg bg-zinc-800 px-4 py-2.5 text-white placeholder-zinc-500 outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+
+        {/* Website */}
+        <div className="flex flex-col gap-1">
+          <label className="text-xs text-zinc-400">Sitio web</label>
+          <input
+            type="url"
+            value={website}
+            onChange={(e) => setWebsite(e.target.value)}
+            placeholder="https://tusitio.com"
+            className="rounded-lg bg-zinc-800 px-4 py-2.5 text-white placeholder-zinc-500 outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
 
