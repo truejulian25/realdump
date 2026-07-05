@@ -1,40 +1,60 @@
 "use client";
 
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/contexts/AuthContext";
+import { createClient } from "@/lib/supabase/client";
+import type { Video } from "@/types";
 import CustomVideoPlayer from "@/components/CustomVideoPlayer";
 import ProfileRow from "@/components/ProfileRow";
 import InteractionBar from "@/components/InteractionBar";
 
-const profileVideos = [
-  {
-    id: 1,
-    src: "/videos/video1.mp4",
-    username: "joan",
-    description: "Mi primer tatuaje en time-lapse",
-    hashtags: ["#tatuaje", "#timelapse", "#arte"],
-    date: "2 de julio, 2026",
-  },
-  {
-    id: 2,
-    src: "/videos/video2.mp4",
-    username: "joan",
-    description: "Diseño personalizado para cliente",
-    hashtags: ["#tattoo", "#blackwork"],
-    date: "1 de julio, 2026",
-  },
-  {
-    id: 3,
-    src: "/videos/video3.mp4",
-    username: "joan",
-    description: "Proceso completo de la sesión",
-    hashtags: ["#tatuajecolombiano", "#realismo"],
-    date: "28 de junio, 2026",
-  },
-];
+interface VideoWithProfile extends Video {
+  profiles: {
+    username: string | null;
+    display_name: string | null;
+    avatar_url: string | null;
+  } | null;
+}
 
 export default function PublicacionesPage() {
+  const { user, loading: authLoading } = useAuth();
+  const router = useRouter();
+  const supabase = createClient();
+  const [targetUserId, setTargetUserId] = useState<string | null>(null);
+  const [videos, setVideos] = useState<VideoWithProfile[]>([]);
+  const [loading, setLoading] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
   const currentVideoRef = useRef<HTMLVideoElement | null>(null);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    setTargetUserId(params.get("user_id"));
+  }, []);
+
+  useEffect(() => {
+    if (!authLoading && !user && !targetUserId) {
+      router.push("/auth/login");
+    }
+  }, [authLoading, user, targetUserId, router]);
+
+  useEffect(() => {
+    const uid = targetUserId ?? user?.id;
+    if (!uid) return;
+
+    const fetchVideos = async () => {
+      const { data } = await supabase
+        .from("videos")
+        .select("*, profiles(username, display_name, avatar_url)")
+        .eq("user_id", uid)
+        .order("created_at", { ascending: false });
+
+      if (data) setVideos(data);
+      setLoading(false);
+    };
+
+    fetchVideos();
+  }, [user, targetUserId, supabase]);
 
   const playVideo = useCallback((video: HTMLVideoElement) => {
     if (currentVideoRef.current && currentVideoRef.current !== video) {
@@ -44,7 +64,6 @@ export default function PublicacionesPage() {
     currentVideoRef.current = video;
   }, []);
 
-  // Video play/pause observer
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
@@ -68,33 +87,65 @@ export default function PublicacionesPage() {
     videoElements.forEach((video) => observer.observe(video));
 
     return () => observer.disconnect();
-  }, [playVideo]);
+  }, [playVideo, videos]);
+
+  const formatDate = (dateStr: string) => {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString("es-CO", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  };
+
+  if (authLoading || loading) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-black pt-14 pb-20">
+        <p className="text-zinc-400">Cargando...</p>
+      </div>
+    );
+  }
+
+  if (videos.length === 0) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-black pt-14 pb-20">
+        <p className="text-zinc-400">No hay videos aún</p>
+      </div>
+    );
+  }
 
   return (
     <div
       ref={containerRef}
       className="h-screen w-full snap-y snap-mandatory overflow-y-scroll bg-black pt-14 pb-20"
     >
-      {profileVideos.map((video) => (
+      {videos.map((video) => (
         <div
           key={video.id}
           className="flex h-screen w-full snap-center items-center justify-center px-4"
         >
           <div className="flex w-full max-w-sm flex-col gap-3">
             <div className="relative h-[65vh] overflow-hidden rounded-lg bg-zinc-900">
-              <CustomVideoPlayer src={video.src} />
+              <CustomVideoPlayer src={video.video_url} />
             </div>
 
             <div className="flex flex-col gap-1">
               <div className="flex items-center justify-between">
-                <ProfileRow username={video.username} />
+                <ProfileRow
+                  username={video.profiles?.username ?? "usuario"}
+                  avatarUrl={video.profiles?.avatar_url}
+                />
                 <InteractionBar videoId={video.id} />
               </div>
-              <p className="text-sm text-zinc-300">{video.description}</p>
-              <p className="text-sm text-blue-400">
-                {video.hashtags.join(" ")}
-              </p>
-              <p className="text-xs text-zinc-500">{video.date}</p>
+              {video.description && (
+                <p className="text-sm text-zinc-300">{video.description}</p>
+              )}
+              {video.hashtags && video.hashtags.length > 0 && (
+                <p className="text-sm text-blue-400">
+                  {video.hashtags.map((h) => h.startsWith("#") ? h : `#${h}`).join(" ")}
+                </p>
+              )}
+              <p className="text-xs text-zinc-500">{formatDate(video.created_at)}</p>
             </div>
           </div>
         </div>

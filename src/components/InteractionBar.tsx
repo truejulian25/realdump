@@ -5,7 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { createClient } from "@/lib/supabase/client";
 
 interface Props {
-  videoId: number;
+  videoId: string;
 }
 
 export default function InteractionBar({ videoId }: Props) {

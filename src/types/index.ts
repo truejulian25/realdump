@@ -12,6 +12,17 @@ export interface Profile {
 export interface Like {
   id: string;
   user_id: string;
-  video_id: number;
+  video_id: string;
+  created_at: string;
+}
+
+export interface Video {
+  id: string;
+  user_id: string;
+  title: string | null;
+  description: string | null;
+  video_url: string;
+  thumbnail_url: string | null;
+  hashtags: string[] | null;
   created_at: string;
 }

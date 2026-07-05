@@ -1,20 +1,42 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import ProfileVideoCard from "@/components/ProfileVideoCard";
 import { useAuth } from "@/contexts/AuthContext";
+import { createClient } from "@/lib/supabase/client";
+import type { Video } from "@/types";
 
 export default function ProfilePage() {
   const { profile, user, loading } = useAuth();
   const router = useRouter();
+  const supabase = createClient();
+  const [videos, setVideos] = useState<Video[]>([]);
+  const [videosLoading, setVideosLoading] = useState(true);
 
   useEffect(() => {
     if (!loading && !user) {
       router.push("/auth/login");
     }
   }, [loading, user, router]);
+
+  useEffect(() => {
+    if (!user) return;
+
+    const fetchVideos = async () => {
+      const { data } = await supabase
+        .from("videos")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false });
+
+      if (data) setVideos(data);
+      setVideosLoading(false);
+    };
+
+    fetchVideos();
+  }, [user, supabase]);
 
   if (loading || !profile) {
     return (
@@ -30,7 +52,6 @@ export default function ProfilePage() {
   return (
     <div className="flex min-h-screen flex-col pt-14 pb-20">
       <div className="flex flex-col items-center gap-2 border-b border-zinc-800 bg-zinc-900 px-4 py-6">
-        {/* Avatar */}
         <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-full bg-zinc-800">
           <img
             src={avatarSrc}
@@ -39,13 +60,10 @@ export default function ProfilePage() {
           />
         </div>
 
-        {/* Nombre grande */}
         <h1 className="text-lg font-black text-white">{profile.display_name ?? "Sin nombre"}</h1>
 
-        {/* Username */}
         <p className="text-sm text-zinc-500">@{profile.username}</p>
 
-        {/* Descripción + lápiz de editar */}
         <div className="flex items-center gap-2">
           <p className="text-sm text-zinc-500 whitespace-pre-wrap">{profile.bio ?? "Sin bio"}</p>
           <Link
@@ -59,7 +77,6 @@ export default function ProfilePage() {
           </Link>
         </div>
 
-        {/* Website */}
         {profile.website && (
           <a
             href={profile.website}
@@ -76,10 +93,9 @@ export default function ProfilePage() {
           </a>
         )}
 
-        {/* Stats */}
         <div className="flex items-center gap-8 text-center">
           <div>
-            <p className="text-lg font-bold text-white">3</p>
+            <p className="text-lg font-bold text-white">{videos.length}</p>
             <p className="text-sm text-zinc-500">Videos</p>
           </div>
           <div>
@@ -93,11 +109,16 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      {/* Grid de videos */}
       <div className="grid grid-cols-3 gap-0.5 p-0.5">
-        {["/videos/video1.mp4", "/videos/video2.mp4", "/videos/video3.mp4"].map((src, i) => (
-          <ProfileVideoCard key={i} src={src} />
-        ))}
+        {videosLoading ? (
+          <p className="col-span-3 py-8 text-center text-zinc-500">Cargando videos...</p>
+        ) : videos.length === 0 ? (
+          <p className="col-span-3 py-8 text-center text-zinc-500">Sin videos aún</p>
+        ) : (
+          videos.map((video) => (
+            <ProfileVideoCard key={video.id} video={video} />
+          ))
+        )}
       </div>
     </div>
   );

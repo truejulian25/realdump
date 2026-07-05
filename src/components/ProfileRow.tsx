@@ -4,16 +4,19 @@ import { useState } from "react";
 
 interface Props {
   username: string;
+  avatarUrl?: string | null;
 }
 
-export default function ProfileRow({ username }: Props) {
+export default function ProfileRow({ username, avatarUrl }: Props) {
   const [following, setFollowing] = useState(false);
+
+  const avatarSrc = avatarUrl ?? `https://ui-avatars.com/api/?name=${username}&background=6366f1&color=fff`;
 
   return (
     <div className="flex items-center gap-2 px-1">
       <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-lg border border-zinc-600 bg-zinc-800">
         <img
-          src={`https://ui-avatars.com/api/?name=${username}&background=6366f1&color=fff`}
+          src={avatarSrc}
           alt={username}
           className="h-full w-full object-cover"
         />

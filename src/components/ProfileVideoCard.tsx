@@ -2,12 +2,13 @@
 
 import { useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import type { Video } from "@/types";
 
 interface Props {
-  src: string;
+  video: Video;
 }
 
-export default function ProfileVideoCard({ src }: Props) {
+export default function ProfileVideoCard({ video }: Props) {
   const router = useRouter();
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -16,15 +17,15 @@ export default function ProfileVideoCard({ src }: Props) {
   }, []);
 
   const handleMouseLeave = useCallback(() => {
-    const video = videoRef.current;
-    if (!video) return;
-    video.pause();
-    video.currentTime = 0;
+    const videoEl = videoRef.current;
+    if (!videoEl) return;
+    videoEl.pause();
+    videoEl.currentTime = 0;
   }, []);
 
   const handleClick = useCallback(() => {
-    router.push("/publicaciones");
-  }, [router]);
+    router.push(`/publicaciones?user_id=${video.user_id}`);
+  }, [router, video.user_id]);
 
   return (
     <div
@@ -35,7 +36,7 @@ export default function ProfileVideoCard({ src }: Props) {
     >
       <video
         ref={videoRef}
-        src={src}
+        src={video.video_url}
         muted
         playsInline
         preload="auto"
