@@ -26,3 +26,11 @@ export interface Video {
   hashtags: string[] | null;
   created_at: string;
 }
+
+export interface Comment {
+  id: string;
+  video_id: string;
+  user_id: string;
+  content: string;
+  created_at: string;
+}
