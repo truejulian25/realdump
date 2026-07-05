@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { createClient } from "@/lib/supabase/client";
 import CommentsDrawer from "./CommentsDrawer";
+import ShareSheet from "./ShareSheet";
 
 interface Props {
   videoId: string;
@@ -18,6 +19,7 @@ export default function InteractionBar({ videoId }: Props) {
   const [loading, setLoading] = useState(true);
   const [saved, setSaved] = useState(false);
   const [showComments, setShowComments] = useState(false);
+  const [showShare, setShowShare] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -87,8 +89,16 @@ export default function InteractionBar({ videoId }: Props) {
     }
   };
 
-  const handleShare = () => {
-    navigator.clipboard.writeText(window.location.href);
+  const handleShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({ url: window.location.href });
+        return;
+      } catch {
+        // user cancelled or desktop fallback
+      }
+    }
+    setShowShare(true);
   };
 
   const handleCommentCountChange = useCallback((count: number) => {
@@ -187,6 +197,11 @@ export default function InteractionBar({ videoId }: Props) {
         open={showComments}
         onClose={() => setShowComments(false)}
         onCountChange={handleCommentCountChange}
+      />
+
+      <ShareSheet
+        open={showShare}
+        onClose={() => setShowShare(false)}
       />
     </>
   );
