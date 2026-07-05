@@ -42,7 +42,7 @@ export default function InteractionBar({ videoId }: Props) {
         return;
       }
 
-      const [likeResponse, likeCountResponse] = await Promise.all([
+      const [likeResponse, likeCountResponse, savedResponse] = await Promise.all([
         supabase
           .from("likes")
           .select("id")
@@ -53,10 +53,17 @@ export default function InteractionBar({ videoId }: Props) {
           .from("likes")
           .select("*", { count: "exact", head: true })
           .eq("video_id", videoId),
+        supabase
+          .from("saved_videos")
+          .select("id")
+          .eq("video_id", videoId)
+          .eq("user_id", user.id)
+          .maybeSingle(),
       ]);
 
       setLiked(!!likeResponse.data);
       setLikeCount(likeCountResponse.count ?? 0);
+      setSaved(!!savedResponse.data);
       setLoading(false);
     };
 
@@ -86,6 +93,26 @@ export default function InteractionBar({ videoId }: Props) {
         setLiked(true);
         setLikeCount((c) => c + 1);
       }
+    }
+  };
+
+  const handleSave = async () => {
+    if (!user) return;
+
+    if (saved) {
+      const { error } = await supabase
+        .from("saved_videos")
+        .delete()
+        .eq("video_id", videoId)
+        .eq("user_id", user.id);
+
+      if (!error) setSaved(false);
+    } else {
+      const { error } = await supabase
+        .from("saved_videos")
+        .insert({ video_id: videoId, user_id: user.id });
+
+      if (!error) setSaved(true);
     }
   };
 
@@ -176,7 +203,7 @@ export default function InteractionBar({ videoId }: Props) {
           </button>
 
           <button
-            onClick={() => setSaved((s) => !s)}
+            onClick={handleSave}
             className="text-zinc-400 transition-colors hover:text-white"
           >
             {saved ? (
