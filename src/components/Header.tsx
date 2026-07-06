@@ -14,7 +14,7 @@ export default function Header() {
 
   return (
     <>
-    <header className="fixed top-0 z-50 flex w-full items-center justify-center border-b border-white/10 bg-black/80 px-4 py-3 backdrop-blur-sm">
+    <header className="fixed top-0 z-50 flex w-full items-center justify-center border-b border-zinc-800 bg-black/80 px-4 py-3 backdrop-blur-sm">
       {user ? (
         <div className="grid w-full max-w-sm grid-cols-3 items-center">
           <div className="flex justify-start">

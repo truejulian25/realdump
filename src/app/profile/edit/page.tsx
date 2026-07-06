@@ -118,13 +118,13 @@ export default function EditProfilePage() {
           </Link>
           <h1 className="text-lg font-bold text-white">{t("profileEdit.title")}</h1>
         </div>
-      <form onSubmit={handleSave} className="flex w-full max-w-sm flex-col gap-5">
+      <form onSubmit={handleSave} className="flex w-full max-w-sm flex-col gap-3">
 
         {/* Avatar */}
-        <div className="flex flex-col items-center gap-3">
-          <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-full bg-zinc-800">
+        <div className="flex flex-col items-center gap-2">
+          <div className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-full bg-zinc-800">
             <img
-              src={avatarPreview ?? profile.avatar_url ?? `https://ui-avatars.com/api/?name=${profile.display_name ?? profile.username ?? "user"}&background=6366f1&color=fff&size=96`}
+              src={avatarPreview ?? profile.avatar_url ?? `https://ui-avatars.com/api/?name=${profile.display_name ?? profile.username ?? "user"}&background=6366f1&color=fff&size=80`}
               alt="Avatar"
               className="h-full w-full object-cover"
             />
@@ -132,7 +132,7 @@ export default function EditProfilePage() {
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            className="text-sm text-blue-400 hover:text-blue-300"
+            className="text-xs text-blue-400 hover:text-blue-300"
           >
             {t("profileEdit.changeAvatar")}
           </button>
@@ -153,7 +153,7 @@ export default function EditProfilePage() {
             value={displayName}
             onChange={(e) => setDisplayName(e.target.value)}
             placeholder={t("profileEdit.displayNamePlaceholder")}
-            className="rounded-lg border border-zinc-800 bg-zinc-950 px-4 py-2.5 text-sm text-white placeholder-zinc-500 outline-none transition-colors focus:border-blue-500"
+            className="w-full bg-transparent px-0 py-2 text-sm text-white placeholder-zinc-500 outline-none caret-blue-500"
           />
         </div>
 
@@ -165,7 +165,7 @@ export default function EditProfilePage() {
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             placeholder={t("profileEdit.usernamePlaceholder")}
-            className="rounded-lg border border-zinc-800 bg-zinc-950 px-4 py-2.5 text-sm text-white placeholder-zinc-500 outline-none transition-colors focus:border-blue-500"
+            className="w-full bg-transparent px-0 py-2 text-sm text-white placeholder-zinc-500 outline-none caret-blue-500"
           />
         </div>
 
@@ -176,8 +176,8 @@ export default function EditProfilePage() {
             value={bio}
             onChange={(e) => setBio(e.target.value)}
             placeholder={t("profileEdit.bioPlaceholder")}
-            rows={3}
-            className="resize-none rounded-lg border border-zinc-800 bg-zinc-950 px-4 py-2.5 text-sm text-white placeholder-zinc-500 outline-none transition-colors focus:border-blue-500"
+            rows={2}
+            className="w-full resize-none bg-transparent px-0 py-2 text-sm text-white placeholder-zinc-500 outline-none caret-blue-500"
           />
         </div>
 
@@ -189,7 +189,7 @@ export default function EditProfilePage() {
             value={website}
             onChange={(e) => setWebsite(e.target.value)}
             placeholder={t("profileEdit.websitePlaceholder")}
-            className="rounded-lg border border-zinc-800 bg-zinc-950 px-4 py-2.5 text-sm text-white placeholder-zinc-500 outline-none transition-colors focus:border-blue-500"
+            className="w-full bg-transparent px-0 py-2 text-sm text-white placeholder-zinc-500 outline-none caret-blue-500"
           />
         </div>
 
@@ -199,7 +199,7 @@ export default function EditProfilePage() {
         <button
           type="submit"
           disabled={saving}
-          className="rounded-lg bg-blue-600 py-2.5 font-semibold text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
+          className="self-start rounded-lg bg-blue-600 px-5 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
         >
           {saving ? t("profileEdit.saving") : t("profileEdit.save")}
         </button>

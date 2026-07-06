@@ -128,7 +128,7 @@ export default function SearchPage() {
 
   return (
     <div className="flex min-h-screen flex-col bg-black pt-14 pb-20">
-      <div className="sticky top-14 z-10 border-b border-white/10 bg-black px-4 py-3">
+      <div className="sticky top-14 z-10 border-b border-zinc-800 bg-black px-4 py-3">
         <div className="relative mx-auto flex w-full max-w-sm items-center">
           <svg
             width="18"
@@ -149,7 +149,7 @@ export default function SearchPage() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Buscar perfiles o videos..."
-            className="w-full rounded-lg border border-white/20 bg-zinc-900 py-2.5 pl-10 pr-10 text-sm text-white placeholder-zinc-500 outline-none focus:border-blue-500"
+            className="w-full bg-transparent py-2.5 pl-10 pr-10 text-sm text-white placeholder-zinc-500 outline-none caret-blue-500"
           />
           {query && (
             <button
@@ -194,7 +194,7 @@ export default function SearchPage() {
                     <Link
                       key={p.id}
                       href={`/publicaciones?user_id=${p.id}`}
-                      className="flex items-center gap-3 rounded-lg bg-black px-4 py-3 transition-colors hover:bg-zinc-900"
+                      className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-zinc-900"
                     >
                       <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-zinc-700">
                         <img

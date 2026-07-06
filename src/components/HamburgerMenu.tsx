@@ -163,7 +163,7 @@ function MainMenu({ onSelect, onClose }: {
 
   return (
     <>
-      <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
+      <div className="flex items-center justify-between border-b border-zinc-800 px-4 py-3">
         <span className="text-base font-bold text-white">{t("header.menu")}</span>
         <button onClick={onClose} className="rounded-lg p-1 text-zinc-400 transition-colors hover:text-white">
           <IconX />
@@ -182,7 +182,7 @@ function MainMenu({ onSelect, onClose }: {
         <MenuRow icon={<IconTrash />} label={t("hamburgerMenu.accountManagement")} onClick={() => onSelect("accountManagement")} />
       </div>
 
-      <div className="border-t border-white/10 py-1">
+      <div className="border-t border-zinc-800 py-1">
         <MenuRow icon={<IconLogOut />} label={t("hamburgerMenu.logout")} onClick={handleLogout} hasArrow={false} danger />
       </div>
     </>
@@ -193,7 +193,7 @@ function MainMenu({ onSelect, onClose }: {
 
 function ViewHeader({ title, onBack }: { title: string; onBack: () => void }) {
   return (
-    <div className="flex items-center gap-3 border-b border-white/10 px-4 py-3">
+    <div className="flex items-center gap-3 border-b border-zinc-800 px-4 py-3">
       <button onClick={onBack} className="rounded-lg p-1 text-zinc-400 transition-colors hover:text-white">
         <IconArrowLeft />
       </button>
@@ -211,20 +211,22 @@ function LanguageView({ onBack }: { onBack: () => void }) {
     <>
       <ViewHeader title={t("hamburgerMenu.language")} onBack={onBack} />
       <div className="flex-1 px-4 py-4">
-        <p className="mb-4 text-sm text-zinc-500">{t("hamburgerMenu.selectLanguage")}</p>
-        {availableLanguages.map((lang, i) => (
-          <label
+        {availableLanguages.map((lang) => (
+          <button
             key={lang.code}
-            className={`flex cursor-pointer items-center gap-3 rounded-lg border px-4 py-3 transition-colors ${i > 0 ? "mt-2" : ""} ${locale === lang.code ? "border-blue-500 bg-blue-500/10" : "border-white/10 hover:bg-zinc-800"}`}
+            onClick={() => setLocale(lang.code)}
+            className={`flex w-full items-center gap-3 px-4 py-3 text-left transition-colors ${locale === lang.code ? "bg-blue-500/10" : "hover:bg-zinc-800"}`}
           >
-            <input type="radio" name="lang" value={lang.code} checked={locale === lang.code} onChange={() => setLocale(lang.code)} className="accent-blue-500" />
-            <div>
+            <div className="flex-1">
               <p className="text-sm font-medium text-white">{lang.nativeName}</p>
               <p className="text-xs text-zinc-500">{lang.englishName}</p>
             </div>
-          </label>
+            {locale === lang.code && (
+              <span className="text-blue-400"><IconCheck /></span>
+            )}
+          </button>
         ))}
-        <p className="mt-6 text-xs text-zinc-600">{t("hamburgerMenu.languageChangeNote")}</p>
+        <p className="mt-6 px-4 text-xs text-zinc-600">{t("hamburgerMenu.languageChangeNote")}</p>
       </div>
     </>
   );
@@ -276,7 +278,7 @@ function ChangePasswordView({ onBack }: { onBack: () => void }) {
           <span className="rounded-full bg-emerald-500/20 p-3 text-emerald-400"><IconCheck /></span>
           <p className="text-sm font-medium text-white">{t("hamburgerMenu.passwordUpdated")}</p>
           <p className="text-xs text-zinc-500">{t("hamburgerMenu.passwordUpdatedDesc")}</p>
-          <button onClick={onBack} className="mt-2 rounded-lg bg-zinc-800 px-4 py-2 text-sm text-white transition-colors hover:bg-zinc-700">
+          <button onClick={onBack} className="mt-2 rounded-lg bg-zinc-800 px-4 py-1.5 text-sm text-white transition-colors hover:bg-zinc-700">
             {t("hamburgerMenu.backToMenu")}
           </button>
         </div>
@@ -289,35 +291,38 @@ function ChangePasswordView({ onBack }: { onBack: () => void }) {
       <ViewHeader title={t("hamburgerMenu.changePassword")} onBack={onBack} />
       <form onSubmit={handleSubmit} className="flex flex-1 flex-col gap-4 px-4 py-4">
         <div>
-          <label className="mb-1 block text-xs text-zinc-500">{t("hamburgerMenu.currentPassword")}</label>
+          <label className="mb-1 block text-sm font-medium text-zinc-300">{t("hamburgerMenu.currentPassword")}</label>
           <input
             type="password"
             value={currentPassword}
             onChange={(e) => setCurrentPassword(e.target.value)}
+            placeholder="••••••••"
             required
-            className="w-full rounded-lg border border-white/10 bg-zinc-950 px-3 py-2.5 text-sm text-white outline-none transition-colors focus:border-zinc-600"
+            className="w-full bg-transparent px-0 py-2 text-sm text-white placeholder-zinc-500 outline-none caret-blue-500"
           />
         </div>
         <div>
-          <label className="mb-1 block text-xs text-zinc-500">{t("hamburgerMenu.newPassword")}</label>
+          <label className="mb-1 block text-sm font-medium text-zinc-300">{t("hamburgerMenu.newPassword")}</label>
           <input
             type="password"
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
+            placeholder="••••••••"
             required
             minLength={6}
-            className="w-full rounded-lg border border-white/10 bg-zinc-950 px-3 py-2.5 text-sm text-white outline-none transition-colors focus:border-zinc-600"
+            className="w-full bg-transparent px-0 py-2 text-sm text-white placeholder-zinc-500 outline-none caret-blue-500"
           />
         </div>
         <div>
-          <label className="mb-1 block text-xs text-zinc-500">{t("hamburgerMenu.confirmNewPassword")}</label>
+          <label className="mb-1 block text-sm font-medium text-zinc-300">{t("hamburgerMenu.confirmNewPassword")}</label>
           <input
             type="password"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
+            placeholder="••••••••"
             required
             minLength={6}
-            className="w-full rounded-lg border border-white/10 bg-zinc-950 px-3 py-2.5 text-sm text-white outline-none transition-colors focus:border-zinc-600"
+            className="w-full bg-transparent px-0 py-2 text-sm text-white placeholder-zinc-500 outline-none caret-blue-500"
           />
         </div>
 
@@ -326,7 +331,7 @@ function ChangePasswordView({ onBack }: { onBack: () => void }) {
         <button
           type="submit"
           disabled={loading}
-          className="mt-auto rounded-lg bg-blue-600 py-2.5 text-sm font-medium text-white transition-colors active:scale-[0.97] hover:bg-blue-700 disabled:opacity-50"
+          className="self-start rounded-lg bg-blue-600 px-5 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
         >
           {loading ? t("hamburgerMenu.updating") : t("hamburgerMenu.changePasswordBtn")}
         </button>
@@ -353,11 +358,11 @@ function QRView({ onBack }: { onBack: () => void }) {
       <ViewHeader title={t("hamburgerMenu.qr")} onBack={onBack} />
       <div className="flex flex-1 flex-col items-center justify-center gap-4 px-4 text-center">
         {profileUrl ? (
-          <div className="rounded-xl bg-white p-4">
-            <QRCodeCanvas value={profileUrl} size={180} />
+          <div className="rounded-lg bg-white p-2">
+            <QRCodeCanvas value={profileUrl} size={120} />
           </div>
         ) : (
-          <div className="flex h-44 w-44 items-center justify-center rounded-xl bg-zinc-800">
+          <div className="flex h-32 w-32 items-center justify-center rounded-lg bg-zinc-800">
             <p className="text-xs text-zinc-500">{t("hamburgerMenu.loading")}</p>
           </div>
         )}
@@ -418,7 +423,7 @@ function DeleteAccountView({ onBack }: { onBack: () => void }) {
           </div>
           <button
             onClick={() => setStep("confirm")}
-            className="rounded-lg bg-red-600 py-2.5 text-sm font-medium text-white transition-colors active:scale-[0.97] hover:bg-red-700"
+            className="self-start rounded-lg bg-red-600 px-5 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-red-700"
           >
             {t("hamburgerMenu.continue")}
           </button>
@@ -440,14 +445,14 @@ function DeleteAccountView({ onBack }: { onBack: () => void }) {
             value={confirmText}
             onChange={(e) => setConfirmText(e.target.value)}
             placeholder="ELIMINAR"
-            className="w-full rounded-lg border border-white/10 bg-zinc-950 px-3 py-2.5 text-sm text-white outline-none transition-colors focus:border-red-600"
+            className="w-full bg-transparent px-0 py-2 text-sm text-white placeholder-zinc-500 outline-none caret-blue-500"
           />
           {error && <p className="text-xs text-red-400">{error}</p>}
         </div>
         <button
           onClick={handleDelete}
           disabled={confirmText !== "ELIMINAR" || loading}
-          className="rounded-lg bg-red-600 py-2.5 text-sm font-medium text-white transition-colors active:scale-[0.97] hover:bg-red-700 disabled:opacity-50"
+          className="self-start rounded-lg bg-red-600 px-5 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-red-700 disabled:opacity-50"
         >
           {loading ? t("hamburgerMenu.deleting") : t("hamburgerMenu.deleteMyAccount")}
         </button>
@@ -472,7 +477,7 @@ function AccountManagementView({ onSelect, onBack }: {
       <div className="flex flex-1 flex-col gap-3 px-4 py-4">
         <button
           onClick={() => onSelect("deactivateAccount")}
-          className="flex items-center gap-4 rounded-lg border border-white/10 bg-zinc-900/50 p-4 text-left transition-colors hover:border-white/20 hover:bg-zinc-800/50"
+          className="flex items-center gap-4 rounded-lg border border-zinc-800 bg-zinc-900/50 p-4 text-left transition-colors hover:border-zinc-600 hover:bg-zinc-800/50"
         >
           <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-500/10 text-amber-400">
             <IconMoon />
@@ -485,7 +490,7 @@ function AccountManagementView({ onSelect, onBack }: {
 
         <button
           onClick={() => onSelect("deleteAccount")}
-          className="flex items-center gap-4 rounded-lg border border-white/10 bg-zinc-900/50 p-4 text-left transition-colors hover:border-red-800 hover:bg-red-900/10"
+          className="flex items-center gap-4 rounded-lg border border-zinc-800 bg-zinc-900/50 p-4 text-left transition-colors hover:border-red-800 hover:bg-red-900/10"
         >
           <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-500/10 text-red-400">
             <IconTrash />
@@ -557,7 +562,7 @@ function DeactivateAccountView({ onBack }: { onBack: () => void }) {
         <button
           onClick={handleDeactivate}
           disabled={loading}
-          className="rounded-lg bg-amber-600 py-2.5 text-sm font-medium text-white transition-colors active:scale-[0.97] hover:bg-amber-700 disabled:opacity-50"
+          className="self-start rounded-lg bg-amber-600 px-5 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-amber-700 disabled:opacity-50"
         >
           {loading ? t("hamburgerMenu.deactivating") : t("hamburgerMenu.deactivate")}
         </button>
@@ -586,22 +591,20 @@ function FiltersView({ onBack }: { onBack: () => void }) {
   return (
     <>
       <ViewHeader title={t("hamburgerMenu.contentFilters")} onBack={onBack} />
-      <div className="flex flex-1 flex-col gap-5 overflow-y-auto px-4 py-4">
+      <div className="flex flex-1 flex-col gap-4 overflow-y-auto px-4 py-4">
         <div>
-          <label className="mb-1.5 block text-sm font-medium text-white">{t("hamburgerMenu.filterWordsLabel")}</label>
-          <p className="mb-2 text-xs text-zinc-500">{t("hamburgerMenu.filterWordsDesc")}</p>
+          <label className="mb-1 block text-sm font-medium text-zinc-300">{t("hamburgerMenu.filterWordsLabel")}</label>
           <textarea
             value={filterWords}
             onChange={(e) => setFilterWords(e.target.value)}
             placeholder={t("hamburgerMenu.filterWordsPlaceholder")}
-            rows={3}
-            className="w-full rounded-lg border border-white/10 bg-zinc-950 px-3 py-2 text-sm text-white outline-none transition-colors focus:border-zinc-600 resize-none"
+            rows={2}
+            className="w-full resize-none bg-transparent px-0 py-2 text-sm text-white placeholder-zinc-500 outline-none caret-blue-500"
           />
         </div>
 
         <div>
-          <label className="mb-1.5 block text-sm font-medium text-white">{t("hamburgerMenu.hideOffensiveLabel")}</label>
-          <p className="mb-2 text-xs text-zinc-500">{t("hamburgerMenu.hideOffensiveDesc")}</p>
+          <label className="mb-1 block text-sm font-medium text-zinc-300">{t("hamburgerMenu.hideOffensiveLabel")}</label>
           <button
             onClick={() => setHideOffensive(!hideOffensive)}
             className={`relative h-6 w-11 rounded-full transition-colors ${hideOffensive ? "bg-blue-600" : "bg-zinc-700"}`}
@@ -611,20 +614,19 @@ function FiltersView({ onBack }: { onBack: () => void }) {
         </div>
 
         <div>
-          <label className="mb-1.5 block text-sm font-medium text-white">{t("hamburgerMenu.customWordsLabel")}</label>
-          <p className="mb-2 text-xs text-zinc-500">{t("hamburgerMenu.customWordsDesc")}</p>
+          <label className="mb-1 block text-sm font-medium text-zinc-300">{t("hamburgerMenu.customWordsLabel")}</label>
           <textarea
             value={customWords}
             onChange={(e) => setCustomWords(e.target.value)}
             placeholder={t("hamburgerMenu.customWordsPlaceholder")}
-            rows={3}
-            className="w-full rounded-lg border border-white/10 bg-zinc-950 px-3 py-2 text-sm text-white outline-none transition-colors focus:border-zinc-600 resize-none"
+            rows={2}
+            className="w-full resize-none bg-transparent px-0 py-2 text-sm text-white placeholder-zinc-500 outline-none caret-blue-500"
           />
         </div>
 
         <button
           onClick={handleSave}
-          className="mt-auto rounded-lg bg-blue-600 py-2.5 text-sm font-medium text-white transition-colors active:scale-[0.97] hover:bg-blue-700"
+          className="self-start rounded-lg bg-blue-600 px-5 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700"
         >
           {saved ? t("hamburgerMenu.savedConfirm") : t("hamburgerMenu.savePreferences")}
         </button>

@@ -17,7 +17,7 @@ export default function TermsPage() {
   const { t } = useLanguage();
 
   return (
-    <div className="flex min-h-screen flex-col pt-14 pb-20">
+    <div className="flex min-h-screen flex-col bg-black pt-14 pb-20">
       <div className="mx-auto w-full max-w-sm px-4 py-6">
         <Link href="/profile" className="mb-4 flex items-center gap-2 text-sm text-zinc-400 transition-colors hover:text-white">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

@@ -53,7 +53,7 @@ export default function ProfilePage() {
 
   return (
     <div className="flex min-h-screen flex-col bg-black pt-14 pb-20">
-      <div className="flex flex-col items-center gap-2 border-b border-white/10 bg-black px-4 py-6">
+      <div className="flex flex-col items-center gap-2 border-b border-zinc-800 bg-black px-4 py-6">
         <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-full bg-zinc-800">
           <img
             src={avatarSrc}

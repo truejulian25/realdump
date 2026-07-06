@@ -118,7 +118,7 @@ export default function CommentsDrawer({ videoId, open, onClose, onCountChange }
       <div className="absolute inset-0 bg-black/60" onClick={onClose} />
 
       <div className="relative z-10 flex max-h-[80vh] w-full flex-col rounded-t-2xl bg-zinc-900">
-        <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
+        <div className="flex items-center justify-between border-b border-zinc-800 px-4 py-3">
           <h2 className="text-sm font-semibold text-white">
             Comentarios ({comments.length})
           </h2>
@@ -179,7 +179,7 @@ export default function CommentsDrawer({ videoId, open, onClose, onCountChange }
         </div>
 
         {user && (
-          <div className="flex items-center gap-3 border-t border-white/10 px-4 py-3">
+          <div className="flex items-center gap-3 border-t border-zinc-800 px-4 py-3">
             <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-zinc-700">
               <img
                 src={`https://ui-avatars.com/api/?name=${user.email ?? "user"}&background=6366f1&color=fff&size=32`}

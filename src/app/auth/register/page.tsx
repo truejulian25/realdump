@@ -39,12 +39,12 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-black">
+    <div className="flex min-h-screen items-center justify-center bg-black px-4">
       <form
         onSubmit={handleRegister}
-        className="flex w-full max-w-sm flex-col gap-4 rounded-lg bg-zinc-900 p-8"
+        className="flex w-full max-w-sm flex-col gap-4"
       >
-        <h1 className="text-center text-2xl font-bold text-white">Crear cuenta</h1>
+        <h1 className="text-center text-xl font-bold text-white">Crear cuenta</h1>
 
         <input
           type="email"
@@ -52,7 +52,7 @@ export default function RegisterPage() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
-          className="rounded-lg border border-white/20 bg-zinc-950 px-4 py-2.5 text-sm text-white placeholder-zinc-500 outline-none transition-colors focus:border-blue-500"
+          className="w-full bg-transparent px-0 py-2 text-sm text-white placeholder-zinc-500 outline-none caret-blue-500 border-b border-zinc-800"
         />
 
         <input
@@ -62,7 +62,7 @@ export default function RegisterPage() {
           onChange={(e) => setPassword(e.target.value)}
           required
           minLength={6}
-          className="rounded-lg border border-white/20 bg-zinc-950 px-4 py-2.5 text-sm text-white placeholder-zinc-500 outline-none transition-colors focus:border-blue-500"
+          className="w-full bg-transparent px-0 py-2 text-sm text-white placeholder-zinc-500 outline-none caret-blue-500 border-b border-zinc-800"
         />
 
         {error && <p className="text-sm text-red-400">{error}</p>}
@@ -70,12 +70,12 @@ export default function RegisterPage() {
         <button
           type="submit"
           disabled={loading}
-          className="rounded-lg bg-blue-600 py-2.5 text-sm font-medium text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
+          className="self-start rounded-lg bg-blue-600 px-5 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
         >
           {loading ? "Creando..." : "Crear cuenta"}
         </button>
 
-        <p className="text-center text-sm text-zinc-400">
+        <p className="text-sm text-zinc-400">
           ¿Ya tienes cuenta?{" "}
           <Link href="/auth/login" className="text-blue-400 hover:underline">
             Inicia sesión

@@ -113,11 +113,11 @@ export default function UploadPage() {
           </Link>
           <h1 className="text-lg font-bold text-white">Subir video</h1>
         </div>
-      <form onSubmit={handleSubmit} className="flex w-full max-w-sm flex-col gap-5">
+      <form onSubmit={handleSubmit} className="flex w-full max-w-sm flex-col gap-3">
 
         <div
           onClick={() => fileInputRef.current?.click()}
-          className="flex h-48 w-full cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-zinc-600 bg-zinc-900 transition-colors hover:border-blue-500 overflow-hidden"
+          className="flex h-96 w-full cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-zinc-600 bg-zinc-900 transition-colors hover:border-blue-500 overflow-hidden"
         >
           {videoPreview ? (
             <video
@@ -128,8 +128,8 @@ export default function UploadPage() {
           ) : (
             <div className="flex flex-col items-center gap-2 text-zinc-400">
               <svg
-                width="32"
-                height="32"
+                width="48"
+                height="48"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -158,23 +158,23 @@ export default function UploadPage() {
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Título"
-          className="w-full rounded-lg border border-zinc-800 bg-zinc-950 px-4 py-3 text-sm text-white placeholder-zinc-500 outline-none focus:border-blue-500"
+          className="w-full bg-transparent px-0 py-2 text-sm text-white placeholder-zinc-500 outline-none caret-blue-500"
         />
  
         <textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           placeholder="Descripción"
-          rows={3}
-          className="w-full resize-none rounded-lg border border-zinc-800 bg-zinc-950 px-4 py-3 text-sm text-white placeholder-zinc-500 outline-none focus:border-blue-500"
+          rows={2}
+          className="w-full resize-none bg-transparent px-0 py-2 text-sm text-white placeholder-zinc-500 outline-none caret-blue-500"
         />
-
+ 
         <input
           type="text"
           value={hashtags}
           onChange={(e) => setHashtags(e.target.value)}
           placeholder="Hashtags (separados por espacio)"
-          className="w-full rounded-lg border border-zinc-800 bg-zinc-950 px-4 py-3 text-sm text-white placeholder-zinc-500 outline-none focus:border-blue-500"
+          className="w-full bg-transparent px-0 py-2 text-sm text-white placeholder-zinc-500 outline-none caret-blue-500"
         />
 
         {error && <p className="text-sm text-red-400">{error}</p>}
@@ -183,7 +183,7 @@ export default function UploadPage() {
         <button
           type="submit"
           disabled={uploading || !videoFile}
-          className="w-full rounded-lg bg-blue-600 py-3 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
+          className="self-start rounded-lg bg-blue-600 px-5 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
         >
           {uploading ? "Subiendo..." : "Subir video"}
         </button>

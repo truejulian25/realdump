@@ -32,7 +32,7 @@ export default function BlockedPage() {
   if (loading || !user) return null;
 
   return (
-    <div className="flex min-h-screen flex-col pt-14 pb-20">
+    <div className="flex min-h-screen flex-col bg-black pt-14 pb-20">
       <div className="mx-auto w-full max-w-sm px-4 py-6">
         <div className="mb-6 flex items-center gap-3">
           <Link href="/profile" className="text-zinc-400 transition-colors hover:text-white">
@@ -59,17 +59,17 @@ export default function BlockedPage() {
             {blockedUsers.map((username) => (
               <div
                 key={username}
-                className="flex items-center justify-between rounded-lg border border-zinc-800 bg-zinc-900/50 px-4 py-3"
+                className="flex items-center justify-between px-4 py-3"
               >
                 <div className="flex items-center gap-3">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-zinc-800 text-xs text-zinc-400">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-zinc-800 text-xs text-zinc-400">
                     {username.charAt(0).toUpperCase()}
                   </div>
                   <span className="text-sm text-zinc-300">@{username}</span>
                 </div>
                 <button
                   onClick={() => unblock(username)}
-                  className="rounded-lg border border-white/20 px-3 py-1 text-xs text-zinc-400 transition-colors hover:border-zinc-500 hover:text-white"
+                  className="rounded-lg bg-zinc-800 px-3 py-1 text-xs text-zinc-400 transition-colors hover:bg-zinc-700 hover:text-white"
                 >
                   {t("blocked.unblock")}
                 </button>

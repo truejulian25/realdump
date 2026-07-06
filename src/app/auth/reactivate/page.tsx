@@ -57,7 +57,7 @@ function ReactivateContent() {
       {status === "success" && (
         <Link
           href="/auth/login"
-          className="mt-6 inline-block rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-medium text-white transition-colors active:scale-[0.97] hover:bg-blue-700"
+          className="mt-6 inline-block rounded-lg bg-blue-600 px-5 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700"
         >
           Iniciar sesión
         </Link>
@@ -66,7 +66,7 @@ function ReactivateContent() {
       {status === "error" && (
         <Link
           href="/auth/login"
-          className="mt-6 inline-block rounded-lg bg-zinc-800 px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-zinc-700"
+          className="mt-6 inline-block rounded-lg bg-zinc-800 px-5 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-zinc-700"
         >
           Volver al inicio de sesión
         </Link>
@@ -79,7 +79,7 @@ export default function ReactivatePage() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-black px-4">
       <Suspense fallback={
-        <div className="w-full max-w-sm rounded-xl border border-white/10 bg-zinc-900/50 p-8 text-center">
+    <div className="w-full max-w-sm text-center">
           <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-2 border-white/20 border-t-blue-500" />
           <h1 className="text-lg font-bold text-white">Reactivando cuenta…</h1>
         </div>
