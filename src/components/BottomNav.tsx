@@ -3,16 +3,18 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
-
-const navItems = [
-  { href: "/", label: "Inicio", icon: HomeIcon },
-  { href: "/search", label: "Buscar", icon: SearchIcon },
-  { href: "/profile", label: "Perfil", icon: ProfileIcon },
-];
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function BottomNav() {
+  const { t } = useLanguage();
   const pathname = usePathname();
   const { profile } = useAuth();
+
+  const navItems = [
+    { href: "/", label: t("bottomNav.home"), icon: HomeIcon },
+    { href: "/search", label: t("bottomNav.search"), icon: SearchIcon },
+    { href: "/profile", label: t("bottomNav.profile"), icon: ProfileIcon },
+  ];
 
   return (
     <nav className="fixed bottom-0 z-50 flex w-full items-center justify-center border-t border-zinc-800 bg-black/80 px-4 py-2 backdrop-blur-sm">

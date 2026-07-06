@@ -3,9 +3,11 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { createClient } from "@/lib/supabase/client";
 
 export default function EditProfilePage() {
+  const { t } = useLanguage();
   const { profile, user, loading: authLoading, refreshProfile } = useAuth();
   const router = useRouter();
   const supabase = createClient();
@@ -99,7 +101,7 @@ export default function EditProfilePage() {
   if (authLoading || !profile) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-black pt-14">
-        <p className="text-zinc-400">Cargando...</p>
+        <p className="text-zinc-400">{t("profile.loading")}</p>
       </div>
     );
   }
@@ -107,7 +109,7 @@ export default function EditProfilePage() {
   return (
     <div className="flex min-h-screen flex-col items-center bg-black pt-14 pb-20">
       <form onSubmit={handleSave} className="flex w-full max-w-sm flex-col gap-5 px-4 py-6">
-        <h1 className="text-center text-xl font-bold text-white">Editar perfil</h1>
+        <h1 className="text-center text-xl font-bold text-white">{t("profileEdit.title")}</h1>
 
         {/* Avatar */}
         <div className="flex flex-col items-center gap-3">
@@ -123,7 +125,7 @@ export default function EditProfilePage() {
             onClick={() => fileInputRef.current?.click()}
             className="text-sm text-blue-400 hover:text-blue-300"
           >
-            Cambiar foto
+            {t("profileEdit.changeAvatar")}
           </button>
           <input
             ref={fileInputRef}
@@ -136,35 +138,35 @@ export default function EditProfilePage() {
 
         {/* Display name */}
         <div className="flex flex-col gap-1">
-          <label className="text-xs text-zinc-400">Nombre</label>
+          <label className="text-xs text-zinc-400">{t("profileEdit.displayName")}</label>
           <input
             type="text"
             value={displayName}
             onChange={(e) => setDisplayName(e.target.value)}
-            placeholder="Tu nombre"
+            placeholder={t("profileEdit.displayNamePlaceholder")}
             className="rounded-lg bg-zinc-800 px-4 py-2.5 text-white placeholder-zinc-500 outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
 
         {/* Username */}
         <div className="flex flex-col gap-1">
-          <label className="text-xs text-zinc-400">Username</label>
+          <label className="text-xs text-zinc-400">{t("profileEdit.username")}</label>
           <input
             type="text"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            placeholder="@usuario"
+            placeholder={t("profileEdit.usernamePlaceholder")}
             className="rounded-lg bg-zinc-800 px-4 py-2.5 text-white placeholder-zinc-500 outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
 
         {/* Bio */}
         <div className="flex flex-col gap-1">
-          <label className="text-xs text-zinc-400">Bio</label>
+          <label className="text-xs text-zinc-400">{t("profileEdit.bio")}</label>
           <textarea
             value={bio}
             onChange={(e) => setBio(e.target.value)}
-            placeholder="Cuéntanos sobre ti..."
+            placeholder={t("profileEdit.bioPlaceholder")}
             rows={3}
             className="resize-none rounded-lg bg-zinc-800 px-4 py-2.5 text-white placeholder-zinc-500 outline-none focus:ring-2 focus:ring-blue-500"
           />
@@ -172,25 +174,25 @@ export default function EditProfilePage() {
 
         {/* Website */}
         <div className="flex flex-col gap-1">
-          <label className="text-xs text-zinc-400">Sitio web</label>
+          <label className="text-xs text-zinc-400">{t("profileEdit.website")}</label>
           <input
             type="url"
             value={website}
             onChange={(e) => setWebsite(e.target.value)}
-            placeholder="https://tusitio.com"
+            placeholder={t("profileEdit.websitePlaceholder")}
             className="rounded-lg bg-zinc-800 px-4 py-2.5 text-white placeholder-zinc-500 outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
 
         {error && <p className="text-sm text-red-400">{error}</p>}
-        {success && <p className="text-sm text-green-400">¡Perfil actualizado!</p>}
+        {success && <p className="text-sm text-green-400">{t("profileEdit.saved")}</p>}
 
         <button
           type="submit"
           disabled={saving}
           className="rounded-lg bg-blue-600 py-2.5 font-semibold text-white hover:bg-blue-700 disabled:opacity-50"
         >
-          {saving ? "Guardando..." : "Guardar cambios"}
+          {saving ? t("profileEdit.saving") : t("profileEdit.save")}
         </button>
       </form>
     </div>

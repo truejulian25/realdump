@@ -5,10 +5,12 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import ProfileVideoCard from "@/components/ProfileVideoCard";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { createClient } from "@/lib/supabase/client";
 import type { Video } from "@/types";
 
 export default function ProfilePage() {
+  const { t } = useLanguage();
   const { profile, user, loading } = useAuth();
   const router = useRouter();
   const supabase = createClient();
@@ -41,7 +43,7 @@ export default function ProfilePage() {
   if (loading || !profile) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-black pt-14">
-        <p className="text-zinc-400">Cargando...</p>
+        <p className="text-zinc-400">{t("profile.loading")}</p>
       </div>
     );
   }
@@ -60,12 +62,12 @@ export default function ProfilePage() {
           />
         </div>
 
-        <h1 className="text-lg font-black text-white">{profile.display_name ?? "Sin nombre"}</h1>
+        <h1 className="text-lg font-black text-white">{profile.display_name ?? t("profile.noName")}</h1>
 
         <p className="text-sm text-zinc-500">@{profile.username}</p>
 
         <div className="flex items-center gap-2">
-          <p className="text-sm text-zinc-500 whitespace-pre-wrap">{profile.bio ?? "Sin bio"}</p>
+          <p className="text-sm text-zinc-500 whitespace-pre-wrap">{profile.bio ?? t("profile.noBio")}</p>
           <Link
             href="/profile/edit"
             className="text-zinc-400 transition-colors hover:text-white"
@@ -96,30 +98,30 @@ export default function ProfilePage() {
         <div className="flex items-center gap-8 text-center">
           <div>
             <p className="text-lg font-bold text-white">{videos.length}</p>
-            <p className="text-sm text-zinc-500">Videos</p>
+            <p className="text-sm text-zinc-500">{t("profile.videos")}</p>
           </div>
           <Link href="/saved" className="flex flex-col items-center gap-1 text-zinc-500 hover:text-white transition-colors">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
             </svg>
-            <p className="text-[10px] leading-tight">Guardados</p>
+            <p className="text-[10px] leading-tight">{t("profile.saved")}</p>
           </Link>
           <div>
             <p className="text-lg font-bold text-white">0</p>
-            <p className="text-sm text-zinc-500">Seguidores</p>
+            <p className="text-sm text-zinc-500">{t("profile.followers")}</p>
           </div>
           <div>
             <p className="text-lg font-bold text-white">0</p>
-            <p className="text-sm text-zinc-500">Siguiendo</p>
+            <p className="text-sm text-zinc-500">{t("profile.following")}</p>
           </div>
         </div>
       </div>
 
       <div className="grid grid-cols-3 gap-0.5 p-0.5">
         {videosLoading ? (
-          <p className="col-span-3 py-8 text-center text-zinc-500">Cargando videos...</p>
+          <p className="col-span-3 py-8 text-center text-zinc-500">{t("profile.loadingVideos")}</p>
         ) : videos.length === 0 ? (
-          <p className="col-span-3 py-8 text-center text-zinc-500">Sin videos aún</p>
+          <p className="col-span-3 py-8 text-center text-zinc-500">{t("profile.noVideosYet")}</p>
         ) : (
           videos.map((video) => (
             <ProfileVideoCard key={video.id} video={video} />
