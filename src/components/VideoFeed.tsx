@@ -25,13 +25,33 @@ export default function VideoFeed() {
   const sentinelRef = useRef<HTMLDivElement>(null);
   const supabase = useMemo(() => createClient(), []);
 
+  const activeUserIds = useRef<string[] | null>(null);
+
+  const getActiveUserIds = useCallback(async () => {
+    if (activeUserIds.current) return activeUserIds.current;
+
+    const { data } = await supabase
+      .from("profiles")
+      .select("id")
+      .is("deactivated_at", null)
+      .is("deleted_at", null);
+
+    const ids = (data || []).map((p) => p.id);
+    activeUserIds.current = ids;
+    return ids;
+  }, [supabase]);
+
   const fetchVideos = useCallback(async (page: number) => {
     const start = page * PAGE_SIZE;
     const end = start + PAGE_SIZE - 1;
+    const ids = await getActiveUserIds();
+
+    if (ids.length === 0) return;
 
     const { data, error } = await supabase
       .from("videos")
       .select("*, profiles(username, display_name, avatar_url)")
+      .in("user_id", ids)
       .order("created_at", { ascending: false })
       .range(start, end);
 
@@ -45,6 +65,7 @@ export default function VideoFeed() {
       const { data: resetData } = await supabase
         .from("videos")
         .select("*, profiles(username, display_name, avatar_url)")
+        .in("user_id", ids)
         .order("created_at", { ascending: false })
         .range(0, PAGE_SIZE - 1);
 
@@ -55,7 +76,7 @@ export default function VideoFeed() {
     }
 
     setItems((prev) => [...prev, ...data]);
-  }, [supabase]);
+  }, [supabase, getActiveUserIds]);
 
   useEffect(() => {
     fetchVideos(0).finally(() => setLoading(false));

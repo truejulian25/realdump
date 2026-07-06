@@ -8,7 +8,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { availableLanguages, useLanguage, type Locale } from "@/contexts/LanguageContext";
 import { createClient } from "@/lib/supabase/client";
 
-type MenuView = "main" | "language" | "changePassword" | "qr" | "deleteAccount" | "filters";
+type MenuView = "main" | "language" | "changePassword" | "qr" | "accountManagement" | "deactivateAccount" | "deleteAccount" | "filters";
 
 interface Props {
   onClose: () => void;
@@ -36,6 +36,8 @@ export default function HamburgerMenu({ onClose }: Props) {
         {view === "language" && <LanguageView onBack={() => setView("main")} />}
         {view === "changePassword" && <ChangePasswordView onBack={() => setView("main")} />}
         {view === "qr" && <QRView onBack={() => setView("main")} />}
+        {view === "accountManagement" && <AccountManagementView onSelect={setView} onBack={() => setView("main")} />}
+        {view === "deactivateAccount" && <DeactivateAccountView onBack={() => setView("main")} />}
         {view === "deleteAccount" && <DeleteAccountView onBack={() => setView("main")} />}
         {view === "filters" && <FiltersView onBack={() => setView("main")} />}
       </div>
@@ -134,6 +136,14 @@ function IconLogOut() {
   );
 }
 
+function IconMoon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+    </svg>
+  );
+}
+
 function IconChevronRight() {
   return (
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -228,14 +238,14 @@ function MainMenu({ onSelect, onClose }: {
 
       <div className="flex-1 overflow-y-auto py-2">
         <MenuRow icon={<IconGlobe />} label={t("hamburgerMenu.language")} onClick={() => onSelect("language")} />
-        <MenuRow icon={<IconFileText />} label={t("hamburgerMenu.terms")} href="/terms" />
         <MenuRow icon={<IconBookmark />} label={t("hamburgerMenu.saved")} href="/saved" />
-        <MenuRow icon={<IconLock />} label={t("hamburgerMenu.changePassword")} onClick={() => onSelect("changePassword")} />
         <MenuRow icon={<IconQr />} label={t("hamburgerMenu.qr")} onClick={() => onSelect("qr")} />
-        <MenuRow icon={<IconTrash />} label={t("hamburgerMenu.deleteAccount")} onClick={() => onSelect("deleteAccount")} />
-        <MenuRow icon={<IconFilter />} label={t("hamburgerMenu.filters")} onClick={() => onSelect("filters")} />
         <MenuRow icon={<IconBarChart />} label={t("hamburgerMenu.stats")} href="/profile/stats" />
         <MenuRow icon={<IconUserX />} label={t("hamburgerMenu.blocked")} href="/profile/blocked" />
+        <MenuRow icon={<IconFilter />} label={t("hamburgerMenu.filters")} onClick={() => onSelect("filters")} />
+        <MenuRow icon={<IconFileText />} label={t("hamburgerMenu.terms")} href="/terms" />
+        <MenuRow icon={<IconLock />} label={t("hamburgerMenu.changePassword")} onClick={() => onSelect("changePassword")} />
+        <MenuRow icon={<IconTrash />} label={t("hamburgerMenu.accountManagement")} onClick={() => onSelect("accountManagement")} />
       </div>
 
       <div className="border-t border-zinc-800 py-1">
@@ -506,6 +516,116 @@ function DeleteAccountView({ onBack }: { onBack: () => void }) {
           className="rounded-lg bg-red-600 py-2.5 text-sm font-medium text-white transition-colors hover:bg-red-700 disabled:opacity-50"
         >
           {loading ? t("hamburgerMenu.deleting") : t("hamburgerMenu.deleteMyAccount")}
+        </button>
+      </div>
+    </>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+
+/* ------------------------------------------------------------------ */
+
+function AccountManagementView({ onSelect, onBack }: {
+  onSelect: (v: MenuView) => void;
+  onBack: () => void;
+}) {
+  const { t } = useLanguage();
+
+  return (
+    <>
+      <ViewHeader title={t("hamburgerMenu.accountManagement")} onBack={onBack} />
+      <div className="flex flex-1 flex-col gap-3 px-4 py-4">
+        <button
+          onClick={() => onSelect("deactivateAccount")}
+          className="flex items-center gap-4 rounded-lg border border-zinc-800 bg-zinc-900/50 p-4 text-left transition-colors hover:border-zinc-700 hover:bg-zinc-800/50"
+        >
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-500/10 text-amber-400">
+            <IconMoon />
+          </span>
+          <div className="flex-1">
+            <p className="text-sm font-medium text-white">{t("hamburgerMenu.deactivateAccount")}</p>
+            <p className="mt-0.5 text-xs text-zinc-500">{t("hamburgerMenu.deactivateAccountDesc")}</p>
+          </div>
+        </button>
+
+        <button
+          onClick={() => onSelect("deleteAccount")}
+          className="flex items-center gap-4 rounded-lg border border-zinc-800 bg-zinc-900/50 p-4 text-left transition-colors hover:border-red-800 hover:bg-red-900/10"
+        >
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-500/10 text-red-400">
+            <IconTrash />
+          </span>
+          <div className="flex-1">
+            <p className="text-sm font-medium text-white">{t("hamburgerMenu.deleteAccountTitle")}</p>
+            <p className="mt-0.5 text-xs text-zinc-500">{t("hamburgerMenu.deleteAccountDesc")}</p>
+          </div>
+        </button>
+      </div>
+    </>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+
+function DeactivateAccountView({ onBack }: { onBack: () => void }) {
+  const { t } = useLanguage();
+  const { signOut } = useAuth();
+  const router = useRouter();
+  const [step, setStep] = useState<"warning" | "done">("warning");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleDeactivate = async () => {
+    setLoading(true);
+    setError("");
+
+    try {
+      const res = await fetch("/api/deactivate-account", { method: "POST" });
+      if (!res.ok) throw new Error("Error al desactivar");
+      await signOut();
+      router.push("/auth/login");
+      router.refresh();
+    } catch {
+      setError(t("hamburgerMenu.deactivationError"));
+      setLoading(false);
+    }
+  };
+
+  if (step === "done") {
+    return (
+      <>
+        <ViewHeader title={t("hamburgerMenu.deactivateAccount")} onBack={onBack} />
+        <div className="flex flex-1 flex-col items-center justify-center gap-3 px-4 text-center">
+          <span className="rounded-full bg-emerald-500/20 p-3 text-emerald-400"><IconCheck /></span>
+          <p className="text-sm font-medium text-white">{t("hamburgerMenu.accountDeactivated")}</p>
+          <p className="text-xs text-zinc-500">{t("hamburgerMenu.accountDeactivatedDesc")}</p>
+        </div>
+      </>
+    );
+  }
+
+  return (
+    <>
+      <ViewHeader title={t("hamburgerMenu.deactivateAccount")} onBack={onBack} />
+      <div className="flex flex-1 flex-col justify-between px-4 py-4">
+        <div className="space-y-3">
+          <div className="rounded-lg bg-amber-500/10 p-4 text-sm text-amber-400">
+            <p className="font-medium">{t("hamburgerMenu.areYouSure")}</p>
+            <ul className="mt-3 space-y-2 text-xs text-amber-300">
+              <li className="flex items-center gap-2">• {t("hamburgerMenu.deactivateWarning1")}</li>
+              <li className="flex items-center gap-2">• {t("hamburgerMenu.deactivateWarning2")}</li>
+              <li className="flex items-center gap-2">• {t("hamburgerMenu.deactivateWarning3")}</li>
+            </ul>
+          </div>
+          {error && <p className="text-xs text-red-400">{error}</p>}
+        </div>
+        <button
+          onClick={handleDeactivate}
+          disabled={loading}
+          className="rounded-lg bg-amber-600 py-2.5 text-sm font-medium text-white transition-colors hover:bg-amber-700 disabled:opacity-50"
+        >
+          {loading ? t("hamburgerMenu.deactivating") : t("hamburgerMenu.deactivate")}
         </button>
       </div>
     </>
