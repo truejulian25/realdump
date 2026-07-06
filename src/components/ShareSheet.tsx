@@ -80,8 +80,8 @@ export default function ShareSheet({ open, onClose }: Props) {
     <div className="fixed inset-0 z-[100] flex items-end">
       <div className="absolute inset-0 bg-black/60" onClick={onClose} />
 
-      <div className="relative z-10 w-full rounded-t-2xl bg-zinc-900 px-4 pb-8 pt-4">
-        <div className="mb-4 flex items-center justify-between">
+      <div className="relative z-10 w-full rounded-t-xl bg-zinc-900 px-4 pb-8 pt-4">
+        <div className="mb-4 flex items-center justify-between border-b border-zinc-800 pb-3">
           <h2 className="text-sm font-semibold text-white">Compartir</h2>
           <button
             onClick={onClose}
@@ -109,7 +109,7 @@ export default function ShareSheet({ open, onClose }: Props) {
               }}
               className="flex flex-col items-center gap-1.5"
             >
-              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-zinc-800 text-zinc-300 transition-colors hover:bg-zinc-700">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-zinc-800 text-zinc-300 transition-colors hover:bg-zinc-700">
                 {option.icon}
               </div>
               <span className="text-[10px] text-zinc-500 leading-tight text-center">

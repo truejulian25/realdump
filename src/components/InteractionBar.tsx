@@ -134,58 +134,54 @@ export default function InteractionBar({ videoId }: Props) {
 
   return (
     <>
-      <div className="flex items-center px-1">
-        <div className="flex items-center gap-4">
-          <button
-            onClick={handleLike}
-            className="flex items-center gap-1 text-sm transition-colors"
-          >
-            {liked ? (
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="#ef4444">
+      <div className="flex items-center">
+        <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1">
+            <button
+              onClick={handleLike}
+              className={`flex h-10 w-10 items-center justify-center rounded-full transition-colors ${liked ? "bg-red-500/10" : "hover:bg-zinc-800"}`}
+            >
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill={liked ? "currentColor" : "none"}
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className={liked ? "text-red-400" : "text-zinc-400"}
+              >
                 <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
               </svg>
-            ) : (
+            </button>
+            <span className={`text-sm ${liked ? "text-red-400" : "text-zinc-500"}`}>{likeCount}</span>
+          </div>
+
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => setShowComments(true)}
+              className="flex h-10 w-10 items-center justify-center rounded-full text-zinc-400 transition-colors hover:bg-zinc-800"
+            >
               <svg
                 width="20"
                 height="20"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
-                strokeWidth="2"
+                strokeWidth="1.5"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                className="text-zinc-400"
               >
-                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
               </svg>
-            )}
-            <span className={liked ? "text-red-400" : "text-zinc-400"}>
-              {likeCount}
-            </span>
-          </button>
-
-          <button
-            onClick={() => setShowComments(true)}
-            className="flex items-center gap-1 text-sm text-zinc-400 transition-colors hover:text-white"
-          >
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-            </svg>
-            <span className="text-zinc-400">{commentCount}</span>
-          </button>
+            </button>
+            <span className="text-sm text-zinc-500">{commentCount}</span>
+          </div>
 
           <button
             onClick={handleShare}
-            className="text-zinc-400 transition-colors hover:text-white"
+            className="flex h-10 w-10 items-center justify-center rounded-full text-zinc-400 transition-colors hover:bg-zinc-800"
           >
             <svg
               width="20"
@@ -193,7 +189,7 @@ export default function InteractionBar({ videoId }: Props) {
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
-              strokeWidth="2"
+              strokeWidth="1.5"
               strokeLinecap="round"
               strokeLinejoin="round"
             >
@@ -204,17 +200,21 @@ export default function InteractionBar({ videoId }: Props) {
 
           <button
             onClick={handleSave}
-            className="text-zinc-400 transition-colors hover:text-white"
+            className={`flex h-10 w-10 items-center justify-center rounded-full transition-colors ${saved ? "bg-white/10" : "hover:bg-zinc-800"}`}
           >
-            {saved ? (
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="white" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
-              </svg>
-            ) : (
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
-              </svg>
-            )}
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill={saved ? "currentColor" : "none"}
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className={saved ? "text-white" : "text-zinc-400"}
+            >
+              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
+            </svg>
           </button>
         </div>
       </div>
