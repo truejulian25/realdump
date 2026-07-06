@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { Plus, List } from "@phosphor-icons/react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import HamburgerMenu from "@/components/HamburgerMenu";
@@ -13,7 +14,7 @@ export default function Header() {
 
   return (
     <>
-    <header className="fixed top-0 z-50 flex w-full items-center justify-center border-b border-zinc-800 bg-black/80 px-4 py-3 backdrop-blur-sm">
+    <header className="fixed top-0 z-50 flex w-full items-center justify-center border-b border-white/10 bg-black/80 px-4 py-3 backdrop-blur-sm">
       {user ? (
         <div className="grid w-full max-w-sm grid-cols-3 items-center">
           <div className="flex justify-start">
@@ -21,10 +22,7 @@ export default function Header() {
               href="/upload"
               className="flex h-8 w-8 items-center justify-center rounded-lg text-zinc-400 transition-colors hover:text-white"
             >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="12" y1="5" x2="12" y2="19" />
-                <line x1="5" y1="12" x2="19" y2="12" />
-              </svg>
+              <Plus size={20} />
             </Link>
           </div>
           <Link href="/" className="text-center text-lg font-bold tracking-tight text-white">
@@ -36,11 +34,7 @@ export default function Header() {
                 onClick={() => setIsMenuOpen(true)}
                 className="flex h-8 w-8 items-center justify-center rounded-lg text-zinc-400 transition-colors hover:text-white"
               >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <line x1="3" y1="6" x2="21" y2="6" />
-                  <line x1="3" y1="12" x2="21" y2="12" />
-                  <line x1="3" y1="18" x2="21" y2="18" />
-                </svg>
+                <List size={20} />
               </button>
             )}
           </div>

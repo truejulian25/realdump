@@ -149,7 +149,7 @@ export default function UploadPage() {
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Título"
-          className="w-full rounded-lg border border-zinc-700 bg-zinc-900 px-4 py-3 text-sm text-white placeholder-zinc-500 outline-none focus:border-blue-500"
+          className="w-full rounded-lg border border-white/20 bg-zinc-900 px-4 py-3 text-sm text-white placeholder-zinc-500 outline-none focus:border-blue-500"
         />
 
         <textarea
@@ -157,7 +157,7 @@ export default function UploadPage() {
           onChange={(e) => setDescription(e.target.value)}
           placeholder="Descripción"
           rows={3}
-          className="w-full resize-none rounded-lg border border-zinc-700 bg-zinc-900 px-4 py-3 text-sm text-white placeholder-zinc-500 outline-none focus:border-blue-500"
+          className="w-full resize-none rounded-lg border border-white/20 bg-zinc-900 px-4 py-3 text-sm text-white placeholder-zinc-500 outline-none focus:border-blue-500"
         />
 
         <input
@@ -165,7 +165,7 @@ export default function UploadPage() {
           value={hashtags}
           onChange={(e) => setHashtags(e.target.value)}
           placeholder="Hashtags (separados por espacio)"
-          className="w-full rounded-lg border border-zinc-700 bg-zinc-900 px-4 py-3 text-sm text-white placeholder-zinc-500 outline-none focus:border-blue-500"
+          className="w-full rounded-lg border border-white/20 bg-zinc-900 px-4 py-3 text-sm text-white placeholder-zinc-500 outline-none focus:border-blue-500"
         />
 
         {error && <p className="text-sm text-red-400">{error}</p>}
@@ -174,7 +174,7 @@ export default function UploadPage() {
         <button
           type="submit"
           disabled={uploading || !videoFile}
-          className="w-full rounded-lg bg-blue-600 py-3 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
+          className="w-full rounded-lg bg-blue-600 py-3 text-sm font-semibold text-white transition-colors active:scale-[0.97] hover:bg-blue-700 disabled:opacity-50"
         >
           {uploading ? "Subiendo..." : "Subir video"}
         </button>

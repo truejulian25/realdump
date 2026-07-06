@@ -56,7 +56,7 @@ export default function FiltersPage() {
             onChange={(e) => setFilterWords(e.target.value)}
             placeholder={t("filters.filterWordsPlaceholder")}
             rows={3}
-            className="w-full rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm text-white outline-none transition-colors focus:border-zinc-600 resize-none"
+            className="w-full rounded-lg border border-white/10 bg-zinc-950 px-3 py-2 text-sm text-white outline-none transition-colors focus:border-zinc-600 resize-none"
           />
         </div>
 
@@ -79,13 +79,13 @@ export default function FiltersPage() {
             onChange={(e) => setCustomWords(e.target.value)}
             placeholder={t("filters.customWordsPlaceholder")}
             rows={3}
-            className="w-full rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm text-white outline-none transition-colors focus:border-zinc-600 resize-none"
+            className="w-full rounded-lg border border-white/10 bg-zinc-950 px-3 py-2 text-sm text-white outline-none transition-colors focus:border-zinc-600 resize-none"
           />
         </div>
 
         <button
           onClick={handleSave}
-          className="mt-auto rounded-lg bg-blue-600 py-2.5 text-sm font-medium text-white transition-colors hover:bg-blue-700"
+          className="mt-auto rounded-lg bg-blue-600 py-2.5 text-sm font-medium text-white transition-colors active:scale-[0.97] hover:bg-blue-700"
         >
           {saved ? t("filters.saved") : t("filters.savePreferences")}
         </button>

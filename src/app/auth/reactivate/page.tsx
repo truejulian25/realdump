@@ -38,9 +38,9 @@ function ReactivateContent() {
   const msg = messages[status];
 
   return (
-    <div className="w-full max-w-sm rounded-xl border border-zinc-800 bg-zinc-900/50 p-8 text-center">
+    <div className="w-full max-w-sm rounded-xl border border-white/10 bg-zinc-900/50 p-8 text-center">
       {status === "loading" ? (
-        <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-2 border-zinc-700 border-t-blue-500" />
+        <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-2 border-white/20 border-t-blue-500" />
       ) : status === "success" ? (
         <div className="mx-auto mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-400">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
@@ -57,7 +57,7 @@ function ReactivateContent() {
       {status === "success" && (
         <Link
           href="/auth/login"
-          className="mt-6 inline-block rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-blue-700"
+          className="mt-6 inline-block rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-medium text-white transition-colors active:scale-[0.97] hover:bg-blue-700"
         >
           Iniciar sesión
         </Link>
@@ -79,8 +79,8 @@ export default function ReactivatePage() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-black px-4">
       <Suspense fallback={
-        <div className="w-full max-w-sm rounded-xl border border-zinc-800 bg-zinc-900/50 p-8 text-center">
-          <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-2 border-zinc-700 border-t-blue-500" />
+        <div className="w-full max-w-sm rounded-xl border border-white/10 bg-zinc-900/50 p-8 text-center">
+          <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-2 border-white/20 border-t-blue-500" />
           <h1 className="text-lg font-bold text-white">Reactivando cuenta…</h1>
         </div>
       }>

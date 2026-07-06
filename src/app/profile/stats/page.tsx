@@ -91,7 +91,7 @@ export default function StatsPage() {
         ) : (
           <div className="grid grid-cols-2 gap-3">
             {statCards.map((card) => (
-              <div key={card.label} className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-4">
+              <div key={card.label} className="rounded-xl border border-white/10 bg-zinc-900/50 p-4">
                 <p className={`text-2xl font-black ${card.color}`}>{card.value.toLocaleString()}</p>
                 <p className="mt-1 text-xs text-zinc-500">{card.label}</p>
               </div>

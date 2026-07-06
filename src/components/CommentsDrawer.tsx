@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { X, Trash } from "@phosphor-icons/react";
 import type { Comment } from "@/types";
 
 interface CommentWithProfile extends Comment {
@@ -117,7 +118,7 @@ export default function CommentsDrawer({ videoId, open, onClose, onCountChange }
       <div className="absolute inset-0 bg-black/60" onClick={onClose} />
 
       <div className="relative z-10 flex max-h-[80vh] w-full flex-col rounded-t-2xl bg-zinc-900">
-        <div className="flex items-center justify-between border-b border-zinc-800 px-4 py-3">
+        <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
           <h2 className="text-sm font-semibold text-white">
             Comentarios ({comments.length})
           </h2>
@@ -125,10 +126,7 @@ export default function CommentsDrawer({ videoId, open, onClose, onCountChange }
             onClick={onClose}
             className="text-zinc-500 hover:text-white transition-colors"
           >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="18" y1="6" x2="6" y2="18" />
-              <line x1="6" y1="6" x2="18" y2="18" />
-            </svg>
+            <X size={20} />
           </button>
         </div>
 
@@ -166,10 +164,7 @@ export default function CommentsDrawer({ videoId, open, onClose, onCountChange }
                           onClick={() => handleDelete(comment.id)}
                           className="ml-auto text-zinc-600 hover:text-red-400 transition-colors"
                         >
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <polyline points="3 6 5 6 21 6" />
-                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                          </svg>
+                          <Trash size={14} />
                         </button>
                       )}
                     </div>
@@ -184,7 +179,7 @@ export default function CommentsDrawer({ videoId, open, onClose, onCountChange }
         </div>
 
         {user && (
-          <div className="flex items-center gap-3 border-t border-zinc-800 px-4 py-3">
+          <div className="flex items-center gap-3 border-t border-white/10 px-4 py-3">
             <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-zinc-700">
               <img
                 src={`https://ui-avatars.com/api/?name=${user.email ?? "user"}&background=6366f1&color=fff&size=32`}

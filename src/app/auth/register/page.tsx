@@ -52,7 +52,7 @@ export default function RegisterPage() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
-          className="rounded bg-zinc-800 px-4 py-2 text-white placeholder-zinc-400"
+          className="rounded-lg border border-white/20 bg-zinc-950 px-4 py-2.5 text-sm text-white placeholder-zinc-500 outline-none transition-colors focus:border-blue-500"
         />
 
         <input
@@ -62,7 +62,7 @@ export default function RegisterPage() {
           onChange={(e) => setPassword(e.target.value)}
           required
           minLength={6}
-          className="rounded bg-zinc-800 px-4 py-2 text-white placeholder-zinc-400"
+          className="rounded-lg border border-white/20 bg-zinc-950 px-4 py-2.5 text-sm text-white placeholder-zinc-500 outline-none transition-colors focus:border-blue-500"
         />
 
         {error && <p className="text-sm text-red-400">{error}</p>}
@@ -70,7 +70,7 @@ export default function RegisterPage() {
         <button
           type="submit"
           disabled={loading}
-          className="rounded bg-blue-600 py-2 font-semibold text-white hover:bg-blue-700 disabled:opacity-50"
+          className="rounded-lg bg-blue-600 py-2.5 text-sm font-medium text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
         >
           {loading ? "Creando..." : "Crear cuenta"}
         </button>

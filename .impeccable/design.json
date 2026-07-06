@@ -1,0 +1,127 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-07-06T01:35:00Z",
+  "title": "Design System: Dumpstack",
+  "extensions": {
+    "colorMeta": {
+      "black": { "role": "neutral", "displayName": "Pitch Black", "canonical": "oklch(0% 0 0)", "tonalRamp": ["#000000", "#0a0a0a", "#141414", "#1e1e1e", "#282828", "#323232", "#3c3c3c", "#464646"] },
+      "zinc-950": { "role": "neutral", "displayName": "Near Black", "canonical": "oklch(3% 0.003 250)", "tonalRamp": ["#09090b", "#111113", "#19191b", "#212123", "#29292b", "#313133", "#39393b", "#414143"] },
+      "zinc-900": { "role": "surface", "displayName": "Dark Surface", "canonical": "oklch(10% 0.005 250)", "tonalRamp": ["#18181b", "#202023", "#28282b", "#303033", "#38383b", "#404043", "#48484b", "#505053"] },
+      "zinc-800": { "role": "neutral", "displayName": "Muted Edge", "canonical": "oklch(17% 0.008 250)", "tonalRamp": ["#27272a", "#2f2f32", "#37373a", "#3f3f42", "#47474a", "#4f4f52", "#57575a", "#5f5f62"] },
+      "blue-500": { "role": "accent", "displayName": "Action Blue", "canonical": "oklch(62% 0.19 250)", "tonalRamp": ["#1e3a5f", "#1e4a7a", "#1e5a94", "#2563eb", "#3b82f6", "#60a5fa", "#93c5fd", "#bfdbfe"] },
+      "red-400": { "role": "semantic", "displayName": "Danger", "canonical": "oklch(67% 0.16 25)", "tonalRamp": [] },
+      "amber-400": { "role": "semantic", "displayName": "Warning", "canonical": "oklch(77% 0.15 85)", "tonalRamp": [] },
+      "emerald-400": { "role": "semantic", "displayName": "Success", "canonical": "oklch(75% 0.14 165)", "tonalRamp": [] }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Brand name in header only. Never used for content." },
+      "body": { "displayName": "Body", "purpose": "Default text for buttons, inputs, comments, descriptions, menu rows." },
+      "label": { "displayName": "Label", "purpose": "Section headings, meta labels, uppercase tracking text." }
+    },
+    "shadows": [
+      { "name": "panel", "value": "0 25px 50px -12px rgba(0,0,0,0.5)", "purpose": "Hamburger menu slide-out panel only." }
+    ],
+    "motion": [
+      { "name": "ease-interactive", "value": "150ms", "purpose": "Default transition duration for all interactive states." },
+      { "name": "ease-panel", "value": "300ms", "purpose": "Slide-in/out duration for hamburger menu panel." }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "md", "value": "768px" },
+      { "name": "lg", "value": "1024px" },
+      { "name": "xl", "value": "1280px" },
+      { "name": "2xl", "value": "1536px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Primary action: submit, save, confirm. Blue filled, soft corners.",
+      "html": "<button class=\"ds-btn-primary\">Guardar</button>",
+      "css": ".ds-btn-primary { background: #2563eb; color: #fff; padding: 10px 16px; border-radius: 12px; font-family: Geist, ui-sans-serif, system-ui, sans-serif; font-size: 14px; font-weight: 500; border: none; cursor: pointer; transition: background 150ms; } .ds-btn-primary:hover { background: #1d4ed8; } .ds-btn-primary:disabled { opacity: 0.5; cursor: default; }"
+    },
+    {
+      "name": "Destructive Button",
+      "kind": "button",
+      "refersTo": "button-destructive",
+      "description": "Irreversible action: delete account.",
+      "html": "<button class=\"ds-btn-destructive\">Eliminar cuenta</button>",
+      "css": ".ds-btn-destructive { background: #dc2626; color: #fff; padding: 10px 16px; border-radius: 12px; font-family: Geist, ui-sans-serif, system-ui, sans-serif; font-size: 14px; font-weight: 500; border: none; cursor: pointer; transition: background 150ms; } .ds-btn-destructive:hover { background: #b91c1c; }"
+    },
+    {
+      "name": "Text Input",
+      "kind": "input",
+      "refersTo": "input-text",
+      "description": "Standard text input on dark surface.",
+      "html": "<input class=\"ds-input-text\" placeholder=\"Escribe aquí...\" />",
+      "css": ".ds-input-text { background: #09090b; color: #fff; padding: 10px 12px; border-radius: 12px; border: 1px solid #27272a; font-family: Geist, ui-sans-serif, system-ui, sans-serif; font-size: 14px; outline: none; transition: border-color 150ms; width: 100%; } .ds-input-text:focus { border-color: #3b82f6; } .ds-input-text::placeholder { color: #71717a; }"
+    },
+    {
+      "name": "Video Card",
+      "kind": "card",
+      "refersTo": "card-default",
+      "description": "Primary video display card — 65vh tall, dark surface, rounded.",
+      "html": "<div class=\"ds-card-video\"><div style=\"color:#a1a1aa;font-family:Geist,ui-sans-serif;font-size:14px;display:flex;align-items:center;justify-content:center;height:100%;\">Video container</div></div>",
+      "css": ".ds-card-video { height: 65vh; overflow: hidden; border-radius: 12px; background: #18181b; position: relative; }"
+    },
+    {
+      "name": "Menu Row",
+      "kind": "nav",
+      "refersTo": null,
+      "description": "Hamburger menu navigation row.",
+      "html": "<button class=\"ds-menu-row\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><circle cx=\"12\" cy=\"12\" r=\"3\"/><path d=\"M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z\"/></svg><span>Settings</span><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" style=\"margin-left:auto;\"><polyline points=\"9 18 15 12 9 6\"/></svg></button>",
+      "css": ".ds-menu-row { display: flex; width: 100%; align-items: center; gap: 12px; padding: 14px 16px; font-size: 14px; color: #d4d4d8; background: none; border: none; cursor: pointer; transition: background 150ms; font-family: Geist, ui-sans-serif, system-ui, sans-serif; } .ds-menu-row:hover { background: #27272a; } .ds-menu-row svg { flex-shrink: 0; }"
+    },
+    {
+      "name": "Bottom Nav Item",
+      "kind": "nav",
+      "refersTo": null,
+      "description": "Bottom navigation tab — icon + label, active/inactive states.",
+      "html": "<button class=\"ds-nav-item ds-nav-item-active\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"currentColor\" stroke=\"none\"><path d=\"M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z\"/></svg><span>Inicio</span></button>",
+      "css": ".ds-nav-item { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 4px 16px; font-size: 12px; color: #71717a; background: none; border: none; cursor: pointer; transition: color 150ms; font-family: Geist, ui-sans-serif, system-ui, sans-serif; } .ds-nav-item:hover { color: #d4d4d8; } .ds-nav-item-active { color: #ffffff; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Raw Cut",
+    "overview": "Dumpstack lives in darkness — black backgrounds, zinc-toned surfaces, content that commands the full stage. Every design decision serves one goal: get out of the way of the video. Chrome is thin, borders are quiet, hierarchy is flat-on-purpose. This is not \"dark mode\" — it is dark by nature, dark as identity.\n\nThe system explicitly rejects generic AI app aesthetics: no purple gradients, no glassmorphism, no identical card grids, no SaaS clichés. It takes cues from underground culture — raw, unfiltered, energetic. The interface feels like a back-alley venue, not a corporate lobby.",
+    "keyCharacteristics": [
+      "Content-first: video fills 65% of the viewport; UI chrome occupies the remaining edges",
+      "Dark-grounded: pure black body (#000000), subtle zinc layers for depth",
+      "Singular accent: blue (#3b82f6) is the only action color — used for CTAs, active states, and focus indicators",
+      "Flat-by-default: no shadows except on the slide-out panel (shadow-xl); depth is conveyed through tonal layering",
+      "Mobile-native: max-w-sm (384px) content width centered on all screens"
+    ],
+    "rules": [
+      { "name": "The One Accent Rule", "body": "Blue is the only action color on the page.", "section": "colors" },
+      { "name": "The Dark Canvas Rule", "body": "The body is always #000000. Surfaces stack upward from black through zinc-950 to zinc-900.", "section": "colors" },
+      { "name": "The Single Family Rule", "body": "Geist Sans carries everything. No serif, no second sans.", "section": "typography" },
+      { "name": "The Flat-By-Default Rule", "body": "Surfaces are flat at rest. No card shadows, no lifted buttons.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do use black (#000000) as the body background everywhere — no exceptions.",
+      "Do use zinc-900 for surface/card backgrounds. It's the primary surface color.",
+      "Do use blue-600 for primary actions — one accent, used consistently.",
+      "Do use border-zinc-800 as the default separator. It's subtle and consistent.",
+      "Do keep content width constrained to max-w-sm (384px) centered in the viewport.",
+      "Do use transition-colors for all interactive states — simple, performant, sufficient.",
+      "Do use tonal layering (black → zinc-950 → zinc-900) instead of shadows for depth.",
+      "Do truncate button labels to one line. No wrapped CTA text.",
+      "Do keep the video as the hero — 65vh container, minimal chrome around it.",
+      "Do use Geist exclusively. One family, variable weight for hierarchy."
+    ],
+    "donts": [
+      "Don't use purple gradients, glassmorphism, or neon accents. This is not a generic AI app.",
+      "Don't use bg-zinc-900 as page background. The body is always black.",
+      "Don't add shadows to cards, buttons, or surfaces. The only exception is the hamburger panel (shadow-xl).",
+      "Don't use multiple accent colors. Blue is the only action color.",
+      "Don't use three identical cards in a row. Vary card layouts or skip cards entirely.",
+      "Don't put em-dashes (—) anywhere in visible text. Use a hyphen (-).",
+      "Don't use emoji as icons. Use inline SVG icons.",
+      "Don't use h-screen — use min-h-[100dvh] for mobile viewport stability.",
+      "Don't mix surface colors. Page = black, card = zinc-900, elevated = zinc-900 + border.",
+      "Don't animate layout properties. Animate only transform and opacity."
+    ]
+  }
+}

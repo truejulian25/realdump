@@ -144,7 +144,7 @@ export default function EditProfilePage() {
             value={displayName}
             onChange={(e) => setDisplayName(e.target.value)}
             placeholder={t("profileEdit.displayNamePlaceholder")}
-            className="rounded-lg bg-zinc-800 px-4 py-2.5 text-white placeholder-zinc-500 outline-none focus:ring-2 focus:ring-blue-500"
+            className="rounded-lg border border-white/20 bg-zinc-950 px-4 py-2.5 text-sm text-white placeholder-zinc-500 outline-none transition-colors focus:border-blue-500"
           />
         </div>
 
@@ -156,7 +156,7 @@ export default function EditProfilePage() {
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             placeholder={t("profileEdit.usernamePlaceholder")}
-            className="rounded-lg bg-zinc-800 px-4 py-2.5 text-white placeholder-zinc-500 outline-none focus:ring-2 focus:ring-blue-500"
+            className="rounded-lg border border-white/20 bg-zinc-950 px-4 py-2.5 text-sm text-white placeholder-zinc-500 outline-none transition-colors focus:border-blue-500"
           />
         </div>
 
@@ -168,7 +168,7 @@ export default function EditProfilePage() {
             onChange={(e) => setBio(e.target.value)}
             placeholder={t("profileEdit.bioPlaceholder")}
             rows={3}
-            className="resize-none rounded-lg bg-zinc-800 px-4 py-2.5 text-white placeholder-zinc-500 outline-none focus:ring-2 focus:ring-blue-500"
+            className="resize-none rounded-lg border border-white/20 bg-zinc-950 px-4 py-2.5 text-sm text-white placeholder-zinc-500 outline-none transition-colors focus:border-blue-500"
           />
         </div>
 
@@ -180,7 +180,7 @@ export default function EditProfilePage() {
             value={website}
             onChange={(e) => setWebsite(e.target.value)}
             placeholder={t("profileEdit.websitePlaceholder")}
-            className="rounded-lg bg-zinc-800 px-4 py-2.5 text-white placeholder-zinc-500 outline-none focus:ring-2 focus:ring-blue-500"
+            className="rounded-lg border border-white/20 bg-zinc-950 px-4 py-2.5 text-sm text-white placeholder-zinc-500 outline-none transition-colors focus:border-blue-500"
           />
         </div>
 
@@ -190,7 +190,7 @@ export default function EditProfilePage() {
         <button
           type="submit"
           disabled={saving}
-          className="rounded-lg bg-blue-600 py-2.5 font-semibold text-white hover:bg-blue-700 disabled:opacity-50"
+          className="rounded-lg bg-blue-600 py-2.5 font-semibold text-white transition-colors active:scale-[0.97] hover:bg-blue-700 disabled:opacity-50"
         >
           {saving ? t("profileEdit.saving") : t("profileEdit.save")}
         </button>

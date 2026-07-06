@@ -54,7 +54,7 @@ export default function SavedPage() {
 
   return (
     <div className="flex min-h-screen flex-col pt-14 pb-20">
-      <div className="border-b border-zinc-800 bg-black px-4 py-4">
+      <div className="border-b border-white/10 bg-black px-4 py-4">
         <h1 className="text-center text-lg font-bold text-white">Guardados</h1>
       </div>
 
