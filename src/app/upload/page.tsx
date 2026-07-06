@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useRef, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { createClient } from "@/lib/supabase/client";
@@ -102,9 +103,17 @@ export default function UploadPage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center gap-6 px-4 pt-14 pb-20">
+    <div className="flex min-h-screen flex-col items-center bg-black pt-14 pb-20">
+      <div className="mx-auto w-full max-w-sm px-4 py-6">
+        <div className="mb-6 flex items-center gap-3">
+          <Link href="/profile" className="text-zinc-400 transition-colors hover:text-white">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" />
+            </svg>
+          </Link>
+          <h1 className="text-lg font-bold text-white">Subir video</h1>
+        </div>
       <form onSubmit={handleSubmit} className="flex w-full max-w-sm flex-col gap-5">
-        <h1 className="text-center text-xl font-bold text-white">Subir video</h1>
 
         <div
           onClick={() => fileInputRef.current?.click()}
@@ -149,15 +158,15 @@ export default function UploadPage() {
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Título"
-          className="w-full rounded-lg border border-white/20 bg-zinc-900 px-4 py-3 text-sm text-white placeholder-zinc-500 outline-none focus:border-blue-500"
+          className="w-full rounded-lg border border-zinc-800 bg-zinc-950 px-4 py-3 text-sm text-white placeholder-zinc-500 outline-none focus:border-blue-500"
         />
-
+ 
         <textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           placeholder="Descripción"
           rows={3}
-          className="w-full resize-none rounded-lg border border-white/20 bg-zinc-900 px-4 py-3 text-sm text-white placeholder-zinc-500 outline-none focus:border-blue-500"
+          className="w-full resize-none rounded-lg border border-zinc-800 bg-zinc-950 px-4 py-3 text-sm text-white placeholder-zinc-500 outline-none focus:border-blue-500"
         />
 
         <input
@@ -165,7 +174,7 @@ export default function UploadPage() {
           value={hashtags}
           onChange={(e) => setHashtags(e.target.value)}
           placeholder="Hashtags (separados por espacio)"
-          className="w-full rounded-lg border border-white/20 bg-zinc-900 px-4 py-3 text-sm text-white placeholder-zinc-500 outline-none focus:border-blue-500"
+          className="w-full rounded-lg border border-zinc-800 bg-zinc-950 px-4 py-3 text-sm text-white placeholder-zinc-500 outline-none focus:border-blue-500"
         />
 
         {error && <p className="text-sm text-red-400">{error}</p>}
@@ -174,11 +183,12 @@ export default function UploadPage() {
         <button
           type="submit"
           disabled={uploading || !videoFile}
-          className="w-full rounded-lg bg-blue-600 py-3 text-sm font-semibold text-white transition-colors active:scale-[0.97] hover:bg-blue-700 disabled:opacity-50"
+          className="w-full rounded-lg bg-blue-600 py-3 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
         >
           {uploading ? "Subiendo..." : "Subir video"}
         </button>
       </form>
+      </div>
     </div>
   );
 }

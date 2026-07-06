@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { createClient } from "@/lib/supabase/client";
@@ -53,23 +54,36 @@ export default function SavedPage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col pt-14 pb-20">
-      <div className="border-b border-white/10 bg-black px-4 py-4">
-        <h1 className="text-center text-lg font-bold text-white">Guardados</h1>
-      </div>
+    <div className="flex min-h-screen flex-col bg-black pt-14 pb-20">
+      <div className="mx-auto w-full max-w-sm px-4 py-6">
+        <div className="mb-6 flex items-center gap-3">
+          <Link href="/profile" className="text-zinc-400 transition-colors hover:text-white">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" />
+            </svg>
+          </Link>
+          <h1 className="text-lg font-bold text-white">Guardados</h1>
+        </div>
 
-      <div className="grid grid-cols-3 gap-0.5 p-0.5">
         {items.length === 0 ? (
-          <p className="col-span-3 py-20 text-center text-zinc-500">
-            No has guardado ningún video
-          </p>
+          <div className="flex flex-col items-center justify-center py-16 text-center">
+            <div className="mb-3 rounded-full bg-zinc-800 p-4 text-zinc-500">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
+              </svg>
+            </div>
+            <p className="text-sm text-zinc-400">No has guardado ningún video</p>
+            <p className="mt-1 text-xs text-zinc-600">Los videos que guardes aparecerán aquí</p>
+          </div>
         ) : (
-          items.map(
-            (item) =>
-              item.videos && (
-                <ProfileVideoCard key={item.id} video={item.videos} />
-              )
-          )
+          <div className="grid grid-cols-3 gap-0.5">
+            {items.map(
+              (item) =>
+                item.videos && (
+                  <ProfileVideoCard key={item.id} video={item.videos} />
+                )
+            )}
+          </div>
         )}
       </div>
     </div>

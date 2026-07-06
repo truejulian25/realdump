@@ -73,7 +73,7 @@ export default function StatsPage() {
   ];
 
   return (
-    <div className="flex min-h-screen flex-col pt-14 pb-20">
+    <div className="flex min-h-screen flex-col bg-black pt-14 pb-20">
       <div className="mx-auto w-full max-w-sm px-4 py-6">
         <div className="mb-6 flex items-center gap-3">
           <Link href="/profile" className="text-zinc-400 transition-colors hover:text-white">
@@ -91,7 +91,7 @@ export default function StatsPage() {
         ) : (
           <div className="grid grid-cols-2 gap-3">
             {statCards.map((card) => (
-              <div key={card.label} className="rounded-xl border border-white/10 bg-zinc-900/50 p-4">
+              <div key={card.label} className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-4">
                 <p className={`text-2xl font-black ${card.color}`}>{card.value.toLocaleString()}</p>
                 <p className="mt-1 text-xs text-zinc-500">{card.label}</p>
               </div>

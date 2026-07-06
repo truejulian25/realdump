@@ -59,7 +59,7 @@ export default function BlockedPage() {
             {blockedUsers.map((username) => (
               <div
                 key={username}
-                className="flex items-center justify-between rounded-lg border border-white/10 bg-zinc-900/50 px-4 py-3"
+                className="flex items-center justify-between rounded-lg border border-zinc-800 bg-zinc-900/50 px-4 py-3"
               >
                 <div className="flex items-center gap-3">
                   <div className="flex h-9 w-9 items-center justify-center rounded-full bg-zinc-800 text-xs text-zinc-400">
