@@ -1,11 +1,32 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
-import es from "@/lib/i18n/es";
+import ar from "@/lib/i18n/ar";
+import de from "@/lib/i18n/de";
 import en from "@/lib/i18n/en";
+import es from "@/lib/i18n/es";
+import fr from "@/lib/i18n/fr";
+import it from "@/lib/i18n/it";
+import ja from "@/lib/i18n/ja";
+import ko from "@/lib/i18n/ko";
+import pt from "@/lib/i18n/pt";
+import tr from "@/lib/i18n/tr";
 import type { Translations } from "@/lib/i18n/es";
 
-type Locale = "es" | "en";
+export const availableLanguages = [
+  { code: "ar" as const, nativeName: "العربية", englishName: "Arabic" },
+  { code: "de" as const, nativeName: "Deutsch", englishName: "German" },
+  { code: "en" as const, nativeName: "English", englishName: "English" },
+  { code: "es" as const, nativeName: "Español", englishName: "Spanish" },
+  { code: "fr" as const, nativeName: "Français", englishName: "French" },
+  { code: "it" as const, nativeName: "Italiano", englishName: "Italian" },
+  { code: "ja" as const, nativeName: "日本語", englishName: "Japanese" },
+  { code: "ko" as const, nativeName: "한국어", englishName: "Korean" },
+  { code: "pt" as const, nativeName: "Português", englishName: "Portuguese" },
+  { code: "tr" as const, nativeName: "Türkçe", englishName: "Turkish" },
+];
+
+export type Locale = (typeof availableLanguages)[number]["code"];
 
 interface LanguageContextValue {
   locale: Locale;
@@ -13,7 +34,7 @@ interface LanguageContextValue {
   t: (key: string, params?: Record<string, string>) => string;
 }
 
-const translations: Record<Locale, Translations> = { es, en };
+const translations: Record<Locale, Translations> = { ar, de, en, es, fr, it, ja, ko, pt, tr };
 
 function resolveNested(obj: Record<string, unknown>, key: string): string {
   const parts = key.split(".");
@@ -45,7 +66,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const stored = localStorage.getItem("locale") as Locale | null;
-    if (stored === "es" || stored === "en") {
+    if (stored && availableLanguages.some((l) => l.code === stored)) {
       setLocaleState(stored);
     }
   }, []);

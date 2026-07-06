@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { QRCodeCanvas } from "qrcode.react";
 import { useAuth } from "@/contexts/AuthContext";
-import { useLanguage } from "@/contexts/LanguageContext";
+import { availableLanguages, useLanguage, type Locale } from "@/contexts/LanguageContext";
 import { createClient } from "@/lib/supabase/client";
 
 type MenuView = "main" | "language" | "changePassword" | "qr" | "deleteAccount" | "filters";
@@ -268,24 +268,18 @@ function LanguageView({ onBack }: { onBack: () => void }) {
       <ViewHeader title={t("hamburgerMenu.language")} onBack={onBack} />
       <div className="flex-1 px-4 py-4">
         <p className="mb-4 text-sm text-zinc-500">{t("hamburgerMenu.selectLanguage")}</p>
-        <label
-          className={`flex cursor-pointer items-center gap-3 rounded-lg border px-4 py-3 transition-colors ${locale === "es" ? "border-blue-500 bg-blue-500/10" : "border-zinc-800 hover:bg-zinc-800"}`}
-        >
-          <input type="radio" name="lang" value="es" checked={locale === "es"} onChange={() => setLocale("es")} className="accent-blue-500" />
-          <div>
-            <p className="text-sm font-medium text-white">{t("hamburgerMenu.spanish")}</p>
-            <p className="text-xs text-zinc-500">{t("hamburgerMenu.defaultLanguage")}</p>
-          </div>
-        </label>
-        <label
-          className={`mt-2 flex cursor-pointer items-center gap-3 rounded-lg border px-4 py-3 transition-colors ${locale === "en" ? "border-blue-500 bg-blue-500/10" : "border-zinc-800 hover:bg-zinc-800"}`}
-        >
-          <input type="radio" name="lang" value="en" checked={locale === "en"} onChange={() => setLocale("en")} className="accent-blue-500" />
-          <div>
-            <p className="text-sm font-medium text-white">{t("hamburgerMenu.english")}</p>
-            <p className="text-xs text-zinc-500">Default language</p>
-          </div>
-        </label>
+        {availableLanguages.map((lang, i) => (
+          <label
+            key={lang.code}
+            className={`flex cursor-pointer items-center gap-3 rounded-lg border px-4 py-3 transition-colors ${i > 0 ? "mt-2" : ""} ${locale === lang.code ? "border-blue-500 bg-blue-500/10" : "border-zinc-800 hover:bg-zinc-800"}`}
+          >
+            <input type="radio" name="lang" value={lang.code} checked={locale === lang.code} onChange={() => setLocale(lang.code)} className="accent-blue-500" />
+            <div>
+              <p className="text-sm font-medium text-white">{lang.nativeName}</p>
+              <p className="text-xs text-zinc-500">{lang.englishName}</p>
+            </div>
+          </label>
+        ))}
         <p className="mt-6 text-xs text-zinc-600">{t("hamburgerMenu.languageChangeNote")}</p>
       </div>
     </>
