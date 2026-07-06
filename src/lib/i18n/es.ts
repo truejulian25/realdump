@@ -11,7 +11,7 @@ const es = {
     saved: "Guardados",
     changePassword: "Cambiar contraseña",
     qr: "QR del perfil",
-    accountManagement: "Cuenta",
+    accountManagement: "Desactivar / Eliminar cuenta",
     deactivateAccount: "Desactivar cuenta",
     deactivateAccountDesc: "Descansa de la app, podrás volver después",
     deactivate: "Desactivar cuenta",

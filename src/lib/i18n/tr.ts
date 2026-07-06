@@ -13,7 +13,7 @@ const tr: Translations = {
     saved: "Kaydedilenler",
     changePassword: "Şifre değiştir",
     qr: "Profil QR",
-    accountManagement: "Hesap",
+    accountManagement: "Hesabı devre dışı bırak / sil",
     deactivateAccount: "Hesabı devre dışı bırak",
     deactivateAccountDesc: "Uygulamaya ara verin, daha sonra dönebilirsiniz",
     deactivate: "Hesabı devre dışı bırak",

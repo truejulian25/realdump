@@ -13,7 +13,7 @@ const it: Translations = {
     saved: "Salvati",
     changePassword: "Cambia password",
     qr: "QR del profilo",
-    accountManagement: "Account",
+    accountManagement: "Disattiva / Elimina account",
     deactivateAccount: "Disattiva account",
     deactivateAccountDesc: "Fai una pausa, potrai tornare dopo",
     deactivate: "Disattiva account",

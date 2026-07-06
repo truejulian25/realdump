@@ -466,7 +466,7 @@ function DeleteAccountView({ onBack }: { onBack: () => void }) {
   if (step === "warning") {
     return (
       <>
-        <ViewHeader title={t("hamburgerMenu.deleteAccountTitle")} onBack={onBack} />
+        <ViewHeader title={t("hamburgerMenu.deleteAccount")} onBack={onBack} />
         <div className="flex flex-1 flex-col justify-between px-4 py-4">
           <div className="space-y-3">
             <div className="rounded-lg bg-red-500/10 p-4 text-sm text-red-400">
@@ -495,7 +495,7 @@ function DeleteAccountView({ onBack }: { onBack: () => void }) {
 
   return (
     <>
-      <ViewHeader title={t("hamburgerMenu.deleteAccountTitle")} onBack={() => setStep("warning")} />
+      <ViewHeader title={t("hamburgerMenu.deleteAccount")} onBack={() => setStep("warning")} />
       <div className="flex flex-1 flex-col justify-between px-4 py-4">
         <div className="space-y-3">
           <p className="text-sm text-zinc-300">
@@ -557,7 +557,7 @@ function AccountManagementView({ onSelect, onBack }: {
             <IconTrash />
           </span>
           <div className="flex-1">
-            <p className="text-sm font-medium text-white">{t("hamburgerMenu.deleteAccountTitle")}</p>
+            <p className="text-sm font-medium text-white">{t("hamburgerMenu.deleteAccount")}</p>
             <p className="mt-0.5 text-xs text-zinc-500">{t("hamburgerMenu.deleteAccountDesc")}</p>
           </div>
         </button>

@@ -13,7 +13,7 @@ const ja: Translations = {
     saved: "保存済み",
     changePassword: "パスワードを変更",
     qr: "プロフィールQR",
-    accountManagement: "アカウント",
+    accountManagement: "アカウントを無効化 / 削除",
     deactivateAccount: "アカウントを無効化",
     deactivateAccountDesc: "休憩したいときに、後で戻ってこれます",
     deactivate: "アカウントを無効化",

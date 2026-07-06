@@ -13,7 +13,7 @@ const ar: Translations = {
     saved: "المحفوظات",
     changePassword: "تغيير كلمة المرور",
     qr: "رمز QR للملف الشخصي",
-    accountManagement: "الحساب",
+    accountManagement: "إلغاء تنشيط / حذف الحساب",
     deactivateAccount: "تعطيل الحساب",
     deactivateAccountDesc: "خذ استراحة من التطبيق، يمكنك العودة لاحقًا",
     deactivate: "تعطيل الحساب",

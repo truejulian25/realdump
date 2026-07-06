@@ -13,7 +13,7 @@ const ko: Translations = {
     saved: "저장됨",
     changePassword: "비밀번호 변경",
     qr: "프로필 QR",
-    accountManagement: "계정",
+    accountManagement: "계정 비활성화 / 삭제",
     deactivateAccount: "계정 비활성화",
     deactivateAccountDesc: "앱에서 휴식을 취하고 나중에 돌아오세요",
     deactivate: "계정 비활성화",
