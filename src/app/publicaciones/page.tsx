@@ -122,7 +122,7 @@ export default function PublicacionesPage() {
       {videos.map((video) => (
         <div
           key={video.id}
-          className="flex h-screen w-full items-center justify-center"
+          className="flex h-screen w-full items-start"
         >
           <div className="flex w-full flex-col gap-3">
             <ProfileRow
@@ -130,7 +130,7 @@ export default function PublicacionesPage() {
               username={video.profiles?.username ?? "usuario"}
               avatarUrl={video.profiles?.avatar_url}
             />
-            <div className="relative h-[55vh] w-full overflow-hidden rounded-lg bg-zinc-900">
+            <div className="relative h-[70vh] w-full overflow-hidden rounded-lg bg-zinc-900">
               <CustomVideoPlayer src={video.video_url} />
             </div>
 
