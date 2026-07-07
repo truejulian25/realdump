@@ -170,13 +170,12 @@ export default function VideoFeed() {
               username={video.profiles?.username ?? "usuario"}
               avatarUrl={video.profiles?.avatar_url}
             />
-            <div className="relative h-[42vh] overflow-hidden rounded-lg bg-zinc-900">
+            <div className="relative h-[42vh] w-full overflow-hidden rounded-lg bg-zinc-900">
               <CustomVideoPlayer src={video.video_url} />
             </div>
 
-            <InteractionBar videoId={video.id} />
-
             <div className="flex flex-col gap-1">
+              <InteractionBar videoId={video.id} />
               {video.description && (
                 <p className="text-sm text-zinc-300">{video.description}</p>
               )}
