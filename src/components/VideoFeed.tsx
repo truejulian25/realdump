@@ -170,7 +170,7 @@ export default function VideoFeed() {
               username={video.profiles?.username ?? "usuario"}
               avatarUrl={video.profiles?.avatar_url}
             />
-            <div className="relative h-[65vh] overflow-hidden rounded-lg bg-zinc-900">
+            <div className="relative h-[55vh] overflow-hidden rounded-lg bg-zinc-900">
               <CustomVideoPlayer src={video.video_url} />
             </div>
 
