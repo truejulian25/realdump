@@ -157,12 +157,12 @@ export default function VideoFeed() {
   return (
     <div
       ref={containerRef}
-      className="h-screen w-full snap-y snap-proximity overflow-y-scroll overflow-x-hidden bg-black pt-14 pb-20"
+      className="h-screen w-full overflow-y-scroll overflow-x-hidden bg-black pt-14 pb-20"
     >
       {items.map((video, idx) => (
         <div
           key={`${video.id}-${idx}`}
-          className="flex h-screen w-full snap-center items-center justify-center"
+          className="flex h-screen w-full items-center justify-center"
         >
           <div className="flex w-full flex-col gap-3">
             <ProfileRow
