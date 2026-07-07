@@ -157,7 +157,7 @@ export default function VideoFeed() {
   return (
     <div
       ref={containerRef}
-      className="h-screen w-full snap-y snap-mandatory overflow-y-scroll bg-black pt-14 pb-20"
+      className="h-screen w-full snap-y snap-mandatory overflow-y-scroll overflow-x-hidden bg-black pt-14 pb-20"
     >
       {items.map((video, idx) => (
         <div
@@ -165,18 +165,18 @@ export default function VideoFeed() {
           className="flex h-screen w-full snap-center items-center justify-center px-4"
         >
           <div className="flex w-full max-w-sm flex-col gap-3">
+            <ProfileRow
+              header
+              username={video.profiles?.username ?? "usuario"}
+              avatarUrl={video.profiles?.avatar_url}
+            />
             <div className="relative h-[65vh] overflow-hidden rounded-lg bg-zinc-900">
               <CustomVideoPlayer src={video.video_url} />
             </div>
 
+            <InteractionBar videoId={video.id} />
+
             <div className="flex flex-col gap-1">
-              <div className="flex items-center justify-between">
-                <ProfileRow
-                  username={video.profiles?.username ?? "usuario"}
-                  avatarUrl={video.profiles?.avatar_url}
-                />
-                <InteractionBar videoId={video.id} />
-              </div>
               {video.description && (
                 <p className="text-sm text-zinc-300">{video.description}</p>
               )}
