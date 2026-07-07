@@ -157,7 +157,7 @@ export default function VideoFeed() {
   return (
     <div
       ref={containerRef}
-      className="h-screen w-full snap-y snap-mandatory overflow-y-scroll overflow-x-hidden bg-black pt-14 pb-20"
+      className="h-screen w-full snap-y snap-proximity overflow-y-scroll overflow-x-hidden bg-black pt-14 pb-20"
     >
       {items.map((video, idx) => (
         <div
@@ -170,7 +170,7 @@ export default function VideoFeed() {
               username={video.profiles?.username ?? "usuario"}
               avatarUrl={video.profiles?.avatar_url}
             />
-            <div className="relative h-[42vh] w-full overflow-hidden rounded-lg bg-zinc-900">
+            <div className="relative h-[48vh] w-full overflow-hidden rounded-lg bg-zinc-900">
               <CustomVideoPlayer src={video.video_url} />
             </div>
 
