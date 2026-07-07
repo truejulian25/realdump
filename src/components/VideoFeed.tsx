@@ -162,15 +162,14 @@ export default function VideoFeed() {
       {items.map((video, idx) => (
         <div
           key={`${video.id}-${idx}`}
-          className="flex h-screen w-full items-start"
+          className="flex h-screen w-full flex-col"
         >
-          <div className="flex w-full flex-col gap-3">
             <ProfileRow
               header
               username={video.profiles?.username ?? "usuario"}
               avatarUrl={video.profiles?.avatar_url}
             />
-            <div className="relative h-[70vh] w-full overflow-hidden rounded-lg bg-zinc-900">
+            <div className="relative flex-1 overflow-hidden rounded-lg bg-zinc-900">
               <CustomVideoPlayer src={video.video_url} />
             </div>
 
@@ -186,7 +185,6 @@ export default function VideoFeed() {
               )}
               <p className="text-xs text-zinc-500">{formatDate(video.created_at)}</p>
             </div>
-          </div>
         </div>
       ))}
       <div ref={sentinelRef} />
