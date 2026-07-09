@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import CustomVideoPlayer from "./CustomVideoPlayer";
 import ProfileRow from "./ProfileRow";
@@ -23,14 +23,13 @@ export default function ProfileVideoOverlay({ video, allVideos, open, onClose }:
     avatar_url: string | null;
   } | null>(null);
 
-  const newerVideos = useMemo(() => {
+  const { newerVideos, olderVideos } = useMemo(() => {
     const idx = allVideos.findIndex((v) => v.id === video.id);
-    return idx !== -1 ? allVideos.slice(0, idx) : [];
-  }, [allVideos, video.id]);
-
-  const olderVideos = useMemo(() => {
-    const idx = allVideos.findIndex((v) => v.id === video.id);
-    return idx !== -1 ? allVideos.slice(idx + 1) : [];
+    if (idx === -1) return { newerVideos: [], olderVideos: [] };
+    return {
+      newerVideos: allVideos.slice(0, idx),
+      olderVideos: allVideos.slice(idx + 1),
+    };
   }, [allVideos, video.id]);
 
   useEffect(() => {
@@ -87,8 +86,6 @@ export default function ProfileVideoOverlay({ video, allVideos, open, onClose }:
     return () => observer.disconnect();
   }, [open, newerVideos, olderVideos]);
 
-  if (!open) return null;
-
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
     return date.toLocaleDateString("es-CO", {
@@ -98,35 +95,34 @@ export default function ProfileVideoOverlay({ video, allVideos, open, onClose }:
     });
   };
 
-  const renderVideoCard = useCallback(
-    (v: Video, autoPlay: boolean) => (
-      <div key={v.id} className="flex w-full flex-col pb-5">
-        {profile && (
-          <ProfileRow
-            header
-            username={profile.username ?? "usuario"}
-            avatarUrl={profile.avatar_url}
-          />
-        )}
-        <div className="relative mt-3 w-full overflow-hidden rounded-lg bg-zinc-900">
-          <CustomVideoPlayer src={v.video_url} autoPlay={autoPlay} />
-        </div>
-        <div className="mt-3 flex flex-col gap-1.5 px-3">
-          <InteractionBar videoId={v.id} />
-          {v.description && (
-            <p className="text-sm leading-relaxed text-zinc-300">{v.description}</p>
-          )}
-          {v.hashtags && v.hashtags.length > 0 && (
-            <p className="text-sm text-blue-400">
-              {v.hashtags.map((h) => (h.startsWith("#") ? h : `#${h}`)).join(" ")}
-            </p>
-          )}
-          <p className="text-xs text-zinc-500">{formatDate(v.created_at)}</p>
-        </div>
+  const renderVideoCard = (v: Video, autoPlay: boolean) => (
+    <div key={v.id} className="flex w-full flex-col pb-5">
+      {profile && (
+        <ProfileRow
+          header
+          username={profile.username ?? "usuario"}
+          avatarUrl={profile.avatar_url}
+        />
+      )}
+      <div className="relative mt-3 w-full overflow-hidden rounded-lg bg-zinc-900">
+        <CustomVideoPlayer src={v.video_url} autoPlay={autoPlay} />
       </div>
-    ),
-    [profile]
+      <div className="mt-3 flex flex-col gap-1.5 px-3">
+        <InteractionBar videoId={v.id} />
+        {v.description && (
+          <p className="text-sm leading-relaxed text-zinc-300">{v.description}</p>
+        )}
+        {v.hashtags && v.hashtags.length > 0 && (
+          <p className="text-sm text-blue-400">
+            {v.hashtags.map((h) => (h.startsWith("#") ? h : `#${h}`)).join(" ")}
+          </p>
+        )}
+        <p className="text-xs text-zinc-500">{formatDate(v.created_at)}</p>
+      </div>
+    </div>
   );
+
+  if (!open) return null;
 
   return (
     <div className="fixed inset-0 z-[100] flex flex-col bg-black">
