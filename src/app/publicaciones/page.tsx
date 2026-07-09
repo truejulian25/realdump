@@ -118,7 +118,7 @@ export default function PublicacionesPage() {
     scrolledRef.current = true;
     history.scrollRestoration = "manual";
 
-    const scrollToCenter = () => {
+    const scrollToCenter = (behavior: "auto" | "smooth" | "instant" = "smooth") => {
       const el = document.getElementById(`video-container-${targetVideoId}`);
       const container = containerRef.current;
       if (!el || !container) return;
@@ -132,25 +132,41 @@ export default function PublicacionesPage() {
       const elementScrollTop = container.scrollTop + rect.top - containerRect.top;
       const targetScroll = elementScrollTop + rect.height / 2 - targetCenter;
 
-      container.scrollTo({ top: targetScroll, behavior: "smooth" });
+      container.scrollTo({ top: targetScroll, behavior });
     };
 
     const el = document.getElementById(`video-container-${targetVideoId}`);
-    let observer: ResizeObserver | undefined;
 
     if (el) {
-      observer = new ResizeObserver(scrollToCenter);
+      const video = el.querySelector("video");
+
+      const handleMetadata = () => {
+        video?.removeEventListener("loadedmetadata", handleMetadata);
+        requestAnimationFrame(() => scrollToCenter("smooth"));
+      };
+
+      if (video) {
+        if (video.readyState >= HTMLMediaElement.HAVE_METADATA) {
+          requestAnimationFrame(() => scrollToCenter("smooth"));
+        } else {
+          video.addEventListener("loadedmetadata", handleMetadata);
+        }
+      }
+
+      const observer = new ResizeObserver(() => scrollToCenter("smooth"));
       observer.observe(el);
+
+      const timer = setTimeout(() => {
+        observer.disconnect();
+        scrollToCenter("smooth");
+      }, 8000);
+
+      return () => {
+        clearTimeout(timer);
+        observer.disconnect();
+        video?.removeEventListener("loadedmetadata", handleMetadata);
+      };
     }
-
-    const timer = setTimeout(() => observer?.disconnect(), 2000);
-
-    requestAnimationFrame(scrollToCenter);
-
-    return () => {
-      clearTimeout(timer);
-      observer?.disconnect();
-    };
   }, [targetVideoId, videos]);
 
   const formatDate = (dateStr: string) => {
