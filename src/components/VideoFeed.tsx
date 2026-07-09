@@ -157,19 +157,19 @@ export default function VideoFeed() {
   return (
     <div
       ref={containerRef}
-      className="scroll-container h-screen w-full overflow-y-auto overflow-x-hidden bg-black pt-14 pb-20"
+      className="scroll-container h-screen w-full overflow-y-auto overflow-x-hidden bg-black pt-14 pb-20 md:mx-auto md:max-w-md md:border-x md:border-zinc-800"
     >
       {items.map((video, idx) => (
         <div
           key={`${video.id}-${idx}`}
-          className="flex h-screen w-full flex-col"
+          className="flex w-full flex-col pb-4"
         >
             <ProfileRow
               header
               username={video.profiles?.username ?? "usuario"}
               avatarUrl={video.profiles?.avatar_url}
             />
-            <div className="relative flex-1 overflow-hidden rounded-lg bg-zinc-900">
+            <div className="relative w-full overflow-hidden rounded-lg bg-zinc-900">
               <CustomVideoPlayer src={video.video_url} />
             </div>
 
