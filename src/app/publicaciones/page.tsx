@@ -117,9 +117,19 @@ export default function PublicacionesPage() {
     requestAnimationFrame(() => {
       setTimeout(() => {
         const el = document.getElementById(`video-container-${targetVideoId}`);
-        if (el) {
-          el.scrollIntoView({ behavior: "smooth", block: "center" });
-        }
+        const container = containerRef.current;
+        if (!el || !container) return;
+
+        const rect = el.getBoundingClientRect();
+        const containerRect = container.getBoundingClientRect();
+        const headerH = 56;
+        const navH = 80;
+        const visibleH = window.innerHeight - headerH - navH;
+        const targetCenter = headerH + visibleH / 2;
+        const elementScrollTop = container.scrollTop + rect.top - containerRect.top;
+        const targetScroll = elementScrollTop + rect.height / 2 - targetCenter;
+
+        container.scrollTo({ top: targetScroll, behavior: "smooth" });
       }, 0);
     });
   }, [targetVideoId, videos]);
