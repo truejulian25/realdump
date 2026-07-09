@@ -1,17 +1,22 @@
 # Tareas pendientes
 
-## Centrar publicación verticalmente al seleccionar video del perfil
+## Estado actual del proyecto
 
-Al hacer clic en un video desde `/profile`, el scroll en `/publicaciones?user_id=X&video_id=Y` no centra correctamente el video en mobile. Comportamiento actual:
+El scroll problemático en `/publicaciones` fue reemplazado por un overlay full-screen.
 
-- **Desktop**: funciona bien
-- **Mobile**: el scroll no posiciona el video en el centro del área visible (entre header fijo y bottom nav)
+### Flujo actual
+- `/profile` → tap video → se abre `ProfileVideoOverlay` (z-[100]) sobre el perfil
+- Muestra: [videos posteriores] + [video clickeado] + [videos anteriores]
+- Auto-reproducción con IntersectionObserver (threshold 0.7)
+- Scroll posicionado en el video clickeado vía `scrollIntoView({ block: "start" })`
 
-Se intentaron:
-- `scrollIntoView({ block: "center" })` sobre `video-container-{id}` → funciona en desktop pero mobile degrada a `block: "start"` cuando el video es más alto que el viewport
-- Cálculo manual con `scrollTo` + `getBoundingClientRect` → mismo resultado
-- `ResizeObserver` para re-centrar al cargar metadata → sin mejora visible
+### Archivos creados/modificados recientemente
+- `src/components/ProfileVideoOverlay.tsx` — nuevo overlay
+- `src/components/CustomVideoPlayer.tsx` — agregado prop `autoPlay`
+- `src/components/ProfileVideoCard.tsx` — reemplazado `router.push` por `onClick` callback
+- `src/app/profile/page.tsx` — agregado estado `selectedVideo`, renderiza overlay
 
-Posible causa raíz: el contenedor del video (`video-container-{id}`) depende del aspect-ratio del `CustomVideoPlayer` que se establece tras `loadedmetadata`. El layout inicial usa `9/16` de fallback. En mobile el cambio de tamaño post-carga podría estar desplazando el centro calculado.
-
-Próximo paso sugerido: investigar si `getBoundingClientRect` retorna valores correctos en mobile justo después del `requestAnimationFrame`, y si el scroll ocurre antes de que el video termine su layout definitivo.
+### Próximos pasos sugeridos
+- Manejar botón "Atrás" del navegador para cerrar el overlay (history.pushState/popstate)
+- Agregar animación de transición al abrir/cerrar el overlay
+- La página `/publicaciones` y su scroll centering pueden eliminarse si el overlay cubre todos los casos de uso
