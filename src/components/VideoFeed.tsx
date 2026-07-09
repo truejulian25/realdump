@@ -162,21 +162,21 @@ export default function VideoFeed() {
       {items.map((video, idx) => (
         <div
           key={`${video.id}-${idx}`}
-          className="flex w-full flex-col pb-4"
+          className="flex w-full flex-col pb-5"
         >
             <ProfileRow
               header
               username={video.profiles?.username ?? "usuario"}
               avatarUrl={video.profiles?.avatar_url}
             />
-            <div className="relative w-full overflow-hidden rounded-lg bg-zinc-900">
+            <div className="relative mt-3 w-full overflow-hidden rounded-lg bg-zinc-900">
               <CustomVideoPlayer src={video.video_url} />
             </div>
 
-            <div className="flex flex-col gap-1">
+            <div className="mt-3 flex flex-col gap-1.5 px-3">
               <InteractionBar videoId={video.id} />
               {video.description && (
-                <p className="text-sm text-zinc-300">{video.description}</p>
+                <p className="text-sm leading-relaxed text-zinc-300">{video.description}</p>
               )}
               {video.hashtags && video.hashtags.length > 0 && (
                 <p className="text-sm text-blue-400">

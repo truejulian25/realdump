@@ -15,7 +15,7 @@ export default function ProfileRow({ username, avatarUrl, header }: Props) {
 
   if (header) {
     return (
-      <div className="flex items-center justify-between px-1">
+      <div className="flex items-center justify-between px-3 py-2.5">
         <div className="flex items-center gap-2">
           <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-lg border border-zinc-600 bg-zinc-800">
             <img
