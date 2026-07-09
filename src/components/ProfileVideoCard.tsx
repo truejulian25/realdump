@@ -13,7 +13,7 @@ export default function ProfileVideoCard({ video }: Props) {
   const videoRef = useRef<HTMLVideoElement>(null);
 
   const handleMouseEnter = useCallback(() => {
-    videoRef.current?.play();
+    videoRef.current?.play().catch(() => {});
   }, []);
 
   const handleMouseLeave = useCallback(() => {
@@ -24,8 +24,8 @@ export default function ProfileVideoCard({ video }: Props) {
   }, []);
 
   const handleClick = useCallback(() => {
-    router.push(`/publicaciones?user_id=${video.user_id}`);
-  }, [router, video.user_id]);
+    router.push(`/publicaciones?user_id=${video.user_id}&video_id=${video.id}`);
+  }, [router, video.user_id, video.id]);
 
   return (
     <div

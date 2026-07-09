@@ -30,15 +30,18 @@ export default function PublicacionesPage() {
   const router = useRouter();
   const supabase = createClient();
   const [targetUserId, setTargetUserId] = useState<string | null>(null);
+  const [targetVideoId, setTargetVideoId] = useState<string | null>(null);
   const [videos, setVideos] = useState<VideoWithProfile[]>([]);
   const [profileData, setProfileData] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
+  const scrolledRef = useRef(false);
   const currentVideoRef = useRef<HTMLVideoElement | null>(null);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     setTargetUserId(params.get("user_id"));
+    setTargetVideoId(params.get("video_id"));
   }, []);
 
   useEffect(() => {
@@ -105,6 +108,21 @@ export default function PublicacionesPage() {
 
     return () => observer.disconnect();
   }, [playVideo, videos]);
+
+  useEffect(() => {
+    if (!targetVideoId || scrolledRef.current || videos.length === 0) return;
+    scrolledRef.current = true;
+    history.scrollRestoration = "manual";
+
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        const el = document.getElementById(`video-container-${targetVideoId}`);
+        if (el) {
+          el.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+      }, 0);
+    });
+  }, [targetVideoId, videos]);
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
@@ -188,6 +206,7 @@ export default function PublicacionesPage() {
           videos.map((video) => (
           <div
             key={video.id}
+            id={`video-${video.id}`}
             className="flex w-full flex-col pb-5"
           >
               <ProfileRow
@@ -195,7 +214,7 @@ export default function PublicacionesPage() {
                 username={video.profiles?.username ?? "usuario"}
                 avatarUrl={video.profiles?.avatar_url}
               />
-              <div className="relative mt-3 w-full overflow-hidden rounded-lg bg-zinc-900">
+              <div id={"video-container-" + video.id} className="relative mt-3 w-full overflow-hidden rounded-lg bg-zinc-900">
                 <CustomVideoPlayer src={video.video_url} />
               </div>
 

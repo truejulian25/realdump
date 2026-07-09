@@ -42,7 +42,7 @@ export default function CustomVideoPlayer({ src }: Props) {
     const video = videoRef.current;
     if (!video) return;
     if (video.paused) {
-      video.play();
+      video.play().catch(() => {});
       setPlaying(true);
     } else {
       video.pause();
