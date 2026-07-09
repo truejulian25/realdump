@@ -4,9 +4,10 @@ import { useRef, useState, useCallback, useEffect } from "react";
 
 interface Props {
   src: string;
+  autoPlay?: boolean;
 }
 
-export default function CustomVideoPlayer({ src }: Props) {
+export default function CustomVideoPlayer({ src, autoPlay = true }: Props) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [playing, setPlaying] = useState(false);
   const [muted, setMuted] = useState(true);
@@ -19,10 +20,11 @@ export default function CustomVideoPlayer({ src }: Props) {
   const controlsTimer = useRef<number | undefined>(undefined);
 
   useEffect(() => {
+    if (!autoPlay) return;
     const video = videoRef.current;
     if (!video) return;
     video.play().then(() => setPlaying(true)).catch(() => {});
-  }, []);
+  }, [autoPlay]);
 
   const handleLoadedMetadata = useCallback(() => {
     const video = videoRef.current;

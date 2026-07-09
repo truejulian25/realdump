@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import ProfileVideoCard from "@/components/ProfileVideoCard";
+import ProfileVideoOverlay from "@/components/ProfileVideoOverlay";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { createClient } from "@/lib/supabase/client";
@@ -12,16 +12,20 @@ import type { Video } from "@/types";
 export default function ProfilePage() {
   const { t } = useLanguage();
   const { profile, user, loading } = useAuth();
-  const router = useRouter();
   const supabase = createClient();
   const [videos, setVideos] = useState<Video[]>([]);
   const [videosLoading, setVideosLoading] = useState(true);
+  const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
+
+  const handleVideoClick = useCallback((video: Video) => {
+    setSelectedVideo(video);
+  }, []);
 
   useEffect(() => {
     if (!loading && !user) {
-      router.push("/auth/login");
+      window.location.href = "/auth/login";
     }
-  }, [loading, user, router]);
+  }, [loading, user]);
 
   useEffect(() => {
     if (!user) return;
@@ -118,10 +122,19 @@ export default function ProfilePage() {
           <p className="col-span-3 py-8 text-center text-zinc-500">{t("profile.noVideosYet")}</p>
         ) : (
           videos.map((video) => (
-            <ProfileVideoCard key={video.id} video={video} />
+            <ProfileVideoCard key={video.id} video={video} onClick={handleVideoClick} />
           ))
         )}
       </div>
+
+      {selectedVideo && (
+        <ProfileVideoOverlay
+          video={selectedVideo}
+          allVideos={videos}
+          open={!!selectedVideo}
+          onClose={() => setSelectedVideo(null)}
+        />
+      )}
     </div>
   );
 }

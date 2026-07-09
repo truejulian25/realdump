@@ -1,15 +1,14 @@
 "use client";
 
 import { useRef, useCallback } from "react";
-import { useRouter } from "next/navigation";
 import type { Video } from "@/types";
 
 interface Props {
   video: Video;
+  onClick?: (video: Video) => void;
 }
 
-export default function ProfileVideoCard({ video }: Props) {
-  const router = useRouter();
+export default function ProfileVideoCard({ video, onClick }: Props) {
   const videoRef = useRef<HTMLVideoElement>(null);
 
   const handleMouseEnter = useCallback(() => {
@@ -24,8 +23,8 @@ export default function ProfileVideoCard({ video }: Props) {
   }, []);
 
   const handleClick = useCallback(() => {
-    router.push(`/publicaciones?user_id=${video.user_id}&video_id=${video.id}`);
-  }, [router, video.user_id, video.id]);
+    onClick?.(video);
+  }, [onClick, video]);
 
   return (
     <div
