@@ -157,9 +157,10 @@ export default function VideoFeed() {
   return (
     <div
       ref={containerRef}
-      className="scroll-container h-screen w-full overflow-y-auto overflow-x-hidden bg-black pt-14 pb-20 md:mx-auto md:max-w-md md:border-x md:border-zinc-800"
+      className="scroll-container h-screen w-full overflow-y-auto overflow-x-hidden bg-black pt-14 pb-20"
     >
-      {items.map((video, idx) => (
+      <div className="mx-auto w-full max-w-md border-x border-zinc-800">
+        {items.map((video, idx) => (
         <div
           key={`${video.id}-${idx}`}
           className="flex w-full flex-col pb-5"
@@ -186,8 +187,9 @@ export default function VideoFeed() {
               <p className="text-xs text-zinc-500">{formatDate(video.created_at)}</p>
             </div>
         </div>
-      ))}
-      <div ref={sentinelRef} />
+        ))}
+        <div ref={sentinelRef} />
+      </div>
     </div>
   );
 }
