@@ -110,28 +110,47 @@ export default function PublicacionesPage() {
   }, [playVideo, videos]);
 
   useEffect(() => {
+    scrolledRef.current = false;
+  }, [targetVideoId]);
+
+  useEffect(() => {
     if (!targetVideoId || scrolledRef.current || videos.length === 0) return;
     scrolledRef.current = true;
     history.scrollRestoration = "manual";
 
-    requestAnimationFrame(() => {
-      setTimeout(() => {
-        const el = document.getElementById(`video-container-${targetVideoId}`);
-        const container = containerRef.current;
-        if (!el || !container) return;
+    const scrollToCenter = () => {
+      const el = document.getElementById(`video-container-${targetVideoId}`);
+      const container = containerRef.current;
+      if (!el || !container) return;
 
-        const rect = el.getBoundingClientRect();
-        const containerRect = container.getBoundingClientRect();
-        const headerH = 56;
-        const navH = 80;
-        const visibleH = window.innerHeight - headerH - navH;
-        const targetCenter = headerH + visibleH / 2;
-        const elementScrollTop = container.scrollTop + rect.top - containerRect.top;
-        const targetScroll = elementScrollTop + rect.height / 2 - targetCenter;
+      const rect = el.getBoundingClientRect();
+      const containerRect = container.getBoundingClientRect();
+      const headerH = 56;
+      const navH = 80;
+      const visibleH = window.innerHeight - headerH - navH;
+      const targetCenter = headerH + visibleH / 2;
+      const elementScrollTop = container.scrollTop + rect.top - containerRect.top;
+      const targetScroll = elementScrollTop + rect.height / 2 - targetCenter;
 
-        container.scrollTo({ top: targetScroll, behavior: "smooth" });
-      }, 0);
-    });
+      container.scrollTo({ top: targetScroll, behavior: "smooth" });
+    };
+
+    const el = document.getElementById(`video-container-${targetVideoId}`);
+    let observer: ResizeObserver | undefined;
+
+    if (el) {
+      observer = new ResizeObserver(scrollToCenter);
+      observer.observe(el);
+    }
+
+    const timer = setTimeout(() => observer?.disconnect(), 2000);
+
+    requestAnimationFrame(scrollToCenter);
+
+    return () => {
+      clearTimeout(timer);
+      observer?.disconnect();
+    };
   }, [targetVideoId, videos]);
 
   const formatDate = (dateStr: string) => {
