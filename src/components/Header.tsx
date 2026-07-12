@@ -8,7 +8,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import HamburgerMenu from "@/components/HamburgerMenu";
 
 export default function Header() {
-  const { user, loading } = useAuth();
+  const { user, profile, loading } = useAuth();
   const { t } = useLanguage();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -18,12 +18,14 @@ export default function Header() {
       {user ? (
         <div className="grid w-full max-w-sm grid-cols-3 items-center">
           <div className="flex justify-start">
-            <Link
-              href="/upload"
-              className="flex h-8 w-8 items-center justify-center rounded-lg text-zinc-400 transition-colors hover:text-white"
-            >
-              <Plus size={20} />
-            </Link>
+            {profile?.role === "creator" && (
+              <Link
+                href="/upload"
+                className="flex h-8 w-8 items-center justify-center rounded-lg text-zinc-400 transition-colors hover:text-white"
+              >
+                <Plus size={20} />
+              </Link>
+            )}
           </div>
           <Link href="/" className="text-center text-lg font-bold tracking-tight text-white">
             realdump

@@ -8,6 +8,7 @@ import { createClient } from "@/lib/supabase/client";
 export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [role, setRole] = useState<"creator" | "viewer">("viewer");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -24,6 +25,7 @@ export default function RegisterPage() {
       options: {
         data: {
           username: email.split("@")[0],
+          role: role === "creator" ? "pending" : "viewer",
         },
       },
     });
@@ -64,6 +66,41 @@ export default function RegisterPage() {
           minLength={6}
           className="w-full bg-transparent px-0 py-2 text-sm text-white placeholder-zinc-500 outline-none caret-blue-500 border-b border-zinc-800"
         />
+
+        <div className="flex flex-col gap-2">
+          <p className="text-sm text-zinc-400">Tipo de cuenta</p>
+          <div className="flex gap-3">
+            <button
+              type="button"
+              onClick={() => setRole("viewer")}
+              className={`flex-1 rounded-lg border px-4 py-2.5 text-sm transition-colors ${
+                role === "viewer"
+                  ? "border-blue-500 bg-blue-500/10 text-blue-400"
+                  : "border-zinc-800 text-zinc-400 hover:border-zinc-600"
+              }`}
+            >
+              <div className="font-medium">Espectador</div>
+              <div className="mt-0.5 text-xs opacity-70">Ver y comentar</div>
+            </button>
+            <button
+              type="button"
+              onClick={() => setRole("creator")}
+              className={`flex-1 rounded-lg border px-4 py-2.5 text-sm transition-colors ${
+                role === "creator"
+                  ? "border-blue-500 bg-blue-500/10 text-blue-400"
+                  : "border-zinc-800 text-zinc-400 hover:border-zinc-600"
+              }`}
+            >
+              <div className="font-medium">Creador</div>
+              <div className="mt-0.5 text-xs opacity-70">Subir videos</div>
+            </button>
+          </div>
+          {role === "creator" && (
+            <p className="text-xs text-zinc-500">
+              Los creadores requieren aprobación del administrador. Mientras tanto tu cuenta estará en estado pendiente.
+            </p>
+          )}
+        </div>
 
         {error && <p className="text-sm text-red-400">{error}</p>}
 

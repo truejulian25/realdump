@@ -1,16 +1,6 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
-import ar from "@/lib/i18n/ar";
-import de from "@/lib/i18n/de";
-import en from "@/lib/i18n/en";
-import es from "@/lib/i18n/es";
-import fr from "@/lib/i18n/fr";
-import it from "@/lib/i18n/it";
-import ja from "@/lib/i18n/ja";
-import ko from "@/lib/i18n/ko";
-import pt from "@/lib/i18n/pt";
-import tr from "@/lib/i18n/tr";
 import type { Translations } from "@/lib/i18n/es";
 
 export const availableLanguages = [
@@ -34,8 +24,6 @@ interface LanguageContextValue {
   t: (key: string, params?: Record<string, string>) => string;
 }
 
-const translations: Record<Locale, Translations> = { ar, de, en, es, fr, it, ja, ko, pt, tr };
-
 function resolveNested(obj: Record<string, unknown>, key: string): string {
   const parts = key.split(".");
   let current: unknown = obj;
@@ -55,6 +43,19 @@ function interpolate(text: string, params?: Record<string, string>): string {
   return text.replace(/\{(\w+)\}/g, (_, key) => params[key] ?? `{${key}}`);
 }
 
+const loaders: Record<Locale, () => Promise<{ default: Translations }>> = {
+  ar: () => import("@/lib/i18n/ar"),
+  de: () => import("@/lib/i18n/de"),
+  en: () => import("@/lib/i18n/en"),
+  es: () => import("@/lib/i18n/es"),
+  fr: () => import("@/lib/i18n/fr"),
+  it: () => import("@/lib/i18n/it"),
+  ja: () => import("@/lib/i18n/ja"),
+  ko: () => import("@/lib/i18n/ko"),
+  pt: () => import("@/lib/i18n/pt"),
+  tr: () => import("@/lib/i18n/tr"),
+};
+
 const LanguageContext = createContext<LanguageContextValue>({
   locale: "es",
   setLocale: () => {},
@@ -63,25 +64,33 @@ const LanguageContext = createContext<LanguageContextValue>({
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const [locale, setLocaleState] = useState<Locale>("es");
+  const [translations, setTranslations] = useState<Translations | null>(null);
+
+  const loadLocale = useCallback(async (newLocale: Locale) => {
+    const mod = await loaders[newLocale]();
+    setTranslations(mod.default);
+  }, []);
 
   useEffect(() => {
     const stored = localStorage.getItem("locale") as Locale | null;
-    if (stored && availableLanguages.some((l) => l.code === stored)) {
-      setLocaleState(stored);
-    }
-  }, []);
+    const initial = stored && availableLanguages.some((l) => l.code === stored) ? stored : "es";
+    setLocaleState(initial);
+    loadLocale(initial);
+  }, [loadLocale]);
 
   const setLocale = useCallback((newLocale: Locale) => {
     setLocaleState(newLocale);
     localStorage.setItem("locale", newLocale);
-  }, []);
+    loadLocale(newLocale);
+  }, [loadLocale]);
 
   const t = useCallback(
     (key: string, params?: Record<string, string>) => {
-      const text = resolveNested(translations[locale] as unknown as Record<string, unknown>, key);
+      if (!translations) return key;
+      const text = resolveNested(translations as unknown as Record<string, unknown>, key);
       return interpolate(text, params);
     },
-    [locale],
+    [translations],
   );
 
   return (

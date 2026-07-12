@@ -3,11 +3,14 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { QRCodeCanvas } from "qrcode.react";
+
 import { Globe, FileText, Bookmark, Lock, QrCode, Trash, Funnel, ChartBar, UserSwitch, SignOut, Moon, CaretRight, CaretLeft, X, Check } from "@phosphor-icons/react";
 import { useAuth } from "@/contexts/AuthContext";
 import { availableLanguages, useLanguage, type Locale } from "@/contexts/LanguageContext";
 import { createClient } from "@/lib/supabase/client";
+import dynamic from "next/dynamic";
+
+const QRCodeDisplay = dynamic(() => import("@/components/QRCodeDisplay"), { ssr: false });
 
 type MenuView = "main" | "language" | "changePassword" | "qr" | "accountManagement" | "deactivateAccount" | "deleteAccount" | "filters";
 
@@ -94,6 +97,24 @@ function IconMoon() {
   return <Moon size={18} />;
 }
 
+function IconUserPlus() {
+  return <UserSwitch size={18} />;
+}
+
+function IconClock() {
+  return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10" />
+    <polyline points="12 6 12 12 16 14" />
+  </svg>;
+}
+
+function IconShieldCheck() {
+  return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+    <polyline points="9 12 11 14 15 10" />
+  </svg>;
+}
+
 function IconChevronRight() {
   return <CaretRight size={14} />;
 }
@@ -152,14 +173,28 @@ function MainMenu({ onSelect, onClose }: {
   onClose: () => void;
 }) {
   const { t } = useLanguage();
-  const { signOut } = useAuth();
+  const { profile, signOut } = useAuth();
   const router = useRouter();
+  const [requestSent, setRequestSent] = useState(false);
+  const [requestLoading, setRequestLoading] = useState(false);
 
   const handleLogout = async () => {
     await signOut();
     router.push("/auth/login");
     router.refresh();
   };
+
+  const handleRequestCreator = async () => {
+    setRequestLoading(true);
+    const res = await fetch("/api/role-request", { method: "POST" });
+    if (res.ok) setRequestSent(true);
+    setRequestLoading(false);
+  };
+
+  const isViewer = profile?.role === "viewer";
+  const isPending = profile?.role === "pending";
+  const isAdmin = profile?.is_admin;
+  const isCreator = profile?.role === "creator";
 
   return (
     <>
@@ -180,6 +215,31 @@ function MainMenu({ onSelect, onClose }: {
         <MenuRow icon={<IconFileText />} label={t("hamburgerMenu.terms")} href="/terms" />
         <MenuRow icon={<IconLock />} label={t("hamburgerMenu.changePassword")} onClick={() => onSelect("changePassword")} />
         <MenuRow icon={<IconTrash />} label={t("hamburgerMenu.accountManagement")} onClick={() => onSelect("accountManagement")} />
+
+        {isViewer && (
+          <MenuRow
+            icon={<span className="text-blue-400"><IconUserPlus /></span>}
+            label={requestSent ? "Solicitud enviada" : requestLoading ? "Enviando..." : "Solicitar ser creador"}
+            onClick={requestSent || requestLoading ? undefined : handleRequestCreator}
+            hasArrow={false}
+          />
+        )}
+
+        {isPending && (
+          <MenuRow
+            icon={<span className="text-amber-400"><IconClock /></span>}
+            label="Creador — Pendiente"
+            hasArrow={false}
+          />
+        )}
+
+        {isAdmin && (
+          <MenuRow
+            icon={<span className="text-emerald-400"><IconShieldCheck /></span>}
+            label="Admin: Solicitudes"
+            href="/admin/creators"
+          />
+        )}
       </div>
 
       <div className="border-t border-zinc-800 py-1">
@@ -359,7 +419,7 @@ function QRView({ onBack }: { onBack: () => void }) {
       <div className="flex flex-1 flex-col items-center justify-center gap-4 px-4 text-center">
         {profileUrl ? (
           <div className="rounded-lg bg-white p-2">
-            <QRCodeCanvas value={profileUrl} size={120} />
+            <QRCodeDisplay url={profileUrl} />
           </div>
         ) : (
           <div className="flex h-32 w-32 items-center justify-center rounded-lg bg-zinc-800">

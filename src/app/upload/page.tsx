@@ -7,7 +7,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { createClient } from "@/lib/supabase/client";
 
 export default function UploadPage() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, profile, loading: authLoading } = useAuth();
   const router = useRouter();
   const supabase = createClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -100,6 +100,25 @@ export default function UploadPage() {
   if (!user) {
     router.push("/auth/login");
     return null;
+  }
+
+  if (profile?.role !== "creator") {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center bg-black pt-14 pb-20 px-4">
+        <div className="flex flex-col items-center gap-4 text-center max-w-sm">
+          <h1 className="text-lg font-bold text-white">Subir video</h1>
+          <p className="text-sm text-zinc-400">
+            Solo los creadores pueden subir videos. Si deseas convertirte en creador, solicítalo desde tu perfil.
+          </p>
+          <button
+            onClick={() => router.push("/profile")}
+            className="rounded-lg bg-blue-600 px-5 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700"
+          >
+            Ir a mi perfil
+          </button>
+        </div>
+      </div>
+    );
   }
 
   return (

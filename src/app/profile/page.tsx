@@ -16,6 +16,8 @@ export default function ProfilePage() {
   const [videos, setVideos] = useState<Video[]>([]);
   const [videosLoading, setVideosLoading] = useState(true);
   const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
+  const [requestSent, setRequestSent] = useState(false);
+  const [requestLoading, setRequestLoading] = useState(false);
 
   const handleVideoClick = useCallback((video: Video) => {
     setSelectedVideo(video);
@@ -41,8 +43,37 @@ export default function ProfilePage() {
       setVideosLoading(false);
     };
 
-    fetchVideos();
-  }, [user, supabase]);
+    if (profile?.role === "creator") {
+      fetchVideos();
+    } else {
+      setVideosLoading(false);
+    }
+  }, [user, supabase, profile?.role]);
+
+  useEffect(() => {
+    if (!profile?.role) return;
+    const checkRequest = async () => {
+      const { data } = await supabase
+        .from("role_requests")
+        .select("*")
+        .eq("user_id", user?.id)
+        .eq("status", "pending")
+        .maybeSingle();
+      if (data) setRequestSent(true);
+    };
+    if (profile?.role === "viewer" || profile?.role === "pending") {
+      checkRequest();
+    }
+  }, [profile?.role, user?.id, supabase]);
+
+  const handleRequestCreator = async () => {
+    setRequestLoading(true);
+    const res = await fetch("/api/role-request", { method: "POST" });
+    if (res.ok) {
+      setRequestSent(true);
+    }
+    setRequestLoading(false);
+  };
 
   if (loading || !profile) {
     return (
@@ -54,6 +85,9 @@ export default function ProfilePage() {
 
   const avatarSrc = profile.avatar_url
     ?? `https://ui-avatars.com/api/?name=${profile.display_name ?? profile.username ?? "user"}&background=6366f1&color=fff&size=96`;
+
+  const isCreator = profile.role === "creator";
+  const isPending = profile.role === "pending";
 
   return (
     <div className="flex min-h-screen flex-col bg-black pt-14 pb-20">
@@ -101,7 +135,7 @@ export default function ProfilePage() {
 
         <div className="flex items-center gap-8 text-center">
           <div>
-            <p className="text-lg font-bold text-white">{videos.length}</p>
+            <p className="text-lg font-bold text-white">{isCreator ? videos.length : "—"}</p>
             <p className="text-sm text-zinc-500">{t("profile.videos")}</p>
           </div>
           <div>
@@ -115,17 +149,42 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-0.5 p-0.5">
-        {videosLoading ? (
-          <p className="col-span-3 py-8 text-center text-zinc-500">{t("profile.loadingVideos")}</p>
-        ) : videos.length === 0 ? (
-          <p className="col-span-3 py-8 text-center text-zinc-500">{t("profile.noVideosYet")}</p>
-        ) : (
-          videos.map((video) => (
-            <ProfileVideoCard key={video.id} video={video} onClick={handleVideoClick} />
-          ))
-        )}
-      </div>
+      {isPending && (
+        <div className="flex flex-col items-center gap-2 py-12 px-4 text-center">
+          <p className="text-sm text-zinc-400">
+            Tu solicitud para ser creador está pendiente de aprobación.
+          </p>
+        </div>
+      )}
+
+      {!isCreator && !isPending && (
+        <div className="flex flex-col items-center gap-3 py-12 px-4 text-center">
+          <p className="text-sm text-zinc-400">
+            Aún no eres creador. Solicita convertirte en creador para empezar a subir videos.
+          </p>
+          <button
+            onClick={handleRequestCreator}
+            disabled={requestLoading || requestSent}
+            className="rounded-lg bg-blue-600 px-5 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
+          >
+            {requestLoading ? "Enviando..." : requestSent ? "Solicitud enviada" : "Solicitar ser creador"}
+          </button>
+        </div>
+      )}
+
+      {isCreator && (
+        <div className="grid grid-cols-3 gap-0.5 p-0.5">
+          {videosLoading ? (
+            <p className="col-span-3 py-8 text-center text-zinc-500">{t("profile.loadingVideos")}</p>
+          ) : videos.length === 0 ? (
+            <p className="col-span-3 py-8 text-center text-zinc-500">{t("profile.noVideosYet")}</p>
+          ) : (
+            videos.map((video) => (
+              <ProfileVideoCard key={video.id} video={video} onClick={handleVideoClick} />
+            ))
+          )}
+        </div>
+      )}
 
       {selectedVideo && (
         <ProfileVideoOverlay

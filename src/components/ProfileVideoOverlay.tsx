@@ -15,7 +15,7 @@ interface Props {
 }
 
 export default function ProfileVideoOverlay({ video, allVideos, open, onClose }: Props) {
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
   const containerRef = useRef<HTMLDivElement>(null);
   const [profile, setProfile] = useState<{
     username: string | null;

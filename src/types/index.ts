@@ -7,6 +7,17 @@ export interface Profile {
   website: string | null;
   created_at: string;
   updated_at: string;
+  role: string;
+  is_admin: boolean;
+}
+
+export interface RoleRequest {
+  id: string;
+  user_id: string;
+  status: "pending" | "approved" | "denied";
+  created_at: string;
+  reviewed_by: string | null;
+  reviewed_at: string | null;
 }
 
 export interface Like {
