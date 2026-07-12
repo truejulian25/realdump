@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import CustomVideoPlayer from "./CustomVideoPlayer";
 import ProfileRow from "./ProfileRow";
@@ -22,15 +22,18 @@ export default function ProfileVideoOverlay({ video, allVideos, open, onClose }:
     display_name: string | null;
     avatar_url: string | null;
   } | null>(null);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
-  const { newerVideos, olderVideos } = useMemo(() => {
-    const idx = allVideos.findIndex((v) => v.id === video.id);
-    if (idx === -1) return { newerVideos: [], olderVideos: [] };
-    return {
-      newerVideos: allVideos.slice(0, idx),
-      olderVideos: allVideos.slice(idx + 1),
-    };
-  }, [allVideos, video.id]);
+  const selectedIndex = useMemo(
+    () => allVideos.findIndex((v) => v.id === video.id),
+    [allVideos, video.id]
+  );
+
+  useEffect(() => {
+    if (selectedIndex !== -1) {
+      setCurrentIndex(selectedIndex);
+    }
+  }, [selectedIndex]);
 
   useEffect(() => {
     if (!open || !video.user_id) return;
@@ -56,17 +59,25 @@ export default function ProfileVideoOverlay({ video, allVideos, open, onClose }:
   }, [open]);
 
   useEffect(() => {
-    if (!open) return;
-    const el = document.getElementById(`overlay-video-${video.id}`);
-    el?.scrollIntoView({ block: "start" });
-  }, [open, video.id]);
+    if (!open || selectedIndex === -1) return;
+    const container = containerRef.current;
+    if (!container) return;
+    const child = container.children[selectedIndex] as HTMLElement;
+    child?.scrollIntoView({ block: "start" });
+  }, [open, selectedIndex]);
+
+  const handleScroll = useCallback(() => {
+    const container = containerRef.current;
+    if (!container) return;
+    const index = Math.round(container.scrollTop / container.clientHeight);
+    setCurrentIndex(index);
+  }, []);
 
   useEffect(() => {
     const container = containerRef.current;
     if (!container || !open) return;
 
     const videoElements = container.querySelectorAll<HTMLVideoElement>("video");
-
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -78,13 +89,11 @@ export default function ProfileVideoOverlay({ video, allVideos, open, onClose }:
           }
         });
       },
-      { threshold: 0.7 }
+      { threshold: 0.5 }
     );
-
     videoElements.forEach((v) => observer.observe(v));
-
     return () => observer.disconnect();
-  }, [open, newerVideos, olderVideos]);
+  }, [open, allVideos]);
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
@@ -95,57 +104,77 @@ export default function ProfileVideoOverlay({ video, allVideos, open, onClose }:
     });
   };
 
-  const renderVideoCard = (v: Video, autoPlay: boolean) => (
-    <div key={v.id} className="flex w-full flex-col pb-5">
-      {profile && (
-        <ProfileRow
-          header
-          username={profile.username ?? "usuario"}
-          avatarUrl={profile.avatar_url}
-        />
-      )}
-      <div className="relative mt-3 w-full overflow-hidden rounded-lg bg-zinc-900">
-        <CustomVideoPlayer src={v.video_url} autoPlay={autoPlay} />
-      </div>
-      <div className="mt-3 flex flex-col gap-1.5 px-3">
-        <InteractionBar videoId={v.id} />
-        {v.description && (
-          <p className="text-sm leading-relaxed text-zinc-300">{v.description}</p>
-        )}
-        {v.hashtags && v.hashtags.length > 0 && (
-          <p className="text-sm text-blue-400">
-            {v.hashtags.map((h) => (h.startsWith("#") ? h : `#${h}`)).join(" ")}
-          </p>
-        )}
-        <p className="text-xs text-zinc-500">{formatDate(v.created_at)}</p>
-      </div>
-    </div>
-  );
-
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex flex-col bg-black">
-      <div className="flex items-center px-1 pt-1">
-        <button
-          onClick={onClose}
-          className="flex h-9 w-9 items-center justify-center rounded-full text-white"
-          aria-label="Volver"
-        >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="19" y1="12" x2="5" y2="12" />
-            <polyline points="12 19 5 12 12 5" />
-          </svg>
-        </button>
-      </div>
-
-      <div ref={containerRef} className="flex-1 overflow-y-auto">
-        <div className="mx-auto w-full max-w-md border-x border-zinc-800">
-          {newerVideos.map((v) => renderVideoCard(v, false))}
-          <div id={`overlay-video-${video.id}`}>{renderVideoCard(video, true)}</div>
-          {olderVideos.map((v) => renderVideoCard(v, false))}
+    <div className="fixed inset-0 z-[100] bg-black">
+      <div className="relative mx-auto h-full w-full max-w-md">
+        {/* Top bar */}
+        <div className="absolute left-0 right-0 top-0 z-20 flex items-center justify-between px-2 pt-1">
+          <button
+            onClick={onClose}
+            className="flex h-9 w-9 items-center justify-center rounded-full text-white"
+            aria-label="Volver"
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="19" y1="12" x2="5" y2="12" />
+              <polyline points="12 19 5 12 12 5" />
+            </svg>
+          </button>
+          {allVideos.length > 1 && (
+            <span className="text-sm text-white/70">
+              {currentIndex + 1} / {allVideos.length}
+            </span>
+          )}
         </div>
+
+        {/* TikTok-style snap feed */}
+        <div
+          ref={containerRef}
+          onScroll={handleScroll}
+          className="h-full overflow-y-auto snap-y snap-mandatory scroll-container"
+        >
+        {allVideos.map((v, i) => (
+          <div
+            key={v.id}
+            className="relative flex h-screen w-full flex-shrink-0 snap-start items-center justify-center"
+          >
+            <CustomVideoPlayer
+              src={v.video_url}
+              autoPlay={i === selectedIndex}
+            />
+
+            {/* Gradient overlays */}
+            <div className="pointer-events-none absolute inset-0 z-10">
+              {/* Top gradient + profile */}
+              <div className="pointer-events-auto absolute left-0 right-0 top-0 bg-gradient-to-b from-black/50 to-transparent px-4 pb-12 pt-1">
+                {profile && (
+                  <ProfileRow
+                    header
+                    username={profile.username ?? "usuario"}
+                    avatarUrl={profile.avatar_url}
+                  />
+                )}
+              </div>
+
+              {/* Bottom gradient + info */}
+              <div className="pointer-events-auto absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent px-4 pt-12 pb-4">
+                <InteractionBar videoId={v.id} />
+                {v.description && (
+                  <p className="mt-2 text-sm leading-relaxed text-zinc-200">{v.description}</p>
+                )}
+                {v.hashtags && v.hashtags.length > 0 && (
+                  <p className="mt-1 text-sm text-blue-400">
+                    {v.hashtags.map((h) => (h.startsWith("#") ? h : `#${h}`)).join(" ")}
+                  </p>
+                )}
+                <p className="mt-1 text-xs text-zinc-400">{formatDate(v.created_at)}</p>
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
+    </div>
     </div>
   );
 }

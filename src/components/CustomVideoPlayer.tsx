@@ -5,9 +5,10 @@ import { useRef, useState, useCallback, useEffect } from "react";
 interface Props {
   src: string;
   autoPlay?: boolean;
+  fill?: boolean;
 }
 
-export default function CustomVideoPlayer({ src, autoPlay = true }: Props) {
+export default function CustomVideoPlayer({ src, autoPlay = true, fill = false }: Props) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [playing, setPlaying] = useState(false);
   const [muted, setMuted] = useState(true);
@@ -141,21 +142,21 @@ export default function CustomVideoPlayer({ src, autoPlay = true }: Props) {
 
   return (
     <div
-      className="group relative w-full cursor-pointer overflow-hidden rounded-lg bg-zinc-900"
-      style={{ aspectRatio: aspectRatio ? `${aspectRatio.w}/${aspectRatio.h}` : "9/16" }}
+      className={`group relative w-full cursor-pointer overflow-hidden ${fill ? "h-full bg-black" : "rounded-lg bg-zinc-900"}`}
+      style={fill ? undefined : { aspectRatio: aspectRatio ? `${aspectRatio.w}/${aspectRatio.h}` : "9/16" }}
       onMouseMove={showControlsTemporarily}
       onMouseLeave={() => playing && setShowControls(false)}
       onTouchStart={showControlsTemporarily}
       onClick={togglePlay}
     >
       {/* Skeleton overlay while loading metadata */}
-      {!aspectRatio && (
+      {!fill && !aspectRatio && (
         <div className="absolute inset-0 z-10 bg-zinc-900 animate-pulse" />
       )}
 
       <video
         ref={videoRef}
-        className="h-full w-full object-contain"
+        className={`h-full w-full ${fill ? "object-cover" : "object-contain"}`}
         src={src}
         loop
         playsInline
@@ -177,7 +178,7 @@ export default function CustomVideoPlayer({ src, autoPlay = true }: Props) {
       )}
 
       {/* Bottom controls */}
-      {aspectRatio && (
+      {!fill && aspectRatio && (
         <div
           className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3 pt-8 transition-opacity ${
             showControls ? "opacity-100" : "opacity-0"
