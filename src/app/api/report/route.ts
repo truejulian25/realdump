@@ -11,16 +11,14 @@ export async function POST(req: NextRequest) {
 
   const { video_id, reason, description } = await req.json();
 
-  if (!video_id || !reason) {
-    return Response.json({ error: "video_id y reason son requeridos" }, { status: 400 });
+  if (!video_id || !reason || !description?.trim()) {
+    return Response.json({ error: "video_id, reason y description son requeridos" }, { status: 400 });
   }
 
   const validReasons = [
     "Aparezco en este video y no autoricé su publicación",
-    "Contenido violento o agresivo",
-    "Acoso o bullying",
-    "Contenido sexual explícito",
-    "Spam o engañoso",
+    "Contenido violento",
+    "Spam o engaño",
     "Otro",
   ];
 
@@ -32,7 +30,7 @@ export async function POST(req: NextRequest) {
     video_id,
     reporter_id: user.id,
     reason,
-    description: description || null,
+    description: description.trim(),
   });
 
   if (error) {

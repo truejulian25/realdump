@@ -10,10 +10,8 @@ interface Props {
 
 const REASONS = [
   "Aparezco en este video y no autoricé su publicación",
-  "Contenido violento o agresivo",
-  "Acoso o bullying",
-  "Contenido sexual explícito",
-  "Spam o engañoso",
+  "Contenido violento",
+  "Spam o engaño",
   "Otro",
 ];
 
@@ -28,7 +26,7 @@ export default function ReportModal({ open, onClose, videoId }: Props) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedReason) return;
+    if (!selectedReason || !description.trim()) return;
 
     setSending(true);
     setError(null);
@@ -40,7 +38,7 @@ export default function ReportModal({ open, onClose, videoId }: Props) {
         body: JSON.stringify({
           video_id: videoId,
           reason: selectedReason,
-          description: description.trim() || undefined,
+          description: description.trim(),
         }),
       });
 
@@ -123,8 +121,9 @@ export default function ReportModal({ open, onClose, videoId }: Props) {
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="Describe el problema (opcional)"
+                placeholder="Describe el problema"
                 rows={3}
+                required
                 className="w-full resize-none rounded-lg border border-zinc-700 bg-zinc-800 p-3 text-sm text-white placeholder-zinc-500 outline-none focus:border-blue-500"
               />
 
@@ -132,7 +131,7 @@ export default function ReportModal({ open, onClose, videoId }: Props) {
 
               <button
                 type="submit"
-                disabled={!selectedReason || sending}
+                disabled={!selectedReason || !description.trim() || sending}
                 className="w-full rounded-lg bg-red-600 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-red-700 disabled:opacity-50"
               >
                 {sending ? "Enviando..." : "Enviar reporte"}
