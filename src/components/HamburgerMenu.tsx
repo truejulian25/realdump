@@ -226,24 +226,6 @@ function MainMenu({ onSelect, onClose }: {
         <MenuRow icon={<IconFilter />} label={t("hamburgerMenu.filters")} onClick={() => onSelect("filters")} />
         <MenuRow icon={<IconFileText />} label={t("hamburgerMenu.terms")} href="/terms" />
         <MenuRow icon={<IconLock />} label={t("hamburgerMenu.changePassword")} onClick={() => onSelect("changePassword")} />
-        <MenuRow icon={<IconTrash />} label={t("hamburgerMenu.accountManagement")} onClick={() => onSelect("accountManagement")} />
-
-        {isViewer && (
-          <MenuRow
-            icon={<span className="text-blue-400"><IconUserPlus /></span>}
-            label={requestSent ? "Solicitud enviada" : requestLoading ? "Enviando..." : "Solicitar ser creador"}
-            onClick={requestSent || requestLoading ? undefined : handleRequestCreator}
-            hasArrow={false}
-          />
-        )}
-
-        {isPending && (
-          <MenuRow
-            icon={<span className="text-amber-400"><IconClock /></span>}
-            label="Creador — Pendiente"
-            hasArrow={false}
-          />
-        )}
 
         {isCreator && (
           <>
@@ -277,6 +259,25 @@ function MainMenu({ onSelect, onClose }: {
               </div>
             )}
           </>
+        )}
+
+        <MenuRow icon={<IconTrash />} label={t("hamburgerMenu.accountManagement")} onClick={() => onSelect("accountManagement")} />
+
+        {isViewer && (
+          <MenuRow
+            icon={<span className="text-blue-400"><IconUserPlus /></span>}
+            label={requestSent ? "Solicitud enviada" : requestLoading ? "Enviando..." : "Solicitar ser creador"}
+            onClick={requestSent || requestLoading ? undefined : handleRequestCreator}
+            hasArrow={false}
+          />
+        )}
+
+        {isPending && (
+          <MenuRow
+            icon={<span className="text-amber-400"><IconClock /></span>}
+            label="Creador — Pendiente"
+            hasArrow={false}
+          />
         )}
 
         {isAdmin && (

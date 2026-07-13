@@ -13,13 +13,11 @@ import type { Video } from "@/types";
 
 export default function ProfilePage() {
   const { t } = useLanguage();
-  const { profile, user, loading, refreshProfile } = useAuth();
+  const { profile, user, loading } = useAuth();
   const supabase = createClient();
   const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
   const [requestSent, setRequestSent] = useState(false);
   const [requestLoading, setRequestLoading] = useState(false);
-  const [showRevokeConfirm, setShowRevokeConfirm] = useState(false);
-  const [revoking, setRevoking] = useState(false);
 
   const {
     data,
@@ -83,16 +81,6 @@ export default function ProfilePage() {
       setRequestSent(true);
     }
     setRequestLoading(false);
-  };
-
-  const handleRevokeCreator = async () => {
-    setRevoking(true);
-    const res = await fetch("/api/revoke-creator", { method: "POST" });
-    if (res.ok) {
-      await refreshProfile();
-    }
-    setRevoking(false);
-    setShowRevokeConfirm(false);
   };
 
   if (loading || !profile) {
@@ -194,15 +182,6 @@ export default function ProfilePage() {
 
       {isCreator && (
         <>
-          <div className="flex justify-center border-b border-zinc-800 py-3">
-            <button
-              onClick={() => setShowRevokeConfirm(true)}
-              className="text-sm text-zinc-500 transition-colors hover:text-red-400"
-            >
-              Dejar de ser creador
-            </button>
-          </div>
-
           {videosLoading ? (
             <ProfileGridSkeleton />
           ) : videos.length === 0 ? (
@@ -236,39 +215,6 @@ export default function ProfilePage() {
           onClose={() => setSelectedVideo(null)}
           onLoadMore={hasNextPage ? fetchNextPage : undefined}
         />
-      )}
-
-      {/* Confirm revoke modal */}
-      {showRevokeConfirm && (
-        <div
-          className="fixed inset-0 z-[200] flex items-end justify-center bg-black/60 sm:items-center"
-          onClick={() => setShowRevokeConfirm(false)}
-        >
-          <div
-            className="w-full max-w-sm rounded-t-2xl bg-zinc-900 p-5 sm:rounded-2xl"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h2 className="text-lg font-bold text-white">¿Dejar de ser creador?</h2>
-            <p className="mt-2 text-sm text-zinc-400">
-              Tus videos seguirán publicados, pero no podrás subir nuevos. Puedes solicitar ser creador nuevamente después.
-            </p>
-            <div className="mt-5 flex gap-3">
-              <button
-                onClick={() => setShowRevokeConfirm(false)}
-                className="flex-1 rounded-lg bg-zinc-800 py-2.5 text-sm text-white transition-colors hover:bg-zinc-700"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={handleRevokeCreator}
-                disabled={revoking}
-                className="flex-1 rounded-lg bg-red-600 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-red-700 disabled:opacity-50"
-              >
-                {revoking ? "Cambiando..." : "Sí, dejar de ser creador"}
-              </button>
-            </div>
-          </div>
-        </div>
       )}
     </div>
   );
