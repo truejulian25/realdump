@@ -234,7 +234,6 @@ function MainMenu({ onSelect, onClose }: {
               label="Dejar de ser creador"
               onClick={() => setShowRevokeConfirm(true)}
               hasArrow={false}
-              danger
             />
 
             {showRevokeConfirm && (
