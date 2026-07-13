@@ -6,6 +6,13 @@ import { useRef, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { createClient } from "@/lib/supabase/client";
 
+const POLL_INTERVAL = 2000;
+const MAX_POLLS = 60;
+
+function wait(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 export default function UploadPage() {
   const { user, profile, loading: authLoading } = useAuth();
   const router = useRouter();
@@ -18,6 +25,7 @@ export default function UploadPage() {
   const [description, setDescription] = useState("");
   const [hashtags, setHashtags] = useState("");
   const [uploading, setUploading] = useState(false);
+  const [uploadStatus, setUploadStatus] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
@@ -30,8 +38,8 @@ export default function UploadPage() {
       return;
     }
 
-    if (file.size > 50 * 1024 * 1024) {
-      setError("El video no puede superar los 50MB");
+    if (file.size > 100 * 1024 * 1024) {
+      setError("El video no puede superar los 100MB");
       return;
     }
 
@@ -46,47 +54,97 @@ export default function UploadPage() {
 
     setUploading(true);
     setError(null);
+    setUploadStatus("Preparando subida...");
 
-    const fileExt = videoFile.name.split(".").pop();
-    const filePath = `${user.id}/${crypto.randomUUID()}.${fileExt}`;
+    try {
+      // 1. Create Mux upload URL
+      setUploadStatus("Obteniendo URL de subida...");
+      const uploadResp = await fetch("/api/mux/upload", { method: "POST" });
+      if (!uploadResp.ok) {
+        const err = await uploadResp.json();
+        throw new Error(err.error || "Error al crear upload");
+      }
+      const { uploadUrl, uploadId } = await uploadResp.json();
 
-    const { error: uploadError } = await supabase.storage
-      .from("videos")
-      .upload(filePath, videoFile);
+      // 2. Upload file directly to Mux
+      setUploadStatus("Subiendo video a Mux...");
+      const fileResp = await fetch(uploadUrl, {
+        method: "PUT",
+        body: videoFile,
+        headers: { "Content-Type": videoFile.type },
+      });
 
-    if (uploadError) {
-      setError("Error al subir video: " + uploadError.message);
+      if (!fileResp.ok) {
+        throw new Error("Error al subir el archivo a Mux");
+      }
+
+      // 3. Poll for asset creation
+      setUploadStatus("Procesando video...");
+      let assetId: string | null = null;
+
+      for (let i = 0; i < MAX_POLLS; i++) {
+        await wait(POLL_INTERVAL);
+        const statusResp = await fetch(`/api/mux/asset-status?uploadId=${uploadId}`);
+        if (!statusResp.ok) continue;
+        const statusData = await statusResp.json();
+        if (statusData.assetId) {
+          assetId = statusData.assetId;
+          break;
+        }
+      }
+
+      if (!assetId) {
+        throw new Error("El video tardó demasiado en procesarse. Intenta de nuevo.");
+      }
+
+      // 4. Poll for playback ID
+      setUploadStatus("Generando playback...");
+      let playbackId: string | null = null;
+
+      for (let i = 0; i < MAX_POLLS; i++) {
+        await wait(POLL_INTERVAL);
+        const assetResp = await fetch(`/api/mux/asset-status?assetId=${assetId}`);
+        if (!assetResp.ok) continue;
+        const assetData = await assetResp.json();
+        if (assetData.playbackId) {
+          playbackId = assetData.playbackId;
+          break;
+        }
+      }
+
+      if (!playbackId) {
+        throw new Error("Error al obtener playback del video.");
+      }
+
+      // 5. Save to database
+      setUploadStatus("Guardando...");
+      const hashtagList = hashtags
+        .split(/\s+/)
+        .filter((tag) => tag.length > 0);
+
+      const { error: insertError } = await supabase.from("videos").insert({
+        user_id: user.id,
+        title: title || null,
+        description: description || null,
+        video_url: "",
+        hashtags: hashtagList.length > 0 ? hashtagList : null,
+        mux_playback_id: playbackId,
+        mux_asset_id: assetId,
+      });
+
+      if (insertError) {
+        throw new Error("Error al guardar metadata: " + insertError.message);
+      }
+
+      setSuccess(true);
+      setUploadStatus("");
+      setTimeout(() => router.push("/profile"), 1500);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : "Error desconocido";
+      setError(message);
+    } finally {
       setUploading(false);
-      return;
     }
-
-    const { data: urlData } = supabase.storage
-      .from("videos")
-      .getPublicUrl(filePath);
-    const videoUrl = urlData.publicUrl;
-
-    const hashtagList = hashtags
-      .split(/\s+/)
-      .filter((tag) => tag.length > 0);
-
-    const { error: insertError } = await supabase.from("videos").insert({
-      user_id: user.id,
-      title: title || null,
-      description: description || null,
-      video_url: videoUrl,
-      hashtags: hashtagList.length > 0 ? hashtagList : null,
-    });
-
-    if (insertError) {
-      setError("Error al guardar metadata: " + insertError.message);
-      setUploading(false);
-      return;
-    }
-
-    setSuccess(true);
-    setUploading(false);
-
-    setTimeout(() => router.push("/profile"), 1500);
   };
 
   if (authLoading) {
@@ -195,6 +253,13 @@ export default function UploadPage() {
           placeholder="Hashtags (separados por espacio)"
           className="w-full bg-transparent px-0 py-2 text-sm text-white placeholder-zinc-500 outline-none caret-blue-500"
         />
+
+        {uploadStatus && !error && !success && (
+          <div className="flex items-center gap-2 text-sm text-blue-400">
+            <div className="h-3 w-3 animate-spin rounded-full border-2 border-blue-400 border-t-transparent" />
+            {uploadStatus}
+          </div>
+        )}
 
         {error && <p className="text-sm text-red-400">{error}</p>}
         {success && <p className="text-sm text-green-400">¡Video subido con éxito!</p>}

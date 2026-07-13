@@ -2,9 +2,11 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import CustomVideoPlayer from "./CustomVideoPlayer";
+import MuxVideoPlayer from "./MuxVideoPlayer";
 import ProfileRow from "./ProfileRow";
 import InteractionBar from "./InteractionBar";
+import VideoMenu from "./VideoMenu";
+import ReportModal from "./ReportModal";
 import type { Video } from "@/types";
 
 interface Props {
@@ -12,9 +14,10 @@ interface Props {
   allVideos: Video[];
   open: boolean;
   onClose: () => void;
+  onLoadMore?: () => void;
 }
 
-export default function ProfileVideoOverlay({ video, allVideos, open, onClose }: Props) {
+export default function ProfileVideoOverlay({ video, allVideos, open, onClose, onLoadMore }: Props) {
   const supabase = useMemo(() => createClient(), []);
   const containerRef = useRef<HTMLDivElement>(null);
   const [profile, setProfile] = useState<{
@@ -23,6 +26,7 @@ export default function ProfileVideoOverlay({ video, allVideos, open, onClose }:
     avatar_url: string | null;
   } | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [reportVideoId, setReportVideoId] = useState<string | null>(null);
 
   const selectedIndex = useMemo(
     () => allVideos.findIndex((v) => v.id === video.id),
@@ -71,7 +75,11 @@ export default function ProfileVideoOverlay({ video, allVideos, open, onClose }:
     if (!container) return;
     const index = Math.round(container.scrollTop / container.clientHeight);
     setCurrentIndex(index);
-  }, []);
+
+    if (onLoadMore && index >= allVideos.length - 2) {
+      onLoadMore();
+    }
+  }, [allVideos.length, onLoadMore]);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -139,10 +147,21 @@ export default function ProfileVideoOverlay({ video, allVideos, open, onClose }:
             key={v.id}
             className="relative flex h-screen w-full flex-shrink-0 snap-start items-center justify-center"
           >
-            <CustomVideoPlayer
-              src={v.video_url}
-              autoPlay={i === selectedIndex}
-            />
+            <div className="relative h-full w-full">
+              <MuxVideoPlayer
+                playbackId={v.mux_playback_id}
+                src={v.video_url}
+                autoPlay={i === selectedIndex}
+              />
+
+              {/* Menu button */}
+              <div className="absolute right-2 top-2 z-30">
+                <VideoMenu
+                  videoId={v.id}
+                  onReport={() => setReportVideoId(v.id)}
+                />
+              </div>
+            </div>
 
             {/* Gradient overlays */}
             <div className="pointer-events-none absolute inset-0 z-10">
@@ -174,6 +193,12 @@ export default function ProfileVideoOverlay({ video, allVideos, open, onClose }:
           </div>
         ))}
       </div>
+
+      <ReportModal
+        open={!!reportVideoId}
+        videoId={reportVideoId ?? ""}
+        onClose={() => setReportVideoId(null)}
+      />
     </div>
     </div>
   );

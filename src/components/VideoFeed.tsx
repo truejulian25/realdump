@@ -1,13 +1,15 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback, useMemo } from "react";
+import { useRef, useEffect, useCallback, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { useVideoFeed } from "@/hooks/useVideos";
 import type { Video } from "@/types";
-import CustomVideoPlayer from "./CustomVideoPlayer";
+import MuxVideoPlayer from "./MuxVideoPlayer";
 import ProfileRow from "./ProfileRow";
 import InteractionBar from "./InteractionBar";
-
-const PAGE_SIZE = 10;
+import FeedSkeleton from "./FeedSkeleton";
+import VideoMenu from "./VideoMenu";
+import ReportModal from "./ReportModal";
 
 interface VideoWithProfile extends Video {
   profiles: {
@@ -18,74 +20,26 @@ interface VideoWithProfile extends Video {
 }
 
 export default function VideoFeed() {
-  const [items, setItems] = useState<VideoWithProfile[]>([]);
-  const [loading, setLoading] = useState(true);
-  const pageRef = useRef(0);
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+    isError,
+  } = useVideoFeed();
+
+  const items: VideoWithProfile[] = data?.pages.flat() ?? [];
   const containerRef = useRef<HTMLDivElement>(null);
   const sentinelRef = useRef<HTMLDivElement>(null);
-  const supabase = useMemo(() => createClient(), []);
-
-  const activeUserIds = useRef<string[] | null>(null);
-
-  const getActiveUserIds = useCallback(async () => {
-    if (activeUserIds.current) return activeUserIds.current;
-
-    const { data } = await supabase
-      .from("profiles")
-      .select("id")
-      .is("deactivated_at", null)
-      .is("deleted_at", null);
-
-    const ids = (data || []).map((p) => p.id);
-    activeUserIds.current = ids;
-    return ids;
-  }, [supabase]);
-
-  const fetchVideos = useCallback(async (page: number) => {
-    const start = page * PAGE_SIZE;
-    const end = start + PAGE_SIZE - 1;
-    const ids = await getActiveUserIds();
-
-    if (ids.length === 0) return;
-
-    const { data, error } = await supabase
-      .from("videos")
-      .select("*, profiles(username, display_name, avatar_url)")
-      .in("user_id", ids)
-      .order("created_at", { ascending: false })
-      .range(start, end);
-
-    if (error) {
-      console.error("Error fetching videos:", error);
-      return;
-    }
-
-    if (!data || data.length === 0) {
-      pageRef.current = 0;
-      const { data: resetData } = await supabase
-        .from("videos")
-        .select("*, profiles(username, display_name, avatar_url)")
-        .in("user_id", ids)
-        .order("created_at", { ascending: false })
-        .range(0, PAGE_SIZE - 1);
-
-      if (resetData) {
-        setItems((prev) => [...prev, ...resetData]);
-      }
-      return;
-    }
-
-    setItems((prev) => [...prev, ...data]);
-  }, [supabase, getActiveUserIds]);
-
-  useEffect(() => {
-    fetchVideos(0).finally(() => setLoading(false));
-  }, [fetchVideos]);
+  const supabaseRef = useRef(createClient());
+  const [reportVideoId, setReportVideoId] = useState<string | null>(null);
 
   const loadMore = useCallback(() => {
-    pageRef.current += 1;
-    fetchVideos(pageRef.current);
-  }, [fetchVideos]);
+    if (hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   useEffect(() => {
     const sentinel = sentinelRef.current;
@@ -102,7 +56,7 @@ export default function VideoFeed() {
 
     observer.observe(sentinel);
     return () => observer.disconnect();
-  }, [items, loadMore]);
+  }, [loadMore]);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -138,10 +92,18 @@ export default function VideoFeed() {
     });
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
-      <div className="flex h-screen items-center justify-center bg-black">
-        <p className="text-zinc-400">Cargando...</p>
+      <div className="flex h-screen items-start justify-center bg-black pt-14">
+        <FeedSkeleton />
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-black pt-14 pb-20">
+        <p className="text-red-400">Error al cargar videos</p>
       </div>
     );
   }
@@ -171,7 +133,13 @@ export default function VideoFeed() {
               avatarUrl={video.profiles?.avatar_url}
             />
             <div className="relative mt-3 w-full overflow-hidden rounded-lg bg-zinc-900">
-              <CustomVideoPlayer src={video.video_url} />
+              <MuxVideoPlayer playbackId={video.mux_playback_id} src={video.video_url} />
+              <div className="absolute right-2 top-2 z-30">
+                <VideoMenu
+                  videoId={video.id}
+                  onReport={() => setReportVideoId(video.id)}
+                />
+              </div>
             </div>
 
             <div className="mt-3 flex flex-col gap-1.5 px-3">
@@ -188,8 +156,21 @@ export default function VideoFeed() {
             </div>
         </div>
         ))}
-        <div ref={sentinelRef} />
+
+        {isFetchingNextPage && (
+          <div className="flex justify-center py-6">
+            <div className="h-6 w-6 animate-spin rounded-full border-2 border-zinc-600 border-t-white" />
+          </div>
+        )}
+
+        {hasNextPage && <div ref={sentinelRef} />}
       </div>
+
+      <ReportModal
+        open={!!reportVideoId}
+        videoId={reportVideoId ?? ""}
+        onClose={() => setReportVideoId(null)}
+      />
     </div>
   );
 }

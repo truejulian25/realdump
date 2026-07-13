@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
-import { createClient } from "@/lib/supabase/client";
+import { useSavedVideos } from "@/hooks/useVideos";
 import type { Video } from "@/types";
 import ProfileVideoCard from "@/components/ProfileVideoCard";
+import ProfileGridSkeleton from "@/components/ProfileGridSkeleton";
 
 interface SavedVideoWithVideo {
   id: string;
@@ -18,9 +19,17 @@ interface SavedVideoWithVideo {
 export default function SavedPage() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
-  const supabase = createClient();
-  const [items, setItems] = useState<SavedVideoWithVideo[]>([]);
-  const [loading, setLoading] = useState(true);
+  const sentinelRef = useRef<HTMLDivElement>(null);
+
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+  } = useSavedVideos(user?.id);
+
+  const items: SavedVideoWithVideo[] = data?.pages.flat() ?? [];
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -29,26 +38,32 @@ export default function SavedPage() {
   }, [authLoading, user, router]);
 
   useEffect(() => {
-    if (!user) return;
+    const sentinel = sentinelRef.current;
+    if (!sentinel || !hasNextPage || isFetchingNextPage) return;
 
-    const fetchSaved = async () => {
-      const { data } = await supabase
-        .from("saved_videos")
-        .select("*, videos(*)")
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false });
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          fetchNextPage();
+        }
+      },
+      { rootMargin: "200px" }
+    );
 
-      if (data) setItems(data);
-      setLoading(false);
-    };
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-    fetchSaved();
-  }, [user, supabase]);
-
-  if (authLoading || loading) {
+  if (authLoading || isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-black pt-14 pb-20">
-        <p className="text-zinc-400">Cargando...</p>
+      <div className="flex min-h-screen flex-col bg-black pt-14 pb-20">
+        <div className="mx-auto w-full max-w-sm px-4 py-6">
+          <div className="mb-6 flex items-center gap-3">
+            <div className="h-4 w-4 rounded bg-zinc-800 animate-pulse" />
+            <div className="h-5 w-24 rounded bg-zinc-800 animate-pulse" />
+          </div>
+          <ProfileGridSkeleton />
+        </div>
       </div>
     );
   }
@@ -76,14 +91,26 @@ export default function SavedPage() {
             <p className="mt-1 text-xs text-zinc-600">Los videos que guardes aparecerán aquí</p>
           </div>
         ) : (
-          <div className="grid grid-cols-3 gap-0.5">
-            {items.map(
-              (item) =>
-                item.videos && (
-                  <ProfileVideoCard key={item.id} video={item.videos} />
-                )
+          <>
+            <div className="grid grid-cols-3 gap-0.5">
+              {items.map(
+                (item) =>
+                  item.videos && (
+                    <ProfileVideoCard key={item.id} video={item.videos} />
+                  )
+              )}
+            </div>
+
+            {hasNextPage && (
+              <div ref={sentinelRef} className="h-10" />
             )}
-          </div>
+
+            {isFetchingNextPage && (
+              <div className="flex justify-center py-4">
+                <div className="h-5 w-5 animate-spin rounded-full border-2 border-zinc-600 border-t-white" />
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>

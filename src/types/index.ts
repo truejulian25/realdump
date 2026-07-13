@@ -36,6 +36,8 @@ export interface Video {
   thumbnail_url: string | null;
   hashtags: string[] | null;
   created_at: string;
+  mux_playback_id: string | null;
+  mux_asset_id: string | null;
 }
 
 export interface Comment {
@@ -50,5 +52,15 @@ export interface SavedVideo {
   id: string;
   user_id: string;
   video_id: string;
+  created_at: string;
+}
+
+export interface Report {
+  id: string;
+  video_id: string;
+  reporter_id: string;
+  reason: string;
+  description: string | null;
+  status: "pending" | "reviewed" | "dismissed";
   created_at: string;
 }

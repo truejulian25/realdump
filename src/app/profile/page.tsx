@@ -1,11 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import ProfileVideoCard from "@/components/ProfileVideoCard";
 import ProfileVideoOverlay from "@/components/ProfileVideoOverlay";
+import ProfileGridSkeleton from "@/components/ProfileGridSkeleton";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useProfileVideos } from "@/hooks/useVideos";
 import { createClient } from "@/lib/supabase/client";
 import type { Video } from "@/types";
 
@@ -13,15 +15,20 @@ export default function ProfilePage() {
   const { t } = useLanguage();
   const { profile, user, loading } = useAuth();
   const supabase = createClient();
-  const [videos, setVideos] = useState<Video[]>([]);
-  const [videosLoading, setVideosLoading] = useState(true);
   const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
   const [requestSent, setRequestSent] = useState(false);
   const [requestLoading, setRequestLoading] = useState(false);
 
-  const handleVideoClick = useCallback((video: Video) => {
-    setSelectedVideo(video);
-  }, []);
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading: videosLoading,
+  } = useProfileVideos(user?.id);
+
+  const videos = data?.pages.flat() ?? [];
+  const sentinelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -29,26 +36,23 @@ export default function ProfilePage() {
     }
   }, [loading, user]);
 
+  // Infinite scroll sentinel
   useEffect(() => {
-    if (!user) return;
+    const sentinel = sentinelRef.current;
+    if (!sentinel || !hasNextPage || isFetchingNextPage) return;
 
-    const fetchVideos = async () => {
-      const { data } = await supabase
-        .from("videos")
-        .select("*")
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false });
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          fetchNextPage();
+        }
+      },
+      { rootMargin: "200px" }
+    );
 
-      if (data) setVideos(data);
-      setVideosLoading(false);
-    };
-
-    if (profile?.role === "creator") {
-      fetchVideos();
-    } else {
-      setVideosLoading(false);
-    }
-  }, [user, supabase, profile?.role]);
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   useEffect(() => {
     if (!profile?.role) return;
@@ -65,6 +69,10 @@ export default function ProfilePage() {
       checkRequest();
     }
   }, [profile?.role, user?.id, supabase]);
+
+  const handleVideoClick = useCallback((video: Video) => {
+    setSelectedVideo(video);
+  }, []);
 
   const handleRequestCreator = async () => {
     setRequestLoading(true);
@@ -173,17 +181,30 @@ export default function ProfilePage() {
       )}
 
       {isCreator && (
-        <div className="grid grid-cols-3 gap-0.5 p-0.5">
+        <>
           {videosLoading ? (
-            <p className="col-span-3 py-8 text-center text-zinc-500">{t("profile.loadingVideos")}</p>
+            <ProfileGridSkeleton />
           ) : videos.length === 0 ? (
-            <p className="col-span-3 py-8 text-center text-zinc-500">{t("profile.noVideosYet")}</p>
+            <p className="py-8 text-center text-zinc-500">{t("profile.noVideosYet")}</p>
           ) : (
-            videos.map((video) => (
-              <ProfileVideoCard key={video.id} video={video} onClick={handleVideoClick} />
-            ))
+            <div className="grid grid-cols-3 gap-0.5 p-0.5">
+              {videos.map((video) => (
+                <ProfileVideoCard key={video.id} video={video} onClick={handleVideoClick} />
+              ))}
+            </div>
           )}
-        </div>
+
+          {/* Infinite scroll sentinel */}
+          {hasNextPage && (
+            <div ref={sentinelRef} className="h-10" />
+          )}
+
+          {isFetchingNextPage && (
+            <div className="flex justify-center py-4">
+              <div className="h-5 w-5 animate-spin rounded-full border-2 border-zinc-600 border-t-white" />
+            </div>
+          )}
+        </>
       )}
 
       {selectedVideo && (
@@ -192,6 +213,7 @@ export default function ProfilePage() {
           allVideos={videos}
           open={!!selectedVideo}
           onClose={() => setSelectedVideo(null)}
+          onLoadMore={hasNextPage ? fetchNextPage : undefined}
         />
       )}
     </div>

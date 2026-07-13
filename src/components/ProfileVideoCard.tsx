@@ -26,6 +26,10 @@ export default function ProfileVideoCard({ video, onClick }: Props) {
     onClick?.(video);
   }, [onClick, video]);
 
+  const thumbnailSrc = video.mux_playback_id
+    ? `https://image.mux.com/${video.mux_playback_id}/thumbnail.jpg?width=300`
+    : undefined;
+
   return (
     <div
       className="group relative aspect-square cursor-pointer overflow-hidden bg-zinc-800"
@@ -33,13 +37,21 @@ export default function ProfileVideoCard({ video, onClick }: Props) {
       onMouseLeave={handleMouseLeave}
       onClick={handleClick}
     >
+      {thumbnailSrc && (
+        <img
+          src={thumbnailSrc}
+          alt=""
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+      )}
       <video
         ref={videoRef}
-        src={video.video_url}
+        src={video.video_url || undefined}
         muted
         playsInline
         preload="none"
-        className="h-full w-full object-cover"
+        poster={thumbnailSrc}
+        className="relative h-full w-full object-cover"
       />
       <div className="absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 transition-opacity group-hover:opacity-100">
         <svg width="32" height="32" viewBox="0 0 24 24" fill="white">

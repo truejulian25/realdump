@@ -4,10 +4,14 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { createClient } from "@/lib/supabase/client";
+import { usePublicacionesVideos } from "@/hooks/useVideos";
 import type { Video } from "@/types";
-import CustomVideoPlayer from "@/components/CustomVideoPlayer";
+import MuxVideoPlayer from "@/components/MuxVideoPlayer";
 import ProfileRow from "@/components/ProfileRow";
 import InteractionBar from "@/components/InteractionBar";
+import FeedSkeleton from "@/components/FeedSkeleton";
+import VideoMenu from "@/components/VideoMenu";
+import ReportModal from "@/components/ReportModal";
 
 interface VideoWithProfile extends Video {
   profiles: {
@@ -31,12 +35,23 @@ export default function PublicacionesPage() {
   const supabase = createClient();
   const [targetUserId, setTargetUserId] = useState<string | null>(null);
   const [targetVideoId, setTargetVideoId] = useState<string | null>(null);
-  const [videos, setVideos] = useState<VideoWithProfile[]>([]);
   const [profileData, setProfileData] = useState<ProfileData | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [profileLoading, setProfileLoading] = useState(true);
+  const [reportVideoId, setReportVideoId] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const scrolledRef = useRef(false);
   const currentVideoRef = useRef<HTMLVideoElement | null>(null);
+  const sentinelRef = useRef<HTMLDivElement>(null);
+
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading: videosLoading,
+  } = usePublicacionesVideos(targetUserId ?? user?.id);
+
+  const videos: VideoWithProfile[] = data?.pages.flat() ?? [];
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -50,31 +65,41 @@ export default function PublicacionesPage() {
     }
   }, [authLoading, user, targetUserId, router]);
 
+  // Fetch profile data separately (not paginated)
   useEffect(() => {
     const uid = targetUserId ?? user?.id;
     if (!uid) return;
 
-    const fetchData = async () => {
-      const [videosResult, profileResult] = await Promise.all([
-        supabase
-          .from("videos")
-          .select("*, profiles(username, display_name, avatar_url)")
-          .eq("user_id", uid)
-          .order("created_at", { ascending: false }),
-        supabase
-          .from("profiles")
-          .select("username, display_name, avatar_url, bio, website")
-          .eq("id", uid)
-          .single(),
-      ]);
-
-      if (videosResult.data) setVideos(videosResult.data);
-      if (profileResult.data) setProfileData(profileResult.data);
-      setLoading(false);
+    const fetchProfile = async () => {
+      const { data } = await supabase
+        .from("profiles")
+        .select("username, display_name, avatar_url, bio, website")
+        .eq("id", uid)
+        .single();
+      if (data) setProfileData(data);
+      setProfileLoading(false);
     };
 
-    fetchData();
+    fetchProfile();
   }, [user, targetUserId, supabase]);
+
+  // Infinite scroll sentinel
+  useEffect(() => {
+    const sentinel = sentinelRef.current;
+    if (!sentinel || !hasNextPage || isFetchingNextPage) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          fetchNextPage();
+        }
+      },
+      { rootMargin: "300px" }
+    );
+
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   const playVideo = useCallback((video: HTMLVideoElement) => {
     if (currentVideoRef.current && currentVideoRef.current !== video) {
@@ -178,10 +203,10 @@ export default function PublicacionesPage() {
     });
   };
 
-  if (authLoading || loading) {
+  if (authLoading || (videosLoading && videos.length === 0)) {
     return (
-      <div className="flex h-screen items-center justify-center bg-black pt-14 pb-20">
-        <p className="text-zinc-400">Cargando...</p>
+      <div className="flex h-screen items-start justify-center bg-black pt-14 pb-20">
+        <FeedSkeleton />
       </div>
     );
   }
@@ -245,40 +270,63 @@ export default function PublicacionesPage() {
         )}
 
         {/* Videos */}
-        {videos.length === 0 ? (
+        {videos.length === 0 && !videosLoading ? (
           <p className="py-8 text-center text-zinc-500">No hay videos aún</p>
         ) : (
-          videos.map((video) => (
-          <div
-            key={video.id}
-            id={`video-${video.id}`}
-            className="flex w-full flex-col pb-5"
-          >
-              <ProfileRow
-                header
-                username={video.profiles?.username ?? "usuario"}
-                avatarUrl={video.profiles?.avatar_url}
-              />
-              <div id={"video-container-" + video.id} className="relative mt-3 w-full overflow-hidden rounded-lg bg-zinc-900">
-                <CustomVideoPlayer src={video.video_url} />
-              </div>
+          <>
+            {videos.map((video) => (
+            <div
+              key={video.id}
+              id={`video-${video.id}`}
+              className="flex w-full flex-col pb-5"
+            >
+                <ProfileRow
+                  header
+                  username={video.profiles?.username ?? "usuario"}
+                  avatarUrl={video.profiles?.avatar_url}
+                />
+                <div id={"video-container-" + video.id} className="relative mt-3 w-full overflow-hidden rounded-lg bg-zinc-900">
+                  <MuxVideoPlayer playbackId={video.mux_playback_id} src={video.video_url} />
+                  <div className="absolute right-2 top-2 z-30">
+                    <VideoMenu
+                      videoId={video.id}
+                      onReport={() => setReportVideoId(video.id)}
+                    />
+                  </div>
+                </div>
 
-              <div className="mt-3 flex flex-col gap-1.5 px-3">
-                <InteractionBar videoId={video.id} />
-                {video.description && (
-                  <p className="text-sm leading-relaxed text-zinc-300">{video.description}</p>
-                )}
-                {video.hashtags && video.hashtags.length > 0 && (
-                  <p className="text-sm text-blue-400">
-                    {video.hashtags.map((h) => h.startsWith("#") ? h : `#${h}`).join(" ")}
-                  </p>
-                )}
-                <p className="text-xs text-zinc-500">{formatDate(video.created_at)}</p>
+                <div className="mt-3 flex flex-col gap-1.5 px-3">
+                  <InteractionBar videoId={video.id} />
+                  {video.description && (
+                    <p className="text-sm leading-relaxed text-zinc-300">{video.description}</p>
+                  )}
+                  {video.hashtags && video.hashtags.length > 0 && (
+                    <p className="text-sm text-blue-400">
+                      {video.hashtags.map((h) => h.startsWith("#") ? h : `#${h}`).join(" ")}
+                    </p>
+                  )}
+                  <p className="text-xs text-zinc-500">{formatDate(video.created_at)}</p>
+                </div>
+            </div>
+            ))}
+
+            {/* Infinite scroll sentinel */}
+            {hasNextPage && <div ref={sentinelRef} />}
+
+            {isFetchingNextPage && (
+              <div className="flex justify-center py-6">
+                <div className="h-6 w-6 animate-spin rounded-full border-2 border-zinc-600 border-t-white" />
               </div>
-          </div>
-          ))
+            )}
+          </>
         )}
       </div>
+
+      <ReportModal
+        open={!!reportVideoId}
+        videoId={reportVideoId ?? ""}
+        onClose={() => setReportVideoId(null)}
+      />
     </div>
   );
 }

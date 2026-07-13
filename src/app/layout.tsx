@@ -4,6 +4,7 @@ import Header from "@/components/Header";
 import BottomNav from "@/components/BottomNav";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
+import QueryProvider from "@/components/QueryProvider";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -34,9 +35,11 @@ export default function RootLayout({
       <body className="min-h-full overflow-x-hidden bg-black text-white">
         <AuthProvider>
           <LanguageProvider>
-            <Header />
-            {children}
-            <BottomNav />
+            <QueryProvider>
+              <Header />
+              {children}
+              <BottomNav />
+            </QueryProvider>
           </LanguageProvider>
         </AuthProvider>
       </body>
