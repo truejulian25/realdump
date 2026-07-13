@@ -173,10 +173,12 @@ function MainMenu({ onSelect, onClose }: {
   onClose: () => void;
 }) {
   const { t } = useLanguage();
-  const { profile, signOut } = useAuth();
+  const { profile, signOut, refreshProfile } = useAuth();
   const router = useRouter();
   const [requestSent, setRequestSent] = useState(false);
   const [requestLoading, setRequestLoading] = useState(false);
+  const [showRevokeConfirm, setShowRevokeConfirm] = useState(false);
+  const [revoking, setRevoking] = useState(false);
 
   const handleLogout = async () => {
     await signOut();
@@ -189,6 +191,16 @@ function MainMenu({ onSelect, onClose }: {
     const res = await fetch("/api/role-request", { method: "POST" });
     if (res.ok) setRequestSent(true);
     setRequestLoading(false);
+  };
+
+  const handleRevokeCreator = async () => {
+    setRevoking(true);
+    const res = await fetch("/api/revoke-creator", { method: "POST" });
+    if (res.ok) {
+      await refreshProfile();
+    }
+    setRevoking(false);
+    setShowRevokeConfirm(false);
   };
 
   const isViewer = profile?.role === "viewer";
@@ -231,6 +243,40 @@ function MainMenu({ onSelect, onClose }: {
             label="Creador — Pendiente"
             hasArrow={false}
           />
+        )}
+
+        {isCreator && (
+          <>
+            <MenuRow
+              icon={<span className="text-red-400"><IconUserX /></span>}
+              label="Dejar de ser creador"
+              onClick={() => setShowRevokeConfirm(true)}
+              hasArrow={false}
+              danger
+            />
+
+            {showRevokeConfirm && (
+              <div className="mx-4 mt-1 rounded-lg border border-red-800 bg-red-900/20 p-3">
+                <p className="text-sm text-zinc-200">¿Dejar de ser creador?</p>
+                <p className="mt-1 text-xs text-zinc-400">Tus videos seguirán publicados pero no podrás subir nuevos.</p>
+                <div className="mt-3 flex gap-2">
+                  <button
+                    onClick={() => setShowRevokeConfirm(false)}
+                    className="flex-1 rounded bg-zinc-800 py-1.5 text-xs text-white transition-colors hover:bg-zinc-700"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    onClick={handleRevokeCreator}
+                    disabled={revoking}
+                    className="flex-1 rounded bg-red-600 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-red-700 disabled:opacity-50"
+                  >
+                    {revoking ? "Cambiando..." : "Sí, dejar de ser creador"}
+                  </button>
+                </div>
+              </div>
+            )}
+          </>
         )}
 
         {isAdmin && (
