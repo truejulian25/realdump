@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 export async function POST(req: Request) {
   const supabase = await createClient();
@@ -50,7 +51,15 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Error al actualizar solicitud" }, { status: 500 });
   }
 
-  await supabase.from("profiles").update({ role: newRole }).eq("id", roleRequest.user_id);
+  const adminClient = createAdminClient();
+  const { error: profileError } = await adminClient
+    .from("profiles")
+    .update({ role: newRole })
+    .eq("id", roleRequest.user_id);
+
+  if (profileError) {
+    return NextResponse.json({ error: "Error al actualizar perfil" }, { status: 500 });
+  }
 
   return NextResponse.json({ ok: true });
 }
