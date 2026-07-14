@@ -224,7 +224,7 @@ function MainMenu({ onSelect, onClose }: {
         <MenuRow icon={<IconBarChart />} label={t("hamburgerMenu.stats")} href="/profile/stats" />
         <MenuRow icon={<IconUserX />} label={t("hamburgerMenu.blocked")} href="/profile/blocked" />
         <MenuRow icon={<IconFilter />} label={t("hamburgerMenu.filters")} onClick={() => onSelect("filters")} />
-        <MenuRow icon={<IconFileText />} label={t("hamburgerMenu.terms")} href="/terms" />
+        <MenuRow icon={<IconFileText />} label="Centro Legal" href="/terms" />
         <MenuRow icon={<IconLock />} label={t("hamburgerMenu.changePassword")} onClick={() => onSelect("changePassword")} />
 
         {isCreator && (
