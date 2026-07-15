@@ -20,6 +20,7 @@ interface Props {
   muted?: boolean;
   loop?: boolean;
   className?: string;
+  showControls?: boolean;
 }
 
 export default function MuxVideoPlayer({
@@ -30,6 +31,7 @@ export default function MuxVideoPlayer({
   muted = true,
   loop = true,
   className,
+  showControls = true,
 }: Props) {
   if (playbackId) {
     return (
@@ -39,7 +41,7 @@ export default function MuxVideoPlayer({
         muted={muted}
         loop={loop}
         streamType="on-demand"
-        className={className}
+        className={`${className ?? ""} ${showControls ? "" : "hide-controls"}`}
         style={
           fill
             ? { width: "100%", height: "100%", objectFit: "cover" as const }
@@ -50,7 +52,7 @@ export default function MuxVideoPlayer({
   }
 
   if (src) {
-    return <CustomVideoPlayer src={src} autoPlay={autoPlay} fill={fill} />;
+    return <CustomVideoPlayer src={src} autoPlay={autoPlay} fill={fill} hideControls={!showControls} />;
   }
 
   return null;

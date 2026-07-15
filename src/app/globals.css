@@ -16,3 +16,7 @@
 .scroll-container::-webkit-scrollbar {
   display: none;
 }
+
+mux-player.hide-controls::part(control-layer) {
+  display: none;
+}

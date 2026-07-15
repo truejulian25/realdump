@@ -12,7 +12,7 @@ export default function VideoMenu({ videoId, onReport }: Props) {
   const menuRef = useRef<HTMLDivElement>(null);
 
   const handleCopyLink = useCallback(() => {
-    const url = `${window.location.origin}/publicaciones?video_id=${videoId}`;
+    const url = `${window.location.origin}/profile?video_id=${videoId}`;
     navigator.clipboard.writeText(url).catch(() => {});
     setOpen(false);
   }, [videoId]);

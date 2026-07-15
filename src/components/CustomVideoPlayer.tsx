@@ -6,9 +6,10 @@ interface Props {
   src: string;
   autoPlay?: boolean;
   fill?: boolean;
+  hideControls?: boolean;
 }
 
-export default function CustomVideoPlayer({ src, autoPlay = true, fill = false }: Props) {
+export default function CustomVideoPlayer({ src, autoPlay = true, fill = false, hideControls = false }: Props) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [playing, setPlaying] = useState(false);
   const [muted, setMuted] = useState(true);
@@ -169,7 +170,7 @@ export default function CustomVideoPlayer({ src, autoPlay = true, fill = false }
       />
 
       {/* Play/Pause overlay */}
-      {aspectRatio && !playing && (
+      {!hideControls && aspectRatio && !playing && (
         <div className="absolute inset-0 flex items-center justify-center bg-black/20">
           <svg width="48" height="48" viewBox="0 0 24 24" fill="white">
             <polygon points="5 3 19 12 5 21 5 3" />
@@ -178,7 +179,7 @@ export default function CustomVideoPlayer({ src, autoPlay = true, fill = false }
       )}
 
       {/* Bottom controls */}
-      {!fill && aspectRatio && (
+      {!hideControls && !fill && aspectRatio && (
         <div
           className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3 pt-8 transition-opacity ${
             showControls ? "opacity-100" : "opacity-0"

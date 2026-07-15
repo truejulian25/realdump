@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState, useRef } from "react";
+import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import Link from "next/link";
 import ProfileVideoCard from "@/components/ProfileVideoCard";
 import ProfileVideoOverlay from "@/components/ProfileVideoOverlay";
@@ -27,7 +27,7 @@ export default function ProfilePage() {
     isLoading: videosLoading,
   } = useProfileVideos(user?.id);
 
-  const videos = data?.pages.flat() ?? [];
+  const videos = useMemo(() => data?.pages.flat() ?? [], [data?.pages]);
   const sentinelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -70,8 +70,21 @@ export default function ProfilePage() {
     }
   }, [profile?.role, user?.id, supabase]);
 
+  // popstate: cerrar overlay con el botón Atrás del navegador
+  useEffect(() => {
+    const handlePopState = () => setSelectedVideo(null);
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
+
   const handleVideoClick = useCallback((video: Video) => {
+    window.history.pushState(null, "");
     setSelectedVideo(video);
+  }, []);
+
+  const handleCloseOverlay = useCallback(() => {
+    setSelectedVideo(null);
+    window.history.back();
   }, []);
 
   const handleRequestCreator = async () => {
@@ -207,15 +220,13 @@ export default function ProfilePage() {
         </>
       )}
 
-      {selectedVideo && (
-        <ProfileVideoOverlay
-          video={selectedVideo}
-          allVideos={videos}
-          open={!!selectedVideo}
-          onClose={() => setSelectedVideo(null)}
-          onLoadMore={hasNextPage ? fetchNextPage : undefined}
-        />
-      )}
+      <ProfileVideoOverlay
+        video={selectedVideo}
+        allVideos={videos}
+        open={!!selectedVideo}
+        onClose={handleCloseOverlay}
+        onLoadMore={hasNextPage ? fetchNextPage : undefined}
+      />
     </div>
   );
 }

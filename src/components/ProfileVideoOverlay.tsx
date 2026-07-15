@@ -9,8 +9,144 @@ import VideoMenu from "./VideoMenu";
 import ReportModal from "./ReportModal";
 import type { Video } from "@/types";
 
-interface Props {
+function formatDate(dateStr: string) {
+  const date = new Date(dateStr);
+  return date.toLocaleDateString("es-CO", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+}
+
+function useMountAnimation(open: boolean) {
+  const [mounted, setMounted] = useState(false);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    if (open) {
+      setMounted(true);
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => setVisible(true));
+      });
+    } else if (mounted) {
+      setVisible(false);
+    }
+  }, [open]);
+
+  useEffect(() => {
+    if (!visible && mounted) {
+      const timer = setTimeout(() => setMounted(false), 200);
+      return () => clearTimeout(timer);
+    }
+  }, [visible, mounted]);
+
+  return { mounted, visible };
+}
+
+interface VideoSlideProps {
   video: Video;
+  index: number;
+  currentIndex: number;
+  selectedIndex: number;
+  profile: { username: string | null; display_name: string | null; avatar_url: string | null } | null;
+  videoRef: (el: HTMLElement | null) => void;
+  videoElementsRef: React.MutableRefObject<Map<string, HTMLVideoElement>>;
+}
+
+function VideoSlide({ video, index, currentIndex, selectedIndex, profile, videoRef, videoElementsRef }: VideoSlideProps) {
+  const isNearby = Math.abs(index - currentIndex) <= 3;
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    if (!isNearby) return;
+    const videoEl = videoElementsRef.current.get(video.id);
+    if (!videoEl) return;
+
+    const handleTimeUpdate = () => {
+      if (videoEl.duration) {
+        setProgress(videoEl.currentTime / videoEl.duration);
+      }
+    };
+
+    videoEl.addEventListener("timeupdate", handleTimeUpdate);
+    return () => videoEl.removeEventListener("timeupdate", handleTimeUpdate);
+  }, [video.id, isNearby, videoElementsRef]);
+
+  const handleSeek = (e: React.MouseEvent<HTMLDivElement>) => {
+    const videoEl = videoElementsRef.current.get(video.id);
+    if (!videoEl || !videoEl.duration) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    videoEl.currentTime = (x / rect.width) * videoEl.duration;
+  };
+
+  return (
+    <div
+      ref={videoRef}
+      data-video-id={video.id}
+      className="relative flex h-screen w-full flex-shrink-0 snap-start items-center justify-center"
+    >
+      {isNearby ? (
+        <>
+          <div className="relative flex h-full w-full items-center justify-center">
+              <MuxVideoPlayer
+                playbackId={video.mux_playback_id}
+                src={video.video_url}
+                autoPlay={index === selectedIndex}
+                showControls={false}
+              />
+          </div>
+          <div className="pointer-events-none absolute inset-0 z-10">
+            <div className="pointer-events-auto absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black/70 to-transparent px-4 pt-0 pb-4 text-left backdrop-blur-[2px]">
+              {profile && (
+                <div className="mb-2 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-lg border border-zinc-600 bg-zinc-800">
+                      {profile.avatar_url ? (
+                        <img src={profile.avatar_url} alt="" className="h-full w-full object-cover" />
+                      ) : (
+                        <span className="text-xs font-semibold text-zinc-400">
+                          {profile.username?.[0]?.toUpperCase() ?? "?"}
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-sm font-semibold text-white">{profile.username ?? "usuario"}</p>
+                  </div>
+                  <button className="rounded-lg border border-blue-500 px-3 py-1 text-xs font-medium text-blue-500 hover:bg-blue-500/10">
+                    Seguir
+                  </button>
+                </div>
+              )}
+              <InteractionBar videoId={video.id} />
+              {video.description && (
+                <p className="mt-2 text-sm leading-relaxed text-zinc-200">{video.description}</p>
+              )}
+              {video.hashtags && video.hashtags.length > 0 && (
+                <p className="mt-1 text-sm text-blue-400">
+                  {video.hashtags.map((h) => (h.startsWith("#") ? h : `#${h}`)).join(" ")}
+                </p>
+              )}
+              <div
+                className="mt-2 h-1 w-full cursor-pointer rounded-full bg-zinc-600"
+                onClick={handleSeek}
+              >
+                <div
+                  className="h-full rounded-full bg-white transition-all"
+                  style={{ width: `${progress * 100}%` }}
+                />
+              </div>
+            </div>
+          </div>
+        </>
+      ) : (
+        <div className="h-full w-full bg-zinc-900" />
+      )}
+    </div>
+  );
+}
+
+interface Props {
+  video: Video | null;
   allVideos: Video[];
   open: boolean;
   onClose: () => void;
@@ -18,7 +154,7 @@ interface Props {
 }
 
 export default function ProfileVideoOverlay({ video, allVideos, open, onClose, onLoadMore }: Props) {
-  const supabase = useMemo(() => createClient(), []);
+  const supabaseRef = useRef(createClient());
   const containerRef = useRef<HTMLDivElement>(null);
   const [profile, setProfile] = useState<{
     username: string | null;
@@ -28,10 +164,25 @@ export default function ProfileVideoOverlay({ video, allVideos, open, onClose, o
   const [currentIndex, setCurrentIndex] = useState(0);
   const [reportVideoId, setReportVideoId] = useState<string | null>(null);
 
-  const selectedIndex = useMemo(
-    () => allVideos.findIndex((v) => v.id === video.id),
-    [allVideos, video.id]
-  );
+  const { mounted, visible } = useMountAnimation(open);
+
+  const lastVideoRef = useRef(video);
+  const lastVideosRef = useRef(allVideos);
+
+  useEffect(() => {
+    if (open) {
+      lastVideoRef.current = video;
+      lastVideosRef.current = allVideos;
+    }
+  }, [open, video, allVideos]);
+
+  const activeVideo = open ? video : lastVideoRef.current;
+  const activeVideos = open ? allVideos : lastVideosRef.current;
+
+  const selectedIndex = useMemo(() => {
+    if (!activeVideo) return -1;
+    return activeVideos.findIndex((v) => v.id === activeVideo.id);
+  }, [activeVideo, activeVideos]);
 
   useEffect(() => {
     if (selectedIndex !== -1) {
@@ -40,34 +191,34 @@ export default function ProfileVideoOverlay({ video, allVideos, open, onClose, o
   }, [selectedIndex]);
 
   useEffect(() => {
-    if (!open || !video.user_id) return;
+    if (!open || !activeVideo?.user_id) return;
 
     const fetchProfile = async () => {
-      const { data } = await supabase
+      const { data } = await supabaseRef.current
         .from("profiles")
         .select("username, display_name, avatar_url")
-        .eq("id", video.user_id)
+        .eq("id", activeVideo.user_id)
         .single();
       if (data) setProfile(data);
     };
 
     fetchProfile();
-  }, [open, video.user_id, supabase]);
+  }, [open, activeVideo?.user_id]);
 
   useEffect(() => {
-    if (!open) return;
+    if (!mounted) return;
     document.body.style.overflow = "hidden";
     return () => {
       document.body.style.overflow = "";
     };
-  }, [open]);
+  }, [mounted]);
 
   useEffect(() => {
     if (!open || selectedIndex === -1) return;
     const container = containerRef.current;
     if (!container) return;
     const child = container.children[selectedIndex] as HTMLElement;
-    child?.scrollIntoView({ block: "start" });
+    child?.scrollIntoView({ block: "start", behavior: "smooth" });
   }, [open, selectedIndex]);
 
   const handleScroll = useCallback(() => {
@@ -76,16 +227,28 @@ export default function ProfileVideoOverlay({ video, allVideos, open, onClose, o
     const index = Math.round(container.scrollTop / container.clientHeight);
     setCurrentIndex(index);
 
-    if (onLoadMore && index >= allVideos.length - 2) {
+    if (onLoadMore && index >= activeVideos.length - 2) {
       onLoadMore();
     }
-  }, [allVideos.length, onLoadMore]);
+  }, [activeVideos.length, onLoadMore]);
+
+  const videoElementsRef = useRef<Map<string, HTMLVideoElement>>(new Map());
+
+  const stableVideoRef = useCallback((el: HTMLElement | null) => {
+    const id = el?.dataset.videoId;
+    if (!id) return;
+    if (el) {
+      const video = el.querySelector<HTMLVideoElement>("video");
+      if (video) videoElementsRef.current.set(id, video);
+    } else {
+      videoElementsRef.current.delete(id);
+    }
+  }, []);
 
   useEffect(() => {
     const container = containerRef.current;
     if (!container || !open) return;
 
-    const videoElements = container.querySelectorAll<HTMLVideoElement>("video");
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -99,107 +262,73 @@ export default function ProfileVideoOverlay({ video, allVideos, open, onClose, o
       },
       { threshold: 0.5 }
     );
-    videoElements.forEach((v) => observer.observe(v));
+
+    for (const [id, videoEl] of videoElementsRef.current) {
+      if (document.contains(videoEl)) {
+        observer.observe(videoEl);
+      } else {
+        videoElementsRef.current.delete(id);
+      }
+    }
+
     return () => observer.disconnect();
-  }, [open, allVideos]);
+  }, [open, currentIndex, activeVideos.length]);
 
-  const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr);
-    return date.toLocaleDateString("es-CO", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  };
-
-  if (!open) return null;
+  if (!mounted) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] bg-black">
+    <div
+      className="fixed inset-0 z-[100] bg-black transition-all duration-200 ease-out"
+      style={{
+        opacity: visible ? 1 : 0,
+        transform: visible ? "scale(1)" : "scale(0.95)",
+      }}
+    >
       <div className="relative mx-auto h-full w-full max-w-md">
-        {/* Top bar */}
-        <div className="absolute left-0 right-0 top-0 z-20 flex items-center justify-between px-2 pt-1">
-          <button
-            onClick={onClose}
-            className="flex h-9 w-9 items-center justify-center rounded-full text-white"
-            aria-label="Volver"
-          >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="19" y1="12" x2="5" y2="12" />
-              <polyline points="12 19 5 12 12 5" />
-            </svg>
-          </button>
-          {allVideos.length > 1 && (
-            <span className="text-sm text-white/70">
-              {currentIndex + 1} / {allVideos.length}
-            </span>
-          )}
+        <div className="absolute left-0 right-0 top-0 z-30 bg-gradient-to-b from-black/85 to-transparent px-3 pb-14 pt-2">
+          <div className="flex items-center justify-between">
+            <button
+              onClick={onClose}
+              className="flex h-9 w-9 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur-sm transition-colors hover:bg-black/60"
+              aria-label="Volver"
+            >
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12" />
+                <polyline points="12 19 5 12 12 5" />
+              </svg>
+            </button>
+            <VideoMenu
+              videoId={activeVideos[currentIndex]?.id}
+              onReport={() => activeVideos[currentIndex]?.id && setReportVideoId(activeVideos[currentIndex].id)}
+            />
+          </div>
         </div>
 
-        {/* TikTok-style snap feed */}
         <div
           ref={containerRef}
           onScroll={handleScroll}
           className="h-full overflow-y-auto snap-y snap-mandatory scroll-container"
         >
-        {allVideos.map((v, i) => (
-          <div
-            key={v.id}
-            className="relative flex h-screen w-full flex-shrink-0 snap-start items-center justify-center"
-          >
-            <div className="relative h-full w-full">
-              <MuxVideoPlayer
-                playbackId={v.mux_playback_id}
-                src={v.video_url}
-                autoPlay={i === selectedIndex}
-              />
+          {activeVideos.map((v, i) => (
+            <VideoSlide
+              key={v.id}
+              video={v}
+              index={i}
+              currentIndex={currentIndex}
+              selectedIndex={selectedIndex}
+              profile={profile}
+              videoRef={stableVideoRef}
+              videoElementsRef={videoElementsRef}
+            />
+          ))}
+        </div>
 
-              {/* Menu button */}
-              <div className="absolute right-2 top-2 z-30">
-                <VideoMenu
-                  videoId={v.id}
-                  onReport={() => setReportVideoId(v.id)}
-                />
-              </div>
-            </div>
-
-            {/* Gradient overlays */}
-            <div className="pointer-events-none absolute inset-0 z-10">
-              {/* Top gradient + profile */}
-              <div className="pointer-events-auto absolute left-0 right-0 top-0 bg-gradient-to-b from-black/50 to-transparent px-4 pb-12 pt-1">
-                {profile && (
-                  <ProfileRow
-                    header
-                    username={profile.username ?? "usuario"}
-                    avatarUrl={profile.avatar_url}
-                  />
-                )}
-              </div>
-
-              {/* Bottom gradient + info */}
-              <div className="pointer-events-auto absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent px-4 pt-12 pb-4">
-                <InteractionBar videoId={v.id} />
-                {v.description && (
-                  <p className="mt-2 text-sm leading-relaxed text-zinc-200">{v.description}</p>
-                )}
-                {v.hashtags && v.hashtags.length > 0 && (
-                  <p className="mt-1 text-sm text-blue-400">
-                    {v.hashtags.map((h) => (h.startsWith("#") ? h : `#${h}`)).join(" ")}
-                  </p>
-                )}
-                <p className="mt-1 text-xs text-zinc-400">{formatDate(v.created_at)}</p>
-              </div>
-            </div>
-          </div>
-        ))}
+        <ReportModal
+          open={!!reportVideoId}
+          videoId={reportVideoId ?? ""}
+          onClose={() => setReportVideoId(null)}
+        />
       </div>
-
-      <ReportModal
-        open={!!reportVideoId}
-        videoId={reportVideoId ?? ""}
-        onClose={() => setReportVideoId(null)}
-      />
-    </div>
     </div>
   );
 }
