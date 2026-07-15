@@ -30,8 +30,38 @@ export default function SearchPage() {
   const [searchType, setSearchType] = useState<SearchType>("exact");
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
+  const [recommendedVideos, setRecommendedVideos] = useState<VideoWithProfile[]>([]);
+  const [recsLoading, setRecsLoading] = useState(true);
   const supabase = useMemo(() => createClient(), []);
   const debounceRef = useRef<number | undefined>(undefined);
+
+  useEffect(() => {
+    const fetchRecommendations = async () => {
+      const { data: activeProfiles } = await supabase
+        .from("profiles")
+        .select("id")
+        .is("deactivated_at", null)
+        .is("deleted_at", null);
+
+      const ids = (activeProfiles || []).map((p) => p.id);
+      if (ids.length === 0) {
+        setRecsLoading(false);
+        return;
+      }
+
+      const { data } = await supabase
+        .from("videos")
+        .select("*, profiles(username, display_name, avatar_url)")
+        .in("user_id", ids)
+        .order("created_at", { ascending: false })
+        .limit(20);
+
+      setRecommendedVideos(data ?? []);
+      setRecsLoading(false);
+    };
+
+    fetchRecommendations();
+  }, [supabase]);
 
   useEffect(() => {
     const trimmed = query.trim();
@@ -171,12 +201,31 @@ export default function SearchPage() {
             <p className="text-zinc-400">Buscando...</p>
           </div>
         ) : !searched ? (
-          <div className="flex flex-col items-center justify-center gap-3 py-20 text-zinc-500">
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="11" cy="11" r="8" />
-              <line x1="21" y1="21" x2="16.65" y2="16.65" />
-            </svg>
-            <p className="text-sm">Busca perfiles o videos</p>
+          <div className="py-4">
+            {recsLoading ? (
+              <div className="flex items-center justify-center py-20">
+                <p className="text-zinc-400">Cargando...</p>
+              </div>
+            ) : recommendedVideos.length > 0 ? (
+              <>
+                <h2 className="mb-4 text-sm font-semibold text-zinc-400 uppercase tracking-wider">
+                  Recomendaciones
+                </h2>
+                <div className="grid grid-cols-3 gap-0.5">
+                  {recommendedVideos.map((video) => (
+                    <ProfileVideoCard key={video.id} video={video} />
+                  ))}
+                </div>
+              </>
+            ) : (
+              <div className="flex flex-col items-center justify-center gap-3 py-20 text-zinc-500">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="11" cy="11" r="8" />
+                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                </svg>
+                <p className="text-sm">Busca perfiles o videos</p>
+              </div>
+            )}
           </div>
         ) : (
           <>

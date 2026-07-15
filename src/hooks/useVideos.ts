@@ -50,7 +50,7 @@ export function useVideoFeed() {
       return (data as VideoWithProfile[]) || [];
     },
     getNextPageParam: (lastPage, pages) => {
-      if (lastPage.length < PAGE_SIZE) return undefined;
+      if (lastPage.length < PAGE_SIZE) return 0;
       return pages.length;
     },
     initialPageParam: 0,
