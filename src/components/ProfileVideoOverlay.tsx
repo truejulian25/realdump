@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/contexts/AuthContext";
 import MuxVideoPlayer from "./MuxVideoPlayer";
 import ProfileRow from "./ProfileRow";
 import InteractionBar from "./InteractionBar";
@@ -154,6 +156,8 @@ interface Props {
 }
 
 export default function ProfileVideoOverlay({ video, allVideos, open, onClose, onLoadMore }: Props) {
+  const { user } = useAuth();
+  const router = useRouter();
   const supabaseRef = useRef(createClient());
   const containerRef = useRef<HTMLDivElement>(null);
   const [profile, setProfile] = useState<{
@@ -299,6 +303,11 @@ export default function ProfileVideoOverlay({ video, allVideos, open, onClose, o
             </button>
             <VideoMenu
               videoId={activeVideos[currentIndex]?.id}
+              isOwner={activeVideos[currentIndex]?.user_id === user?.id}
+              onEdit={() => {
+                const id = activeVideos[currentIndex]?.id;
+                if (id) router.push(`/editar?video_id=${id}`);
+              }}
               onReport={() => activeVideos[currentIndex]?.id && setReportVideoId(activeVideos[currentIndex].id)}
             />
           </div>
