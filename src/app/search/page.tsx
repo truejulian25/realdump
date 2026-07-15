@@ -349,7 +349,7 @@ export default function SearchPage() {
                   {profiles.map((p) => (
                     <Link
                       key={p.id}
-                      href={`/publicaciones?user_id=${p.id}`}
+                      href={`/user/${p.id}`}
                       className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-zinc-900"
                     >
                       <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-zinc-700">

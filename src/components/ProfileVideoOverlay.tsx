@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
@@ -102,7 +103,10 @@ function VideoSlide({ video, index, currentIndex, selectedIndex, profile, videoR
             <div className="pointer-events-auto absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black/70 to-transparent px-4 pt-0 pb-4 text-left backdrop-blur-[2px]">
               {profile && (
                 <div className="mb-2 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
+                  <Link
+                    href={`/user/${video.user_id}`}
+                    className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+                  >
                     <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-lg border border-zinc-600 bg-zinc-800">
                       {profile.avatar_url ? (
                         <img src={profile.avatar_url} alt="" className="h-full w-full object-cover" />
@@ -113,7 +117,7 @@ function VideoSlide({ video, index, currentIndex, selectedIndex, profile, videoR
                       )}
                     </div>
                     <p className="text-sm font-semibold text-white">{profile.username ?? "usuario"}</p>
-                  </div>
+                  </Link>
                   <button className="rounded-lg border border-blue-500 px-3 py-1 text-xs font-medium text-blue-500 hover:bg-blue-500/10">
                     Seguir
                   </button>
