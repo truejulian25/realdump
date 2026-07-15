@@ -37,7 +37,7 @@ function useMountAnimation(open: boolean) {
 
   useEffect(() => {
     if (!visible && mounted) {
-      const timer = setTimeout(() => setMounted(false), 200);
+      const timer = setTimeout(() => setMounted(false), 300);
       return () => clearTimeout(timer);
     }
   }, [visible, mounted]);
@@ -282,14 +282,25 @@ export default function ProfileVideoOverlay({ video, allVideos, open, onClose, o
 
   return (
     <div
-      className="fixed inset-0 z-[100] bg-black transition-all duration-200 ease-out"
+      className="fixed inset-0 z-[100] bg-black"
       style={{
         opacity: visible ? 1 : 0,
-        transform: visible ? "scale(1)" : "scale(0.95)",
+        transform: visible
+          ? "scale(1) translateY(0px)"
+          : "scale(0.92) translateY(16px)",
+        transition: "opacity 250ms cubic-bezier(0.16, 1, 0.3, 1), transform 300ms cubic-bezier(0.16, 1, 0.3, 1)",
       }}
     >
       <div className="relative mx-auto h-full w-full max-w-md">
-        <div className="absolute left-0 right-0 top-0 z-30 bg-gradient-to-b from-black/85 to-transparent px-3 pb-14 pt-2">
+        <div
+          className="absolute left-0 right-0 top-0 z-30 bg-gradient-to-b from-black/85 to-transparent px-3 pb-14 pt-2"
+          style={{
+            opacity: visible ? 1 : 0,
+            transform: visible ? "translateY(0)" : "translateY(-12px)",
+            transition: "opacity 200ms ease-out, transform 200ms ease-out",
+            transitionDelay: visible ? "60ms" : "0ms",
+          }}
+        >
           <div className="flex items-center justify-between">
             <button
               onClick={onClose}

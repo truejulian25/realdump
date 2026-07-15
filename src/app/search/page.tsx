@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useMemo, useCallback } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import type { Video } from "@/types";
 import ProfileVideoCard from "@/components/ProfileVideoCard";
 import ProfileVideoOverlay from "@/components/ProfileVideoOverlay";
@@ -25,6 +26,7 @@ interface ProfileResult {
 type SearchType = "exact" | "partial" | "recommended";
 
 export default function SearchPage() {
+  const { user } = useAuth();
   const [query, setQuery] = useState("");
   const [profiles, setProfiles] = useState<ProfileResult[]>([]);
   const [videos, setVideos] = useState<VideoWithProfile[]>([]);
@@ -39,31 +41,96 @@ export default function SearchPage() {
 
   useEffect(() => {
     const fetchRecommendations = async () => {
-      const { data: activeProfiles } = await supabase
-        .from("profiles")
-        .select("id")
-        .is("deactivated_at", null)
-        .is("deleted_at", null);
+      let recommended: VideoWithProfile[] = [];
+      const interactedIds = new Set<string>();
 
-      const ids = (activeProfiles || []).map((p) => p.id);
-      if (ids.length === 0) {
-        setRecsLoading(false);
-        return;
+      if (user) {
+        const [{ data: likedRows }, { data: savedRows }] = await Promise.all([
+          supabase
+            .from("likes")
+            .select("video_id")
+            .eq("user_id", user.id)
+            .order("created_at", { ascending: false })
+            .limit(30),
+          supabase
+            .from("saved_videos")
+            .select("video_id")
+            .eq("user_id", user.id)
+            .order("created_at", { ascending: false })
+            .limit(30),
+        ]);
+
+        const likedIds = (likedRows ?? []).map((r) => r.video_id);
+        const savedIds = (savedRows ?? []).map((r) => r.video_id);
+        likedIds.forEach((id) => interactedIds.add(id));
+        savedIds.forEach((id) => interactedIds.add(id));
+
+        const allInteractedIds = [...likedIds, ...savedIds];
+        let interestTags: string[] = [];
+
+        if (allInteractedIds.length > 0) {
+          const { data: taggedVideos } = await supabase
+            .from("videos")
+            .select("hashtags")
+            .in("id", allInteractedIds);
+
+          const tagCount = new Map<string, number>();
+          (taggedVideos ?? []).forEach((v) => {
+            (v.hashtags ?? []).forEach((tag: string) => {
+              const clean = tag.startsWith("#") ? tag.slice(1) : tag;
+              tagCount.set(clean, (tagCount.get(clean) ?? 0) + 1);
+            });
+          });
+
+          interestTags = [...tagCount.entries()]
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 5)
+            .map(([tag]) => tag);
+        }
+
+        if (interestTags.length > 0) {
+          const orFilters = interestTags.map((t) => `hashtags.cs.{"${t}"}`).join(",");
+          const { data } = await supabase
+            .from("videos")
+            .select("*, profiles(username, display_name, avatar_url)")
+            .or(orFilters)
+            .order("created_at", { ascending: false })
+            .limit(20);
+
+          recommended = (data ?? []).filter((v) => !interactedIds.has(v.id));
+        }
       }
 
-      const { data } = await supabase
-        .from("videos")
-        .select("*, profiles(username, display_name, avatar_url)")
-        .in("user_id", ids)
-        .order("created_at", { ascending: false })
-        .limit(20);
+      if (recommended.length < 6) {
+        const { data: activeProfiles } = await supabase
+          .from("profiles")
+          .select("id")
+          .is("deactivated_at", null)
+          .is("deleted_at", null);
 
-      setRecommendedVideos(data ?? []);
+        const activeIds = (activeProfiles ?? []).map((p) => p.id);
+        if (activeIds.length > 0) {
+          const { data: fallback } = await supabase
+            .from("videos")
+            .select("*, profiles(username, display_name, avatar_url)")
+            .in("user_id", activeIds)
+            .order("created_at", { ascending: false })
+            .limit(20);
+
+          for (const v of fallback ?? []) {
+            if (!interactedIds.has(v.id) && !recommended.some((r) => r.id === v.id)) {
+              recommended.push(v);
+            }
+          }
+        }
+      }
+
+      setRecommendedVideos(recommended);
       setRecsLoading(false);
     };
 
     fetchRecommendations();
-  }, [supabase]);
+  }, [supabase, user]);
 
   useEffect(() => {
     const trimmed = query.trim();

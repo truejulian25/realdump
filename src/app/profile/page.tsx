@@ -27,7 +27,14 @@ export default function ProfilePage() {
     isLoading: videosLoading,
   } = useProfileVideos(user?.id);
 
-  const videos = useMemo(() => data?.pages.flat() ?? [], [data?.pages]);
+  const videos = useMemo(() => {
+    const seen = new Set<string>();
+    return (data?.pages.flat() ?? []).filter((v) => {
+      if (seen.has(v.id)) return false;
+      seen.add(v.id);
+      return true;
+    });
+  }, [data?.pages]);
   const sentinelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
