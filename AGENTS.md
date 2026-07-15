@@ -4,21 +4,23 @@
 
 ### Flujo actual
 - `/profile` → tap video → `ProfileVideoOverlay` (z-[100]) con snap-scroll TikTok
+- `/search` → búsqueda por título, descripción y hashtags; recomendaciones siempre visibles
+- `/editar?video_id=` → formulario para editar título, descripción y hashtags
 - Overlay con animación scale+opacity, barra de progreso seekeable, VideoMenu en header
+- VideoMenu: "Copiar enlace" + "Editar" (si es dueño) o "Reportar" (si es ajeno)
 - Botón "Atrás" del navegador cierra el overlay (history.pushState/popstate)
 - `/` → scroll infinito que cicla las publicaciones existentes (getNextPageParam retorna 0)
-- `/search` → muestra "Recomendaciones" (últimos 20 videos) al cargar; al escribir busca normalmente
 
 ### Archivos creados/modificados recientemente
-- `src/components/ProfileVideoOverlay.tsx` — refactor: VideoSlide, useMountAnimation, progress bar, lastVideoRef
+- `src/app/search/page.tsx` — búsqueda por hashtags, recomendaciones siempre complementan resultados, overlay funcional con ProfileVideoOverlay
+- `src/components/ProfileVideoOverlay.tsx` — fix scrollIntoView con mounted como dependencia + conexión useAuth para isOwner
+- `src/components/VideoMenu.tsx` — props isOwner/onEdit, renderiza "Editar" o "Reportar" según corresponda
+- `src/app/editar/page.tsx` — nueva página de edición con formulario (título, descripción, hashtags), seguridad por user_id
+- `src/app/profile/page.tsx` — history.pushState/popstate, overlay siempre montado, videos memoizados
 - `src/components/CustomVideoPlayer.tsx` — prop `hideControls`
 - `src/components/MuxVideoPlayer.tsx` — prop `showControls`, clase `hide-controls`
-- `src/app/profile/page.tsx` — history.pushState/popstate, overlay siempre montado, videos memoizados
-- `src/components/VideoMenu.tsx` — link compartido a `/profile`
 - `src/app/globals.css` — regla `mux-player.hide-controls::part(control-layer)`
-- `src/app/publicaciones/page.tsx` — eliminado (obsoleto)
 - `src/hooks/useVideos.ts` — `getNextPageParam` retorna 0 al agotarse (ciclo infinito)
-- `src/app/search/page.tsx` — recomendaciones al cargar, grid de últimos 20 videos activos
 
 ### Próximos pasos sugeridos
 - Animaciones de transición al abrir/cerrar el overlay (mejorar la actual)
