@@ -2,21 +2,25 @@
 
 ## Estado actual del proyecto
 
-El scroll problemático en `/publicaciones` fue reemplazado por un overlay full-screen.
-
 ### Flujo actual
-- `/profile` → tap video → se abre `ProfileVideoOverlay` (z-[100]) sobre el perfil
-- Muestra: [videos posteriores] + [video clickeado] + [videos anteriores]
-- Auto-reproducción con IntersectionObserver (threshold 0.7)
-- Scroll posicionado en el video clickeado vía `scrollIntoView({ block: "start" })`
+- `/profile` → tap video → `ProfileVideoOverlay` (z-[100]) con snap-scroll TikTok
+- Overlay con animación scale+opacity, barra de progreso seekeable, VideoMenu en header
+- Botón "Atrás" del navegador cierra el overlay (history.pushState/popstate)
+- `/` → scroll infinito que cicla las publicaciones existentes (getNextPageParam retorna 0)
+- `/search` → muestra "Recomendaciones" (últimos 20 videos) al cargar; al escribir busca normalmente
 
 ### Archivos creados/modificados recientemente
-- `src/components/ProfileVideoOverlay.tsx` — nuevo overlay
-- `src/components/CustomVideoPlayer.tsx` — agregado prop `autoPlay`
-- `src/components/ProfileVideoCard.tsx` — reemplazado `router.push` por `onClick` callback
-- `src/app/profile/page.tsx` — agregado estado `selectedVideo`, renderiza overlay
+- `src/components/ProfileVideoOverlay.tsx` — refactor: VideoSlide, useMountAnimation, progress bar, lastVideoRef
+- `src/components/CustomVideoPlayer.tsx` — prop `hideControls`
+- `src/components/MuxVideoPlayer.tsx` — prop `showControls`, clase `hide-controls`
+- `src/app/profile/page.tsx` — history.pushState/popstate, overlay siempre montado, videos memoizados
+- `src/components/VideoMenu.tsx` — link compartido a `/profile`
+- `src/app/globals.css` — regla `mux-player.hide-controls::part(control-layer)`
+- `src/app/publicaciones/page.tsx` — eliminado (obsoleto)
+- `src/hooks/useVideos.ts` — `getNextPageParam` retorna 0 al agotarse (ciclo infinito)
+- `src/app/search/page.tsx` — recomendaciones al cargar, grid de últimos 20 videos activos
 
 ### Próximos pasos sugeridos
-- Manejar botón "Atrás" del navegador para cerrar el overlay (history.pushState/popstate)
-- Agregar animación de transición al abrir/cerrar el overlay
-- La página `/publicaciones` y su scroll centering pueden eliminarse si el overlay cubre todos los casos de uso
+- Animaciones de transición al abrir/cerrar el overlay (mejorar la actual)
+- Optimizar performance del ciclo infinito (evitar refetch de páginas repetidas, usar caché local)
+- Agregar más lógica de recomendaciones en search (basadas en intereses del usuario)

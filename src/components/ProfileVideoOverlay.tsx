@@ -214,12 +214,12 @@ export default function ProfileVideoOverlay({ video, allVideos, open, onClose, o
   }, [mounted]);
 
   useEffect(() => {
-    if (!open || selectedIndex === -1) return;
+    if (!open || selectedIndex === -1 || !mounted) return;
     const container = containerRef.current;
     if (!container) return;
     const child = container.children[selectedIndex] as HTMLElement;
     child?.scrollIntoView({ block: "start", behavior: "smooth" });
-  }, [open, selectedIndex]);
+  }, [open, selectedIndex, mounted]);
 
   const handleScroll = useCallback(() => {
     const container = containerRef.current;

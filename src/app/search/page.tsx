@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useState, useMemo } from "react";
+import { useEffect, useRef, useState, useMemo, useCallback } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import type { Video } from "@/types";
 import ProfileVideoCard from "@/components/ProfileVideoCard";
+import ProfileVideoOverlay from "@/components/ProfileVideoOverlay";
 
 interface VideoWithProfile extends Video {
   profiles: {
@@ -32,6 +33,7 @@ export default function SearchPage() {
   const [searched, setSearched] = useState(false);
   const [recommendedVideos, setRecommendedVideos] = useState<VideoWithProfile[]>([]);
   const [recsLoading, setRecsLoading] = useState(true);
+  const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
   const supabase = useMemo(() => createClient(), []);
   const debounceRef = useRef<number | undefined>(undefined);
 
@@ -65,6 +67,7 @@ export default function SearchPage() {
 
   useEffect(() => {
     const trimmed = query.trim();
+    const tag = trimmed.replace(/^#/, "");
     if (!trimmed) {
       setProfiles([]);
       setVideos([]);
@@ -79,6 +82,7 @@ export default function SearchPage() {
     debounceRef.current = window.setTimeout(async () => {
       let foundProfiles: ProfileResult[] = [];
       let foundVideos: VideoWithProfile[] = [];
+      let recommendations: VideoWithProfile[] = [];
       let currentType: SearchType = "exact";
 
       // 1. Exact search
@@ -91,7 +95,7 @@ export default function SearchPage() {
         supabase
           .from("videos")
           .select("*, profiles(username, display_name, avatar_url)")
-          .or(`title.ilike.%${trimmed}%,description.ilike.%${trimmed}%`)
+          .or(`title.ilike.%${trimmed}%,description.ilike.%${trimmed}%,hashtags.cs.{"${tag}"},hashtags.cs.{"#${tag}"}`)
           .order("created_at", { ascending: false })
           .limit(50),
       ]);
@@ -105,8 +109,9 @@ export default function SearchPage() {
         const words = trimmed.split(/\s+/).filter(Boolean);
 
         const wordResults = await Promise.all(
-          words.map((word) =>
-            Promise.all([
+          words.map((word) => {
+            const wordTag = word.replace(/^#/, "");
+            return Promise.all([
               supabase
                 .from("profiles")
                 .select("id, username, display_name, avatar_url")
@@ -115,11 +120,11 @@ export default function SearchPage() {
               supabase
                 .from("videos")
                 .select("*, profiles(username, display_name, avatar_url)")
-                .or(`title.ilike.%${word}%,description.ilike.%${word}%`)
+                .or(`title.ilike.%${word}%,description.ilike.%${word}%,hashtags.cs.{"${wordTag}"},hashtags.cs.{"#${wordTag}"}`)
                 .order("created_at", { ascending: false })
                 .limit(50),
-            ])
-          )
+            ]);
+          })
         );
 
         const profileMap = new Map<string, ProfileResult>();
@@ -132,22 +137,39 @@ export default function SearchPage() {
 
         foundProfiles = Array.from(profileMap.values());
         foundVideos = Array.from(videoMap.values());
+      }
 
-        // 3. Recommend if still nothing
-        if (foundProfiles.length === 0 && foundVideos.length === 0) {
-          currentType = "recommended";
-          const { data: recData } = await supabase
-            .from("videos")
-            .select("*, profiles(username, display_name, avatar_url)")
-            .order("created_at", { ascending: false })
-            .limit(20);
+      // 3. Always fetch recommendations to supplement results
+      const { data: activeProfiles } = await supabase
+        .from("profiles")
+        .select("id")
+        .is("deactivated_at", null)
+        .is("deleted_at", null);
 
-          foundVideos = recData ?? [];
-        }
+      const activeIds = (activeProfiles || []).map((p) => p.id);
+
+      if (activeIds.length > 0) {
+        const { data: recsData } = await supabase
+          .from("videos")
+          .select("*, profiles(username, display_name, avatar_url)")
+          .in("user_id", activeIds)
+          .order("created_at", { ascending: false })
+          .limit(20);
+
+        recommendations = recsData ?? [];
+      }
+
+      // Deduplicate and merge: search results first, then recommendations
+      const foundIds = new Set(foundVideos.map((v) => v.id));
+      const dedupedRecs = recommendations.filter((v) => !foundIds.has(v.id));
+      const mergedVideos = [...foundVideos, ...dedupedRecs];
+
+      if (foundProfiles.length === 0 && foundVideos.length === 0) {
+        currentType = "recommended";
       }
 
       setProfiles(foundProfiles);
-      setVideos(foundVideos);
+      setVideos(mergedVideos);
       setSearchType(currentType);
       setLoading(false);
       setSearched(true);
@@ -155,6 +177,24 @@ export default function SearchPage() {
 
     return () => window.clearTimeout(debounceRef.current);
   }, [query, supabase]);
+
+  useEffect(() => {
+    const handlePopState = () => setSelectedVideo(null);
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
+
+  const handleVideoClick = useCallback((video: Video) => {
+    window.history.pushState(null, "");
+    setSelectedVideo(video);
+  }, []);
+
+  const handleCloseOverlay = useCallback(() => {
+    setSelectedVideo(null);
+    window.history.back();
+  }, []);
+
+  const currentVideos = searched ? videos : recommendedVideos;
 
   return (
     <div className="flex min-h-screen flex-col bg-black pt-14 pb-20">
@@ -213,7 +253,7 @@ export default function SearchPage() {
                 </h2>
                 <div className="grid grid-cols-3 gap-0.5">
                   {recommendedVideos.map((video) => (
-                    <ProfileVideoCard key={video.id} video={video} />
+                    <ProfileVideoCard key={video.id} video={video} onClick={handleVideoClick} />
                   ))}
                 </div>
               </>
@@ -274,14 +314,9 @@ export default function SearchPage() {
                     Videos
                   </h2>
                 )}
-                {searchType !== "recommended" && profiles.length === 0 && (
-                  <p className="mb-3 text-sm text-zinc-500">
-                    {videos.length} resultado{videos.length !== 1 ? "s" : ""}
-                  </p>
-                )}
                 <div className="grid grid-cols-3 gap-0.5">
                   {videos.map((video) => (
-                    <ProfileVideoCard key={video.id} video={video} />
+                    <ProfileVideoCard key={video.id} video={video} onClick={handleVideoClick} />
                   ))}
                 </div>
               </div>
@@ -299,6 +334,13 @@ export default function SearchPage() {
           </>
         )}
       </div>
+
+      <ProfileVideoOverlay
+        video={selectedVideo}
+        allVideos={currentVideos}
+        open={!!selectedVideo}
+        onClose={handleCloseOverlay}
+      />
     </div>
   );
 }
