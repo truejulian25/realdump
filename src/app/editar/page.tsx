@@ -120,7 +120,7 @@ export default function EditarPage() {
               <line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" />
             </svg>
           </Link>
-          <h1 className="text-lg font-bold text-white">Editar video</h1>
+          <h1 className="text-lg font-bold text-white">Editar descripción</h1>
         </div>
 
         {video?.mux_playback_id && (
@@ -134,6 +134,7 @@ export default function EditarPage() {
         )}
 
         <form onSubmit={handleSave} className="flex w-full max-w-sm flex-col gap-3">
+          <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Título</label>
           <input
             type="text"
             value={title}
@@ -142,6 +143,7 @@ export default function EditarPage() {
             className="w-full bg-transparent px-0 py-2 text-sm text-white placeholder-zinc-500 outline-none caret-blue-500"
           />
 
+          <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Descripción</label>
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
@@ -150,6 +152,7 @@ export default function EditarPage() {
             className="w-full resize-none bg-transparent px-0 py-2 text-sm text-white placeholder-zinc-500 outline-none caret-blue-500"
           />
 
+          <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Hashtag</label>
           <input
             type="text"
             value={hashtags}
