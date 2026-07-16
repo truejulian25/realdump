@@ -22,5 +22,5 @@ mux-player.hide-controls::part(control-layer) {
 }
 
 mux-player {
-  --media-object-fit: cover;
+  width: 100%;
 }

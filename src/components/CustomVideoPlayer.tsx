@@ -157,7 +157,7 @@ export default function CustomVideoPlayer({ src, autoPlay = true, fill = false, 
 
       <video
         ref={videoRef}
-        className="h-full w-full object-cover"
+        className={`h-full w-full ${fill ? "object-cover" : "object-contain"}`}
         src={src}
         loop
         playsInline
