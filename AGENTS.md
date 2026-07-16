@@ -25,6 +25,6 @@
 - `src/app/globals.css` — mux-player { width: 100% }
 
 ### Próximos pasos sugeridos
-- Mejorar performance del IntersectionObserver en overlay (evitar reconexiones frecuentes)
-- Agregar feedback visual tipo toast en lugar de alert() para errores de delete
-- Optimizar ciclo infinito del feed (caché local, evitar refetch de páginas repetidas)
+- (completado) Toast con sonner en lugar de alert() para errores de delete
+- (completado) IntersectionObserver estable con MutationObserver en overlay
+- (completado) Feed infinito: stop en total páginas + cache optimista en delete

@@ -5,6 +5,7 @@ import BottomNav from "@/components/BottomNav";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import QueryProvider from "@/components/QueryProvider";
+import { Toaster } from "sonner";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -39,6 +40,12 @@ export default function RootLayout({
               <Header />
               {children}
               <BottomNav />
+              <Toaster
+                position="bottom-center"
+                toastOptions={{
+                  style: { background: "#27272a", color: "#fafafa", border: "1px solid #3f3f46" },
+                }}
+              />
             </QueryProvider>
           </LanguageProvider>
         </AuthProvider>

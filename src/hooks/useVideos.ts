@@ -62,11 +62,14 @@ export function useVideoFeed() {
       return (data as VideoWithProfile[]) || [];
     },
     getNextPageParam: (lastPage, pages) => {
-      return pages.length;
+      if (lastPage.length < PAGE_SIZE) return undefined;
+      const nextPage = pages.length;
+      if (totalPagesRef.current > 0 && nextPage >= totalPagesRef.current) return undefined;
+      return nextPage;
     },
     initialPageParam: 0,
-    staleTime: 10 * 60 * 1000,
-    gcTime: 30 * 60 * 1000,
+    staleTime: 30 * 60 * 1000,
+    gcTime: 60 * 60 * 1000,
   });
 }
 

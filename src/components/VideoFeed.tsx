@@ -1,9 +1,10 @@
 "use client";
 
 import { useRef, useEffect, useCallback, useState, useMemo } from "react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQueryClient, InfiniteData } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
 import { useVideoFeed } from "@/hooks/useVideos";
+import { toast } from "sonner";
 import type { Video } from "@/types";
 import MuxVideoPlayer from "./MuxVideoPlayer";
 import ProfileRow from "./ProfileRow";
@@ -49,16 +50,23 @@ export default function VideoFeed() {
 
   const handleDeleteVideo = useCallback(async (videoId: string) => {
     if (!window.confirm("¿Estás seguro de eliminar esta publicación?")) return;
+    queryClient.setQueryData<InfiniteData<VideoWithProfile[]>>(["videos", "feed"], (old) => {
+      if (!old) return old;
+      return {
+        ...old,
+        pages: old.pages.map((page) => page.filter((v) => v.id !== videoId)),
+      };
+    });
     try {
       const res = await fetch(`/api/videos/${videoId}`, { method: "DELETE" });
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
         throw new Error(body.error || "Error al eliminar");
       }
-      queryClient.invalidateQueries({ queryKey: ["videos"] });
     } catch (e) {
       const message = e instanceof Error ? e.message : "Error desconocido";
-      alert(message);
+      toast.error(message);
+      queryClient.invalidateQueries({ queryKey: ["videos", "feed"] });
       console.error("Error al eliminar video:", e);
     }
   }, [queryClient]);

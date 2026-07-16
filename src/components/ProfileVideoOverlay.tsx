@@ -2,16 +2,25 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQueryClient, InfiniteData } from "@tanstack/react-query";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { useFollowToggle } from "@/hooks/useFollow";
+import { toast } from "sonner";
 import MuxVideoPlayer from "./MuxVideoPlayer";
 import InteractionBar from "./InteractionBar";
 import VideoMenu from "./VideoMenu";
 import ReportModal from "./ReportModal";
 import type { Video } from "@/types";
+
+interface VideoWithProfile extends Video {
+  profiles: {
+    username: string | null;
+    display_name: string | null;
+    avatar_url: string | null;
+  } | null;
+}
 
 function formatDate(dateStr: string) {
   const date = new Date(dateStr);
@@ -273,17 +282,26 @@ export default function ProfileVideoOverlay({ video, allVideos, open, onClose, o
 
   const handleDeleteVideo = useCallback(async (videoId: string) => {
     if (!window.confirm("¿Estás seguro de eliminar esta publicación?")) return;
+    queryClient.setQueryData<InfiniteData<VideoWithProfile[]>>(["videos", "feed"], (old) => {
+      if (!old) return old;
+      return {
+        ...old,
+        pages: old.pages.map((page) => page.filter((v) => v.id !== videoId)),
+      };
+    });
     try {
       const res = await fetch(`/api/videos/${videoId}`, { method: "DELETE" });
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
         throw new Error(body.error || "Error al eliminar");
       }
-      queryClient.invalidateQueries({ queryKey: ["videos"] });
+      queryClient.invalidateQueries({ queryKey: ["videos", "profile"] });
+      queryClient.invalidateQueries({ queryKey: ["videos", "publicaciones"] });
       onClose();
     } catch (e) {
       const message = e instanceof Error ? e.message : "Error desconocido";
-      alert(message);
+      toast.error(message);
+      queryClient.invalidateQueries({ queryKey: ["videos", "feed"] });
       console.error("Error al eliminar video:", e);
     }
   }, [queryClient, onClose]);
@@ -319,16 +337,22 @@ export default function ProfileVideoOverlay({ video, allVideos, open, onClose, o
       { threshold: 0.5 }
     );
 
-    for (const [id, videoEl] of videoElementsRef.current) {
-      if (document.contains(videoEl)) {
-        observer.observe(videoEl);
-      } else {
-        videoElementsRef.current.delete(id);
-      }
-    }
+    const syncObserved = () => {
+      const videos = container.querySelectorAll<HTMLVideoElement>("video");
+      observer.disconnect();
+      videos.forEach((v) => observer.observe(v));
+    };
 
-    return () => observer.disconnect();
-  }, [open, currentIndex, activeVideos.length]);
+    syncObserved();
+
+    const mutationObserver = new MutationObserver(syncObserved);
+    mutationObserver.observe(container, { childList: true, subtree: true });
+
+    return () => {
+      observer.disconnect();
+      mutationObserver.disconnect();
+    };
+  }, [open]);
 
   if (!mounted) return null;
 
