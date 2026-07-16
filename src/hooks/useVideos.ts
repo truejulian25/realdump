@@ -1,5 +1,5 @@
 import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
 import type { Video } from "@/types";
 
@@ -24,6 +24,8 @@ interface SavedVideoWithVideo {
 
 export function useVideoFeed() {
   const supabase = useMemo(() => createClient(), []);
+  const totalPagesRef = useRef(0);
+  const countDoneRef = useRef(false);
 
   return useInfiniteQuery<VideoWithProfile[]>({
     queryKey: ["videos", "feed"],
@@ -37,7 +39,17 @@ export function useVideoFeed() {
       const ids = (activeProfiles || []).map((p) => p.id);
       if (ids.length === 0) return [];
 
-      const start = (pageParam as number) * PAGE_SIZE;
+      if (!countDoneRef.current) {
+        const { count } = await supabase
+          .from("videos")
+          .select("*", { count: "exact", head: true })
+          .in("user_id", ids);
+        totalPagesRef.current = Math.max(1, Math.ceil((count || 0) / PAGE_SIZE));
+        countDoneRef.current = true;
+      }
+
+      const actualPage = (pageParam as number) % totalPagesRef.current;
+      const start = actualPage * PAGE_SIZE;
       const end = start + PAGE_SIZE - 1;
 
       const { data } = await supabase
@@ -50,7 +62,6 @@ export function useVideoFeed() {
       return (data as VideoWithProfile[]) || [];
     },
     getNextPageParam: (lastPage, pages) => {
-      if (lastPage.length < PAGE_SIZE) return 0;
       return pages.length;
     },
     initialPageParam: 0,

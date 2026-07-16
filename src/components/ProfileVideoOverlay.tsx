@@ -5,6 +5,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
+import { useFollowToggle } from "@/hooks/useFollow";
 import MuxVideoPlayer from "./MuxVideoPlayer";
 import ProfileRow from "./ProfileRow";
 import InteractionBar from "./InteractionBar";
@@ -57,6 +58,9 @@ interface VideoSlideProps {
 }
 
 function VideoSlide({ video, index, currentIndex, selectedIndex, profile, videoRef, videoElementsRef }: VideoSlideProps) {
+  const { user } = useAuth();
+  const { isFollowing, toggling, toggle: toggleFollow } = useFollowToggle(video.user_id);
+  const isSelf = user?.id === video.user_id;
   const isNearby = Math.abs(index - currentIndex) <= 3;
   const [progress, setProgress] = useState(0);
 
@@ -107,7 +111,7 @@ function VideoSlide({ video, index, currentIndex, selectedIndex, profile, videoR
                     href={`/user/${video.user_id}`}
                     className="flex items-center gap-2 hover:opacity-80 transition-opacity"
                   >
-                    <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-lg border border-zinc-600 bg-zinc-800">
+                    <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full border border-zinc-600 bg-zinc-800">
                       {profile.avatar_url ? (
                         <img src={profile.avatar_url} alt="" className="h-full w-full object-cover" />
                       ) : (
@@ -118,9 +122,19 @@ function VideoSlide({ video, index, currentIndex, selectedIndex, profile, videoR
                     </div>
                     <p className="text-sm font-semibold text-white">{profile.username ?? "usuario"}</p>
                   </Link>
-                  <button className="rounded-lg border border-blue-500 px-3 py-1 text-xs font-medium text-blue-500 hover:bg-blue-500/10">
-                    Seguir
-                  </button>
+                  {!isSelf && (
+                    <button
+                      onClick={toggleFollow}
+                      disabled={toggling}
+                      className={`rounded-lg border px-3 py-1 text-xs font-medium transition-colors disabled:opacity-50 ${
+                        isFollowing
+                          ? "border-zinc-600 text-zinc-400"
+                          : "border-blue-500 text-blue-500 hover:bg-blue-500/10"
+                      }`}
+                    >
+                      {isFollowing ? "Siguiendo" : "Seguir"}
+                    </button>
+                  )}
                 </div>
               )}
               <InteractionBar videoId={video.id} />

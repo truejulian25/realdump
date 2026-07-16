@@ -315,9 +315,6 @@ export default function SearchPage() {
               </div>
             ) : recommendedVideos.length > 0 ? (
               <>
-                <h2 className="mb-4 text-sm font-semibold text-zinc-400 uppercase tracking-wider">
-                  Recomendaciones
-                </h2>
                 <div className="grid grid-cols-3 gap-0.5">
                   {recommendedVideos.map((video) => (
                     <ProfileVideoCard key={video.id} video={video} onClick={handleVideoClick} />

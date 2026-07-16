@@ -8,6 +8,7 @@ import ProfileGridSkeleton from "@/components/ProfileGridSkeleton";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useProfileVideos } from "@/hooks/useVideos";
+import { useFollowerCount, useFollowingCount } from "@/hooks/useFollow";
 import { createClient } from "@/lib/supabase/client";
 import type { Video } from "@/types";
 
@@ -26,6 +27,8 @@ export default function ProfilePage() {
     isFetchingNextPage,
     isLoading: videosLoading,
   } = useProfileVideos(user?.id);
+  const followerCount = useFollowerCount(profile?.id);
+  const followingCount = useFollowingCount(profile?.id);
 
   const videos = useMemo(() => {
     const seen = new Set<string>();
@@ -167,11 +170,11 @@ export default function ProfilePage() {
             <p className="text-sm text-zinc-500">{t("profile.videos")}</p>
           </div>
           <div>
-            <p className="text-lg font-bold text-white">0</p>
+            <p className="text-lg font-bold text-white">{followerCount}</p>
             <p className="text-sm text-zinc-500">{t("profile.followers")}</p>
           </div>
           <div>
-            <p className="text-lg font-bold text-white">0</p>
+            <p className="text-lg font-bold text-white">{followingCount}</p>
             <p className="text-sm text-zinc-500">{t("profile.following")}</p>
           </div>
         </div>

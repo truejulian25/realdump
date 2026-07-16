@@ -55,6 +55,13 @@ export interface SavedVideo {
   created_at: string;
 }
 
+export interface Follow {
+  id: string;
+  follower_id: string;
+  following_id: string;
+  created_at: string;
+}
+
 export interface Report {
   id: string;
   video_id: string;

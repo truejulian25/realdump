@@ -3,18 +3,25 @@
 import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { useParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import type { Video, Profile } from "@/types";
 import ProfileVideoCard from "@/components/ProfileVideoCard";
 import ProfileVideoOverlay from "@/components/ProfileVideoOverlay";
 import ProfileGridSkeleton from "@/components/ProfileGridSkeleton";
 import { usePublicacionesVideos } from "@/hooks/useVideos";
+import { useFollowToggle, useFollowerCount, useFollowingCount } from "@/hooks/useFollow";
 
 export default function UserPage() {
   const { id } = useParams<{ id: string }>();
+  const { user } = useAuth();
   const supabase = useMemo(() => createClient(), []);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [profileLoading, setProfileLoading] = useState(true);
   const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
+  const { isFollowing, toggling, toggle } = useFollowToggle(profile?.id);
+  const followerCount = useFollowerCount(profile?.id);
+  const followingCount = useFollowingCount(profile?.id);
+  const isSelf = user?.id === profile?.id;
 
   const {
     data,
@@ -135,17 +142,31 @@ export default function UserPage() {
           </a>
         )}
 
+        {!isSelf && (
+          <button
+            onClick={toggle}
+            disabled={toggling}
+            className={`mt-1 rounded-lg border px-4 py-1.5 text-sm font-medium transition-colors disabled:opacity-50 ${
+              isFollowing
+                ? "border-zinc-600 text-zinc-400"
+                : "border-blue-500 text-blue-500 hover:bg-blue-500/10"
+            }`}
+          >
+            {isFollowing ? "Siguiendo" : "Seguir"}
+          </button>
+        )}
+
         <div className="flex items-center gap-8 text-center">
           <div>
             <p className="text-lg font-bold text-white">{videos.length}</p>
             <p className="text-sm text-zinc-500">Videos</p>
           </div>
           <div>
-            <p className="text-lg font-bold text-white">0</p>
+            <p className="text-lg font-bold text-white">{followerCount}</p>
             <p className="text-sm text-zinc-500">Seguidores</p>
           </div>
           <div>
-            <p className="text-lg font-bold text-white">0</p>
+            <p className="text-lg font-bold text-white">{followingCount}</p>
             <p className="text-sm text-zinc-500">Siguiendo</p>
           </div>
         </div>

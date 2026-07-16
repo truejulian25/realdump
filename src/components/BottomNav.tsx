@@ -30,7 +30,11 @@ export default function BottomNav() {
                 : "text-zinc-500 hover:text-zinc-300"
             }`}
           >
-            <Icon size={24} />
+            {href === "/profile" ? (
+              <Icon size={24} profile={profile} />
+            ) : (
+              <Icon size={24} />
+            )}
             {label}
           </Link>
         ))}
@@ -44,7 +48,7 @@ function ProfileIcon({ profile }: { profile?: { avatar_url?: string | null; disp
     ?? `https://ui-avatars.com/api/?name=${profile?.display_name ?? "user"}&background=6366f1&color=fff&size=24`;
 
   return (
-    <div className="h-6 w-6 overflow-hidden rounded-md border border-zinc-500 bg-zinc-700">
+    <div className="h-6 w-6 overflow-hidden rounded-full border border-zinc-500 bg-zinc-700">
       <img
         src={src}
         alt="Perfil"

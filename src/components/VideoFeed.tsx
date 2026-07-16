@@ -29,14 +29,10 @@ export default function VideoFeed() {
     isError,
   } = useVideoFeed();
 
-  const items: VideoWithProfile[] = useMemo(() => {
-    const seen = new Set<string>();
-    return (data?.pages.flat() ?? []).filter((v) => {
-      if (seen.has(v.id)) return false;
-      seen.add(v.id);
-      return true;
-    });
-  }, [data?.pages]);
+  const items: VideoWithProfile[] = useMemo(
+    () => data?.pages.flat() ?? [],
+    [data?.pages],
+  );
   const containerRef = useRef<HTMLDivElement>(null);
   const sentinelRef = useRef<HTMLDivElement>(null);
   const supabaseRef = useRef(createClient());
