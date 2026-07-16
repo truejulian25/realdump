@@ -118,10 +118,10 @@ function VideoSlide({ video, index, currentIndex, selectedIndex, hasScrolled, pr
       className="relative flex h-screen w-full flex-shrink-0 snap-start items-center justify-center"
     >
       {isNearby ? (
-        <div className="flex w-full flex-col items-center justify-center gap-2 px-4">
+        <>
           <div
-            className="relative w-full overflow-hidden rounded-lg bg-black"
-            style={{ maxHeight: "calc(100dvh - 5rem)" }}
+            className="relative flex h-full w-full items-center justify-center overflow-hidden rounded-lg bg-black"
+            style={{ maxHeight: "calc(100dvh - 9rem)" }}
           >
             {showPlayer ? (
               <MuxVideoPlayer
@@ -134,53 +134,53 @@ function VideoSlide({ video, index, currentIndex, selectedIndex, hasScrolled, pr
             ) : (
               <div className="h-full w-full" />
             )}
-            <div className="pointer-events-none absolute inset-0 rounded-lg z-10">
-              <div className="pointer-events-auto absolute bottom-0 left-0 right-0 px-4 pt-0 pb-2 text-left">
-                {profile && (
-                  <div className="mb-2 flex items-center justify-between">
-                    <Link
-                      href={`/user/${video.user_id}`}
-                      className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+          </div>
+          <div className="pointer-events-none absolute inset-0 z-10">
+            <div className="pointer-events-auto absolute bottom-10 left-0 right-0 px-4 pt-0 pb-2 text-left">
+              {profile && (
+                <div className="mb-2 flex items-center justify-between">
+                  <Link
+                    href={`/user/${video.user_id}`}
+                    className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+                  >
+                    <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full border border-zinc-600 bg-zinc-800">
+                      {profile.avatar_url ? (
+                        <img src={profile.avatar_url} alt="" className="h-full w-full object-cover" />
+                      ) : (
+                        <span className="text-xs font-semibold text-zinc-400">
+                          {profile.username?.[0]?.toUpperCase() ?? "?"}
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-sm font-semibold text-white">{profile.username ?? "usuario"}</p>
+                  </Link>
+                  {!isSelf && (
+                    <button
+                      onClick={toggleFollow}
+                      disabled={toggling}
+                      className={`rounded-lg border px-3 py-1 text-xs font-medium transition-colors disabled:opacity-50 ${
+                        isFollowing
+                          ? "border-zinc-600 text-zinc-400"
+                          : "border-blue-500 text-blue-500 hover:bg-blue-500/10"
+                      }`}
                     >
-                      <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full border border-zinc-600 bg-zinc-800">
-                        {profile.avatar_url ? (
-                          <img src={profile.avatar_url} alt="" className="h-full w-full object-cover" />
-                        ) : (
-                          <span className="text-xs font-semibold text-zinc-400">
-                            {profile.username?.[0]?.toUpperCase() ?? "?"}
-                          </span>
-                        )}
-                      </div>
-                      <p className="text-sm font-semibold text-white">{profile.username ?? "usuario"}</p>
-                    </Link>
-                    {!isSelf && (
-                      <button
-                        onClick={toggleFollow}
-                        disabled={toggling}
-                        className={`rounded-lg border px-3 py-1 text-xs font-medium transition-colors disabled:opacity-50 ${
-                          isFollowing
-                            ? "border-zinc-600 text-zinc-400"
-                            : "border-blue-500 text-blue-500 hover:bg-blue-500/10"
-                        }`}
-                      >
-                        {isFollowing ? "Siguiendo" : "Seguir"}
-                      </button>
-                    )}
-                  </div>
-                )}
-                <InteractionBar videoId={video.id} />
-                {video.description && (
-                  <p className="mt-2 text-sm leading-relaxed text-zinc-200">{video.description}</p>
-                )}
-                {video.hashtags && video.hashtags.length > 0 && (
-                  <p className="mt-1 text-sm text-blue-400">
-                    {video.hashtags.map((h) => (h.startsWith("#") ? h : `#${h}`)).join(" ")}
-                  </p>
-                )}
-              </div>
+                      {isFollowing ? "Siguiendo" : "Seguir"}
+                    </button>
+                  )}
+                </div>
+              )}
+              <InteractionBar videoId={video.id} />
+              {video.description && (
+                <p className="mt-2 text-sm leading-relaxed text-zinc-200">{video.description}</p>
+              )}
+              {video.hashtags && video.hashtags.length > 0 && (
+                <p className="mt-1 text-sm text-blue-400">
+                  {video.hashtags.map((h) => (h.startsWith("#") ? h : `#${h}`)).join(" ")}
+                </p>
+              )}
             </div>
           </div>
-          <div className="w-full">
+          <div className="absolute bottom-0 left-0 right-0 z-20 px-4 pb-2">
             <div className="pointer-events-auto flex items-center gap-2">
               <div
                 className="h-1.5 flex-1 cursor-pointer rounded-full bg-zinc-600"
@@ -196,7 +196,7 @@ function VideoSlide({ video, index, currentIndex, selectedIndex, hasScrolled, pr
               </span>
             </div>
           </div>
-        </div>
+        </>
       ) : (
         <div className="h-full w-full bg-black" />
       )}
