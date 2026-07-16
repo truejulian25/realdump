@@ -108,7 +108,7 @@ function VideoSlide({ video, index, currentIndex, selectedIndex, hasScrolled, pr
       {isNearby ? (
         <>
           <div
-            className="relative flex h-full w-full items-center justify-center overflow-hidden bg-zinc-900"
+            className="relative flex h-full w-full items-center justify-center overflow-hidden rounded-lg bg-zinc-900"
             style={{ maxHeight: "calc(100dvh - 9rem)" }}
           >
             {showPlayer ? (
