@@ -6,23 +6,25 @@
 - `/profile` → tap video → `ProfileVideoOverlay` (z-[100]) con snap-scroll TikTok
 - `/search` → búsqueda por título, descripción y hashtags; recomendaciones siempre visibles
 - `/editar?video_id=` → formulario para editar título, descripción y hashtags
-- Overlay con animación scale+opacity, barra de progreso seekeable, VideoMenu en header
-- VideoMenu: "Copiar enlace" + "Editar" (si es dueño) o "Reportar" (si es ajeno)
-- Botón "Atrás" del navegador cierra el overlay (history.pushState/popstate)
-- `/` → scroll infinito que cicla las publicaciones existentes (getNextPageParam retorna 0)
+- `/` → scroll infinito que cicla las publicaciones existentes
+- VideoMenu: "Copiar enlace" + "Editar" + "Eliminar" (si es dueño) o "Reportar" (si es ajeno)
+- Overlay: solo el video activo (currentIndex) se monta/reproduce; al scrollear se desmonta el anterior
+- `autoPlay="any"` + `muted` condicional: primer video al abrir overlay muteado, siguientes con volumen
+- Delete: `DELETE /api/videos/[id]` con limpieza de Mux + likes/comments/saved_videos/reports
 
 ### Archivos creados/modificados recientemente
-- `src/app/search/page.tsx` — búsqueda por hashtags, recomendaciones siempre complementan resultados, overlay funcional con ProfileVideoOverlay
-- `src/components/ProfileVideoOverlay.tsx` — fix scrollIntoView con mounted como dependencia + conexión useAuth para isOwner
-- `src/components/VideoMenu.tsx` — props isOwner/onEdit, renderiza "Editar" o "Reportar" según corresponda
-- `src/app/editar/page.tsx` — nueva página de edición con formulario (título, descripción, hashtags), seguridad por user_id
-- `src/app/profile/page.tsx` — history.pushState/popstate, overlay siempre montado, videos memoizados
-- `src/components/CustomVideoPlayer.tsx` — prop `hideControls`
-- `src/components/MuxVideoPlayer.tsx` — prop `showControls`, clase `hide-controls`
-- `src/app/globals.css` — regla `mux-player.hide-controls::part(control-layer)`
-- `src/hooks/useVideos.ts` — `getNextPageParam` retorna 0 al agotarse (ciclo infinito)
+- `supabase/migrations/00004_create_follows_rls.sql` — RLS policies para follows
+- `src/hooks/useFollow.ts` — error handling con throw new Error(err.message), select follower_id
+- `src/app/api/videos/[id]/route.ts` — DELETE endpoint con auth + ownership + Mux cleanup + delete rows relacionados
+- `src/lib/mux.ts` — función `deleteAsset(assetId)`
+- `src/components/VideoMenu.tsx` — prop `onDelete`, botón rojo "Eliminar" para owners
+- `src/components/VideoFeed.tsx` — useAuth + useQueryClient + handleDeleteVideo con alert de error
+- `src/components/ProfileVideoOverlay.tsx` — VideoSlide solo monta MuxVideoPlayer en currentIndex, muted condicional (primer video muteado), hasScrolled state
+- `src/components/MuxVideoPlayer.tsx` — autoPlay="any", sin aspectRatio forzado, sin muted forzado
+- `src/components/CustomVideoPlayer.tsx` — object-contain para respetar relación de aspecto nativa
+- `src/app/globals.css` — mux-player { width: 100% }
 
 ### Próximos pasos sugeridos
-- Animaciones de transición al abrir/cerrar el overlay (mejorar la actual)
-- Optimizar performance del ciclo infinito (evitar refetch de páginas repetidas, usar caché local)
-- Agregar más lógica de recomendaciones en search (basadas en intereses del usuario)
+- Mejorar performance del IntersectionObserver en overlay (evitar reconexiones frecuentes)
+- Agregar feedback visual tipo toast en lugar de alert() para errores de delete
+- Optimizar ciclo infinito del feed (caché local, evitar refetch de páginas repetidas)
