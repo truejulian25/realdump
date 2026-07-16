@@ -88,7 +88,7 @@ function VideoSlide({ video, index, currentIndex, selectedIndex, profile, videoR
     videoEl.currentTime = (x / rect.width) * videoEl.duration;
   };
 
-  const showPlayer = index === selectedIndex;
+  const showPlayer = index === currentIndex;
 
   return (
     <div
@@ -104,7 +104,6 @@ function VideoSlide({ video, index, currentIndex, selectedIndex, profile, videoR
                 playbackId={video.mux_playback_id}
                 src={video.video_url}
                 autoPlay
-                muted
                 showControls={false}
               />
             ) : (

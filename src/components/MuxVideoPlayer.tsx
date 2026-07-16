@@ -37,7 +37,7 @@ export default function MuxVideoPlayer({
     return (
       <MuxPlayer
         playbackId={playbackId}
-        autoPlay={autoPlay ? "muted" : false}
+        autoPlay={autoPlay ? "any" : false}
         muted={muted}
         loop={loop}
         streamType="on-demand"
