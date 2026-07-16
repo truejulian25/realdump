@@ -53,9 +53,14 @@ export default function VideoFeed() {
     if (!window.confirm("¿Estás seguro de eliminar esta publicación?")) return;
     try {
       const res = await fetch(`/api/videos/${videoId}`, { method: "DELETE" });
-      if (!res.ok) throw new Error("Error al eliminar");
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.error || "Error al eliminar");
+      }
       queryClient.invalidateQueries({ queryKey: ["videos"] });
     } catch (e) {
+      const message = e instanceof Error ? e.message : "Error desconocido";
+      alert(message);
       console.error("Error al eliminar video:", e);
     }
   }, [queryClient]);
