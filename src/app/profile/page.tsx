@@ -210,7 +210,7 @@ export default function ProfilePage() {
           ) : videos.length === 0 ? (
             <p className="py-8 text-center text-zinc-500">{t("profile.noVideosYet")}</p>
           ) : (
-            <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-0.5 p-0.5">
+            <div className="grid grid-cols-3 gap-0.5 p-0.5">
               {videos.map((video) => (
                 <ProfileVideoCard key={video.id} video={video} onClick={handleVideoClick} />
               ))}

@@ -405,14 +405,14 @@ export default function SearchPage() {
         ) : !searched ? (
           <div className="py-4">
             {hasInteractionData && recommendedVideos.length > 0 ? (
-              <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-0.5">
+              <div className="grid grid-cols-3 gap-0.5">
                 {recommendedVideos.map((video) => (
                   <ProfileVideoCard key={video.id} video={video} onClick={handleVideoClick} />
                 ))}
               </div>
             ) : allVideos.length > 0 ? (
               <>
-                <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-0.5">
+                <div className="grid grid-cols-3 gap-0.5">
                   {allVideos.map((video) => (
                     <ProfileVideoCard key={video.id} video={video} onClick={handleVideoClick} />
                   ))}
@@ -485,7 +485,7 @@ export default function SearchPage() {
                     Videos
                   </h2>
                 )}
-                <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-0.5">
+                <div className="grid grid-cols-3 gap-0.5">
                   {videos.map((video) => (
                     <ProfileVideoCard key={video.id} video={video} onClick={handleVideoClick} />
                   ))}
