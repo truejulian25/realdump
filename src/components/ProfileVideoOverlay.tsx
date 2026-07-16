@@ -109,7 +109,7 @@ function VideoSlide({ video, index, currentIndex, selectedIndex, hasScrolled, pr
         <>
           <div
             className="relative flex h-full w-full items-center justify-center overflow-hidden bg-zinc-900"
-            style={{ maxHeight: "calc(100dvh - 13rem)" }}
+            style={{ maxHeight: "calc(100dvh - 11rem)" }}
           >
             {showPlayer ? (
               <MuxVideoPlayer
