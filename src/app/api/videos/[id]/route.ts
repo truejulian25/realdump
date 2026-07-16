@@ -34,7 +34,7 @@ export async function DELETE(
     try {
       await deleteAsset(video.mux_asset_id);
     } catch {
-      // Si el asset de Mux ya no existe o falla, continuamos
+      console.warn("No se pudo eliminar el asset de Mux, continuando...");
     }
   }
 

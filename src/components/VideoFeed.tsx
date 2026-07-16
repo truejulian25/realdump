@@ -2,7 +2,6 @@
 
 import { useRef, useEffect, useCallback, useState, useMemo } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { createClient } from "@/lib/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useVideoFeed } from "@/hooks/useVideos";
 import type { Video } from "@/types";
@@ -40,7 +39,6 @@ export default function VideoFeed() {
   );
   const containerRef = useRef<HTMLDivElement>(null);
   const sentinelRef = useRef<HTMLDivElement>(null);
-  const supabaseRef = useRef(createClient());
   const [reportVideoId, setReportVideoId] = useState<string | null>(null);
 
   const loadMore = useCallback(() => {
@@ -148,7 +146,7 @@ export default function VideoFeed() {
       <div className="mx-auto w-full max-w-md border-x border-zinc-800">
         {items.map((video, idx) => (
         <div
-          key={`${video.id}-${idx}`}
+          key={video.id}
           className="flex w-full flex-col pb-5"
         >
             <ProfileRow

@@ -8,7 +8,6 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { useFollowToggle } from "@/hooks/useFollow";
 import MuxVideoPlayer from "./MuxVideoPlayer";
-import ProfileRow from "./ProfileRow";
 import InteractionBar from "./InteractionBar";
 import VideoMenu from "./VideoMenu";
 import ReportModal from "./ReportModal";

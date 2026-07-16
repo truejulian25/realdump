@@ -45,7 +45,7 @@ export async function getUploadStatus(uploadId: string) {
   const json = await res.json();
   return {
     status: json.data.status as string,
-    assetId: (json.data.asset_id as string) || null,
+        assetId: json.data.asset_id ?? null,
   };
 }
 

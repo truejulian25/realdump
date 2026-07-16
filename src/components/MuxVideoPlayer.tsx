@@ -44,7 +44,7 @@ export default function MuxVideoPlayer({
         className={`${className ?? ""} ${showControls ? "" : "hide-controls"}`}
         style={
           fill
-            ? { width: "100%", height: "100%", objectFit: "cover" as const }
+            ? { width: "100%", height: "100%", objectFit: "cover" }
             : { width: "100%" }
         }
       />
