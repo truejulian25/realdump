@@ -120,7 +120,7 @@ function VideoSlide({ video, index, currentIndex, selectedIndex, hasScrolled, pr
       {isNearby ? (
         <>
           <div
-            className="relative flex h-full w-full items-center justify-center overflow-hidden rounded-lg bg-zinc-900"
+            className="relative flex h-full w-full items-center justify-center overflow-hidden rounded-lg bg-black"
             style={{ maxHeight: "calc(100dvh - 9rem)" }}
           >
             {showPlayer ? (
@@ -198,7 +198,7 @@ function VideoSlide({ video, index, currentIndex, selectedIndex, hasScrolled, pr
           </div>
         </>
       ) : (
-        <div className="h-full w-full bg-zinc-900" />
+        <div className="h-full w-full bg-black" />
       )}
     </div>
   );

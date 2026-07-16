@@ -143,7 +143,7 @@ export default function CustomVideoPlayer({ src, autoPlay = true, fill = false, 
 
   return (
     <div
-      className={`group relative w-full cursor-pointer overflow-hidden ${fill ? "h-full bg-black" : "rounded-lg bg-zinc-900"}`}
+      className={`group relative w-full cursor-pointer overflow-hidden ${fill ? "h-full bg-black" : "rounded-lg bg-black"}`}
       style={fill ? undefined : { aspectRatio: aspectRatio ? `${aspectRatio.w}/${aspectRatio.h}` : "9/16" }}
       onMouseMove={showControlsTemporarily}
       onMouseLeave={() => playing && setShowControls(false)}

@@ -6,7 +6,7 @@ import CustomVideoPlayer from "./CustomVideoPlayer";
 const MuxPlayer = dynamic(() => import("@mux/mux-player-react"), {
   ssr: false,
   loading: () => (
-    <div className="flex aspect-[9/16] w-full items-center justify-center rounded-lg bg-zinc-900">
+    <div className="flex aspect-[9/16] w-full items-center justify-center rounded-lg bg-black">
       <div className="h-6 w-6 animate-spin rounded-full border-2 border-zinc-600 border-t-white" />
     </div>
   ),
