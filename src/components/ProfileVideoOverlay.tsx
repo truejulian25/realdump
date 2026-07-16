@@ -101,7 +101,6 @@ function VideoSlide({ video, index, currentIndex, selectedIndex, profile, videoR
                 playbackId={video.mux_playback_id}
                 src={video.video_url}
                 autoPlay={index === selectedIndex}
-                fill
                 showControls={false}
               />
           </div>

@@ -33,32 +33,26 @@ export default function MuxVideoPlayer({
   className,
   showControls = true,
 }: Props) {
-  const wrapperStyle = fill
-    ? {}
-    : { maxHeight: "calc(100vh - 220px)", overflow: "hidden" as const };
-
   if (playbackId) {
     return (
-      <div style={wrapperStyle}>
-        <MuxPlayer
-          playbackId={playbackId}
-          autoPlay={autoPlay ? "any" : false}
-          muted={muted}
-          loop={loop}
-          streamType="on-demand"
-          className={`${className ?? ""} ${showControls ? "" : "hide-controls"}`}
-          style={{ width: "100%", height: "100%", objectFit: "cover" as const }}
-        />
-      </div>
+      <MuxPlayer
+        playbackId={playbackId}
+        autoPlay={autoPlay ? "any" : false}
+        muted={muted}
+        loop={loop}
+        streamType="on-demand"
+        className={`${className ?? ""} ${showControls ? "" : "hide-controls"}`}
+        style={
+          fill
+            ? { width: "100%", height: "100%", objectFit: "cover" as const }
+            : { width: "100%", aspectRatio: "9/16" as const }
+        }
+      />
     );
   }
 
   if (src) {
-    return (
-      <div style={wrapperStyle}>
-        <CustomVideoPlayer src={src} autoPlay={autoPlay} fill hideControls={!showControls} />
-      </div>
-    );
+    return <CustomVideoPlayer src={src} autoPlay={autoPlay} fill={fill} hideControls={!showControls} />;
   }
 
   return null;
