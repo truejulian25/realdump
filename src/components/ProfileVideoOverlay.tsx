@@ -115,12 +115,12 @@ function VideoSlide({ video, index, currentIndex, selectedIndex, hasScrolled, pr
     <div
       ref={videoRef}
       data-video-id={video.id}
-      className="relative grid h-screen w-full flex-shrink-0 snap-start place-items-center"
+      className="relative flex h-screen w-full flex-shrink-0 snap-start items-center justify-center"
     >
       {isNearby ? (
         <>
           <div
-            className="relative flex w-full items-center justify-center overflow-hidden rounded-lg bg-black"
+            className="relative flex h-full w-full items-center justify-center overflow-hidden rounded-lg bg-black"
             style={{ maxHeight: "calc(100dvh - 9rem)" }}
           >
             {showPlayer ? (
