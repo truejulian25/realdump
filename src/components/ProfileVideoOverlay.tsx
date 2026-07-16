@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import { useQueryClient } from "@tanstack/react-query";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
@@ -185,6 +186,7 @@ export default function ProfileVideoOverlay({ video, allVideos, open, onClose, o
   } | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [reportVideoId, setReportVideoId] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
   const { mounted, visible } = useMountAnimation(open);
 
@@ -253,6 +255,18 @@ export default function ProfileVideoOverlay({ video, allVideos, open, onClose, o
       onLoadMore();
     }
   }, [activeVideos.length, onLoadMore]);
+
+  const handleDeleteVideo = useCallback(async (videoId: string) => {
+    if (!window.confirm("¿Estás seguro de eliminar esta publicación?")) return;
+    try {
+      const res = await fetch(`/api/videos/${videoId}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("Error al eliminar");
+      queryClient.invalidateQueries({ queryKey: ["videos"] });
+      onClose();
+    } catch (e) {
+      console.error("Error al eliminar video:", e);
+    }
+  }, [queryClient, onClose]);
 
   const videoElementsRef = useRef<Map<string, HTMLVideoElement>>(new Map());
 
@@ -336,6 +350,10 @@ export default function ProfileVideoOverlay({ video, allVideos, open, onClose, o
               onEdit={() => {
                 const id = activeVideos[currentIndex]?.id;
                 if (id) router.push(`/editar?video_id=${id}`);
+              }}
+              onDelete={() => {
+                const id = activeVideos[currentIndex]?.id;
+                if (id) handleDeleteVideo(id);
               }}
               onReport={() => activeVideos[currentIndex]?.id && setReportVideoId(activeVideos[currentIndex].id)}
             />

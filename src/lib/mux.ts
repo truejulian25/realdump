@@ -49,6 +49,20 @@ export async function getUploadStatus(uploadId: string) {
   };
 }
 
+export async function deleteAsset(assetId: string) {
+  const res = await fetch(`${BASE_URL}/video/v1/assets/${assetId}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Basic ${auth()}`,
+    },
+  });
+
+  if (res.status !== 204 && res.status !== 404) {
+    const text = await res.text();
+    throw new Error(`Mux asset deletion failed: ${res.status} ${text}`);
+  }
+}
+
 export async function getAsset(assetId: string) {
   const res = await fetch(`${BASE_URL}/video/v1/assets/${assetId}`, {
     headers: {

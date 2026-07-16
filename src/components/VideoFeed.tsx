@@ -1,7 +1,9 @@
 "use client";
 
 import { useRef, useEffect, useCallback, useState, useMemo } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { createClient } from "@/lib/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { useVideoFeed } from "@/hooks/useVideos";
 import type { Video } from "@/types";
 import MuxVideoPlayer from "./MuxVideoPlayer";
@@ -29,6 +31,9 @@ export default function VideoFeed() {
     isError,
   } = useVideoFeed();
 
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+
   const items: VideoWithProfile[] = useMemo(
     () => data?.pages.flat() ?? [],
     [data?.pages],
@@ -43,6 +48,17 @@ export default function VideoFeed() {
       fetchNextPage();
     }
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+
+  const handleDeleteVideo = useCallback(async (videoId: string) => {
+    if (!window.confirm("¿Estás seguro de eliminar esta publicación?")) return;
+    try {
+      const res = await fetch(`/api/videos/${videoId}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("Error al eliminar");
+      queryClient.invalidateQueries({ queryKey: ["videos"] });
+    } catch (e) {
+      console.error("Error al eliminar video:", e);
+    }
+  }, [queryClient]);
 
   useEffect(() => {
     const sentinel = sentinelRef.current;
@@ -141,6 +157,8 @@ export default function VideoFeed() {
               <div className="absolute right-2 top-2 z-30">
                 <VideoMenu
                   videoId={video.id}
+                  isOwner={video.user_id === user?.id}
+                  onDelete={() => handleDeleteVideo(video.id)}
                   onReport={() => setReportVideoId(video.id)}
                 />
               </div>
