@@ -92,7 +92,7 @@ export default function SavedPage() {
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-3 gap-0.5">
+            <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-0.5">
               {items.map(
                 (item) =>
                   item.videos && (

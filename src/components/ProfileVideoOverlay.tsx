@@ -115,7 +115,7 @@ function VideoSlide({ video, index, currentIndex, selectedIndex, hasScrolled, pr
     <div
       ref={videoRef}
       data-video-id={video.id}
-      className="relative flex h-screen w-full flex-shrink-0 snap-start items-center justify-center h-screen-fix"
+      className="relative flex h-dvh w-full flex-shrink-0 snap-start items-center justify-center h-screen-fix"
     >
       {isNearby ? (
         <>
@@ -136,7 +136,7 @@ function VideoSlide({ video, index, currentIndex, selectedIndex, hasScrolled, pr
             )}
           </div>
           <div className="pointer-events-none absolute inset-0 z-10">
-            <div className="pointer-events-auto absolute left-0 right-0 px-4 pt-0 pb-2 text-left" style={{ bottom: "calc(3.5rem + env(safe-area-inset-bottom, 0px))" }}>
+            <div className="pointer-events-auto overlay-info absolute left-0 right-0 px-4 pt-0 pb-2 text-left" style={{ bottom: "calc(3.5rem + env(safe-area-inset-bottom, 0px))" }}>
               {profile && (
                 <div className="mb-2 flex items-center justify-between">
                   <Link
@@ -158,7 +158,7 @@ function VideoSlide({ video, index, currentIndex, selectedIndex, hasScrolled, pr
                     <button
                       onClick={toggleFollow}
                       disabled={toggling}
-                      className={`rounded-lg border px-3 py-1 text-xs font-medium transition-colors disabled:opacity-50 ${
+                      className={`rounded-lg border px-4 py-2 text-xs font-medium transition-colors disabled:opacity-50 min-h-11 ${
                         isFollowing
                           ? "border-zinc-600 text-zinc-400"
                           : "border-blue-500 text-blue-500 hover:bg-blue-500/10"
@@ -171,19 +171,19 @@ function VideoSlide({ video, index, currentIndex, selectedIndex, hasScrolled, pr
               )}
               <InteractionBar videoId={video.id} />
               {video.description && (
-                <p className="mt-2 text-sm leading-relaxed text-zinc-200">{video.description}</p>
+                <p className="mt-2 text-sm leading-relaxed text-zinc-200 break-words">{video.description}</p>
               )}
               {video.hashtags && video.hashtags.length > 0 && (
-                <p className="mt-1 text-sm text-blue-400">
+                <p className="mt-1 text-sm text-blue-400 break-words">
                   {video.hashtags.map((h) => (h.startsWith("#") ? h : `#${h}`)).join(" ")}
                 </p>
               )}
             </div>
           </div>
-          <div className="absolute bottom-0 left-0 right-0 z-20 px-4" style={{ paddingBottom: "max(0.5rem, env(safe-area-inset-bottom, 0px))" }}>
+          <div className="overlay-progress absolute bottom-0 left-0 right-0 z-20 px-4" style={{ paddingBottom: "max(0.5rem, env(safe-area-inset-bottom, 0px))" }}>
             <div className="pointer-events-auto flex items-center gap-2">
               <div
-                className="h-1.5 flex-1 cursor-pointer rounded-full bg-zinc-600"
+                className="h-1.5 flex-1 cursor-pointer rounded-full bg-zinc-600 py-3 -my-3"
                 onClick={handleSeek}
               >
                 <div
@@ -389,7 +389,7 @@ export default function ProfileVideoOverlay({ video, allVideos, open, onClose, o
         transition: "opacity 250ms cubic-bezier(0.16, 1, 0.3, 1), transform 300ms cubic-bezier(0.16, 1, 0.3, 1)",
       }}
     >
-      <div className="relative mx-auto h-full w-full max-w-md">
+      <div className="relative mx-auto h-full w-full max-w-md md:max-w-lg lg:max-w-xl">
         <div
           className="absolute left-0 right-0 top-0 z-30 bg-gradient-to-b from-black/85 to-transparent px-3 pb-14 pt-2"
           style={{
