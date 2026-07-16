@@ -115,7 +115,7 @@ function VideoSlide({ video, index, currentIndex, selectedIndex, hasScrolled, pr
     <div
       ref={videoRef}
       data-video-id={video.id}
-      className="relative flex h-screen w-full flex-shrink-0 snap-start items-center justify-center"
+      className="relative flex h-screen w-full flex-shrink-0 snap-start items-center justify-center h-screen-fix"
     >
       {isNearby ? (
         <>
@@ -136,7 +136,7 @@ function VideoSlide({ video, index, currentIndex, selectedIndex, hasScrolled, pr
             )}
           </div>
           <div className="pointer-events-none absolute inset-0 z-10">
-            <div className="pointer-events-auto absolute bottom-14 left-0 right-0 px-4 pt-0 pb-2 text-left">
+            <div className="pointer-events-auto absolute left-0 right-0 px-4 pt-0 pb-2 text-left" style={{ bottom: "calc(3.5rem + env(safe-area-inset-bottom, 0px))" }}>
               {profile && (
                 <div className="mb-2 flex items-center justify-between">
                   <Link
@@ -180,7 +180,7 @@ function VideoSlide({ video, index, currentIndex, selectedIndex, hasScrolled, pr
               )}
             </div>
           </div>
-          <div className="absolute bottom-4 left-0 right-0 z-20 px-4 pb-2">
+          <div className="absolute bottom-0 left-0 right-0 z-20 px-4" style={{ paddingBottom: "max(0.5rem, env(safe-area-inset-bottom, 0px))" }}>
             <div className="pointer-events-auto flex items-center gap-2">
               <div
                 className="h-1.5 flex-1 cursor-pointer rounded-full bg-zinc-600"
