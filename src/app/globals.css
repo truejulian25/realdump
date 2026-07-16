@@ -21,6 +21,6 @@ mux-player.hide-controls::part(control-layer) {
   display: none;
 }
 
-mux-player::part(media) {
-  object-fit: cover;
+mux-player {
+  --media-object-fit: cover;
 }
