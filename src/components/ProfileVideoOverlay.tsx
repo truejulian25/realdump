@@ -53,12 +53,13 @@ interface VideoSlideProps {
   index: number;
   currentIndex: number;
   selectedIndex: number;
+  hasScrolled: boolean;
   profile: { username: string | null; display_name: string | null; avatar_url: string | null } | null;
   videoRef: (el: HTMLElement | null) => void;
   videoElementsRef: React.MutableRefObject<Map<string, HTMLVideoElement>>;
 }
 
-function VideoSlide({ video, index, currentIndex, selectedIndex, profile, videoRef, videoElementsRef }: VideoSlideProps) {
+function VideoSlide({ video, index, currentIndex, selectedIndex, hasScrolled, profile, videoRef, videoElementsRef }: VideoSlideProps) {
   const { user } = useAuth();
   const { isFollowing, toggling, toggle: toggleFollow } = useFollowToggle(video.user_id);
   const isSelf = user?.id === video.user_id;
@@ -104,6 +105,7 @@ function VideoSlide({ video, index, currentIndex, selectedIndex, profile, videoR
                 playbackId={video.mux_playback_id}
                 src={video.video_url}
                 autoPlay
+                muted={showPlayer && index === selectedIndex && !hasScrolled}
                 showControls={false}
               />
             ) : (
@@ -191,8 +193,10 @@ export default function ProfileVideoOverlay({ video, allVideos, open, onClose, o
     avatar_url: string | null;
   } | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [hasScrolled, setHasScrolled] = useState(false);
   const [reportVideoId, setReportVideoId] = useState<string | null>(null);
   const queryClient = useQueryClient();
+  const initialIndexRef = useRef(0);
 
   const { mounted, visible } = useMountAnimation(open);
 
@@ -245,6 +249,9 @@ export default function ProfileVideoOverlay({ video, allVideos, open, onClose, o
 
   useEffect(() => {
     if (!open || selectedIndex === -1 || !mounted) return;
+    initialIndexRef.current = selectedIndex;
+    setHasScrolled(false);
+    setCurrentIndex(selectedIndex);
     const container = containerRef.current;
     if (!container) return;
     const child = container.children[selectedIndex] as HTMLElement;
@@ -256,6 +263,9 @@ export default function ProfileVideoOverlay({ video, allVideos, open, onClose, o
     if (!container) return;
     const index = Math.round(container.scrollTop / container.clientHeight);
     setCurrentIndex(index);
+    if (index !== initialIndexRef.current) {
+      setHasScrolled(true);
+    }
 
     if (onLoadMore && index >= activeVideos.length - 2) {
       onLoadMore();
@@ -383,6 +393,7 @@ export default function ProfileVideoOverlay({ video, allVideos, open, onClose, o
               index={i}
               currentIndex={currentIndex}
               selectedIndex={selectedIndex}
+              hasScrolled={hasScrolled}
               profile={profile}
               videoRef={stableVideoRef}
               videoElementsRef={videoElementsRef}
