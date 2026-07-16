@@ -136,7 +136,7 @@ function VideoSlide({ video, index, currentIndex, selectedIndex, hasScrolled, pr
             )}
           </div>
           <div className="pointer-events-none absolute inset-0 z-10">
-            <div className="pointer-events-auto absolute bottom-10 left-0 right-0 px-4 pt-0 pb-2 text-left">
+            <div className="pointer-events-auto absolute bottom-14 left-0 right-0 px-4 pt-0 pb-2 text-left">
               {profile && (
                 <div className="mb-2 flex items-center justify-between">
                   <Link
@@ -180,7 +180,7 @@ function VideoSlide({ video, index, currentIndex, selectedIndex, hasScrolled, pr
               )}
             </div>
           </div>
-          <div className="absolute bottom-0 left-0 right-0 z-20 px-4 pb-2">
+          <div className="absolute bottom-4 left-0 right-0 z-20 px-4 pb-2">
             <div className="pointer-events-auto flex items-center gap-2">
               <div
                 className="h-1.5 flex-1 cursor-pointer rounded-full bg-zinc-600"
