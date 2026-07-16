@@ -36,13 +36,20 @@ export default function SearchPage() {
   const [recommendedVideos, setRecommendedVideos] = useState<VideoWithProfile[]>([]);
   const [recsLoading, setRecsLoading] = useState(true);
   const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
+  const [hasInteractionData, setHasInteractionData] = useState<boolean | null>(null);
+  const [allVideos, setAllVideos] = useState<VideoWithProfile[]>([]);
+  const [allPage, setAllPage] = useState(0);
+  const [allHasMore, setAllHasMore] = useState(true);
+  const [allLoading, setAllLoading] = useState(false);
   const supabase = useMemo(() => createClient(), []);
   const debounceRef = useRef<number | undefined>(undefined);
+  const sentinelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const fetchRecommendations = async () => {
       let recommended: VideoWithProfile[] = [];
       const interactedIds = new Set<string>();
+      let hasInteraction = false;
 
       if (user) {
         const [{ data: likedRows }, { data: savedRows }] = await Promise.all([
@@ -62,13 +69,14 @@ export default function SearchPage() {
 
         const likedIds = (likedRows ?? []).map((r) => r.video_id);
         const savedIds = (savedRows ?? []).map((r) => r.video_id);
+        hasInteraction = likedIds.length > 0 || savedIds.length > 0;
         likedIds.forEach((id) => interactedIds.add(id));
         savedIds.forEach((id) => interactedIds.add(id));
 
-        const allInteractedIds = [...likedIds, ...savedIds];
-        let interestTags: string[] = [];
+        if (hasInteraction) {
+          const allInteractedIds = [...likedIds, ...savedIds];
+          let interestTags: string[] = [];
 
-        if (allInteractedIds.length > 0) {
           const { data: taggedVideos } = await supabase
             .from("videos")
             .select("hashtags")
@@ -86,51 +94,134 @@ export default function SearchPage() {
             .sort((a, b) => b[1] - a[1])
             .slice(0, 5)
             .map(([tag]) => tag);
-        }
 
-        if (interestTags.length > 0) {
-          const orFilters = interestTags.map((t) => `hashtags.cs.{"${t}"}`).join(",");
-          const { data } = await supabase
-            .from("videos")
-            .select("*, profiles(username, display_name, avatar_url)")
-            .or(orFilters)
-            .order("created_at", { ascending: false })
-            .limit(20);
+          if (interestTags.length > 0) {
+            const orFilters = interestTags.map((t) => `hashtags.cs.{"${t}"}`).join(",");
+            const { data } = await supabase
+              .from("videos")
+              .select("*, profiles(username, display_name, avatar_url)")
+              .or(orFilters)
+              .order("created_at", { ascending: false })
+              .limit(20);
 
-          recommended = (data ?? []).filter((v) => !interactedIds.has(v.id));
-        }
-      }
+            recommended = (data ?? []).filter((v) => !interactedIds.has(v.id));
+          }
 
-      if (recommended.length < 6) {
-        const { data: activeProfiles } = await supabase
-          .from("profiles")
-          .select("id")
-          .is("deactivated_at", null)
-          .is("deleted_at", null);
+          if (recommended.length < 6) {
+            const { data: activeProfiles } = await supabase
+              .from("profiles")
+              .select("id")
+              .is("deactivated_at", null)
+              .is("deleted_at", null);
 
-        const activeIds = (activeProfiles ?? []).map((p) => p.id);
-        if (activeIds.length > 0) {
-          const { data: fallback } = await supabase
-            .from("videos")
-            .select("*, profiles(username, display_name, avatar_url)")
-            .in("user_id", activeIds)
-            .order("created_at", { ascending: false })
-            .limit(20);
+            const activeIds = (activeProfiles ?? []).map((p) => p.id);
+            if (activeIds.length > 0) {
+              const { data: fallback } = await supabase
+                .from("videos")
+                .select("*, profiles(username, display_name, avatar_url)")
+                .in("user_id", activeIds)
+                .order("created_at", { ascending: false })
+                .limit(20);
 
-          for (const v of fallback ?? []) {
-            if (!interactedIds.has(v.id) && !recommended.some((r) => r.id === v.id)) {
-              recommended.push(v);
+              for (const v of fallback ?? []) {
+                if (!interactedIds.has(v.id) && !recommended.some((r) => r.id === v.id)) {
+                  recommended.push(v);
+                }
+              }
             }
           }
         }
       }
 
+      setHasInteractionData(hasInteraction);
       setRecommendedVideos(recommended);
       setRecsLoading(false);
     };
 
     fetchRecommendations();
   }, [supabase, user]);
+
+  useEffect(() => {
+    const fetchFirstPage = async () => {
+      const { data: activeProfiles } = await supabase
+        .from("profiles")
+        .select("id")
+        .is("deactivated_at", null)
+        .is("deleted_at", null);
+
+      const activeIds = (activeProfiles ?? []).map((p) => p.id);
+      if (activeIds.length === 0) return;
+
+      const ALL_PAGE_SIZE = 60;
+      const { data } = await supabase
+        .from("videos")
+        .select("*, profiles(username, display_name, avatar_url)")
+        .in("user_id", activeIds)
+        .order("created_at", { ascending: false })
+        .range(0, ALL_PAGE_SIZE - 1);
+
+      setAllVideos(data ?? []);
+      setAllHasMore((data ?? []).length === ALL_PAGE_SIZE);
+      setAllPage(1);
+    };
+
+    fetchFirstPage();
+  }, [supabase]);
+
+  useEffect(() => {
+    if (allLoading || !allHasMore || allPage === 0) return;
+    const sentinel = sentinelRef.current;
+    if (!sentinel) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && allHasMore && !allLoading) {
+          setAllLoading(true);
+        }
+      },
+      { rootMargin: "300px" }
+    );
+
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [allLoading, allHasMore, allPage]);
+
+  useEffect(() => {
+    if (!allLoading) return;
+
+    const fetchNextPage = async () => {
+      const { data: activeProfiles } = await supabase
+        .from("profiles")
+        .select("id")
+        .is("deactivated_at", null)
+        .is("deleted_at", null);
+
+      const activeIds = (activeProfiles ?? []).map((p) => p.id);
+      if (activeIds.length === 0) {
+        setAllHasMore(false);
+        setAllLoading(false);
+        return;
+      }
+
+      const ALL_PAGE_SIZE = 60;
+      const start = allPage * ALL_PAGE_SIZE;
+      const end = start + ALL_PAGE_SIZE - 1;
+
+      const { data } = await supabase
+        .from("videos")
+        .select("*, profiles(username, display_name, avatar_url)")
+        .in("user_id", activeIds)
+        .order("created_at", { ascending: false })
+        .range(start, end);
+
+      setAllVideos((prev) => [...prev, ...(data ?? [])]);
+      setAllHasMore((data ?? []).length === ALL_PAGE_SIZE);
+      setAllPage((prev) => prev + 1);
+      setAllLoading(false);
+    };
+
+    fetchNextPage();
+  }, [allLoading, allPage, supabase]);
 
   useEffect(() => {
     const trimmed = query.trim();
@@ -261,7 +352,11 @@ export default function SearchPage() {
     window.history.back();
   }, []);
 
-  const currentVideos = searched ? videos : recommendedVideos;
+  const currentVideos = searched
+    ? videos
+    : hasInteractionData && recommendedVideos.length > 0
+      ? recommendedVideos
+      : allVideos;
 
   return (
     <div className="flex min-h-screen flex-col bg-black pt-14 pb-20">
@@ -309,25 +404,37 @@ export default function SearchPage() {
           </div>
         ) : !searched ? (
           <div className="py-4">
-            {recsLoading ? (
-              <div className="flex items-center justify-center py-20">
-                <p className="text-zinc-400">Cargando...</p>
+            {hasInteractionData && recommendedVideos.length > 0 ? (
+              <div className="grid grid-cols-3 gap-0.5">
+                {recommendedVideos.map((video) => (
+                  <ProfileVideoCard key={video.id} video={video} onClick={handleVideoClick} />
+                ))}
               </div>
-            ) : recommendedVideos.length > 0 ? (
+            ) : allVideos.length > 0 ? (
               <>
                 <div className="grid grid-cols-3 gap-0.5">
-                  {recommendedVideos.map((video) => (
+                  {allVideos.map((video) => (
                     <ProfileVideoCard key={video.id} video={video} onClick={handleVideoClick} />
                   ))}
                 </div>
+                {allHasMore && <div ref={sentinelRef} />}
+                {allLoading && (
+                  <div className="flex justify-center py-6">
+                    <div className="h-6 w-6 animate-spin rounded-full border-2 border-zinc-600 border-t-white" />
+                  </div>
+                )}
               </>
+            ) : recsLoading ? (
+              <div className="flex items-center justify-center py-20">
+                <p className="text-zinc-400">Cargando...</p>
+              </div>
             ) : (
               <div className="flex flex-col items-center justify-center gap-3 py-20 text-zinc-500">
                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                   <circle cx="11" cy="11" r="8" />
                   <line x1="21" y1="21" x2="16.65" y2="16.65" />
                 </svg>
-                <p className="text-sm">Busca perfiles o videos</p>
+                <p className="text-sm">No hay videos disponibles</p>
               </div>
             )}
           </div>
