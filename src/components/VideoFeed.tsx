@@ -165,7 +165,7 @@ export default function VideoFeed() {
             />
             <div
               className="relative mt-3 w-full overflow-hidden rounded-lg bg-zinc-900"
-              style={{ maxHeight: "calc(100dvh - 16rem)" }}
+              style={{ maxHeight: "calc(100dvh - 15rem)" }}
             >
               <MuxVideoPlayer playbackId={video.mux_playback_id} src={video.video_url} muted={true} />
               <div className="absolute right-2 top-2 z-30">
