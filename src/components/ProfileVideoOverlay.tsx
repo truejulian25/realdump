@@ -31,6 +31,12 @@ function formatDate(dateStr: string) {
   });
 }
 
+function formatTime(seconds: number): string {
+  const m = Math.floor(seconds / 60);
+  const s = Math.floor(seconds % 60);
+  return `${m}:${s.toString().padStart(2, "0")}`;
+}
+
 function useMountAnimation(open: boolean) {
   const [mounted, setMounted] = useState(false);
   const [visible, setVisible] = useState(false);
@@ -73,6 +79,8 @@ function VideoSlide({ video, index, currentIndex, selectedIndex, hasScrolled, pr
   const isSelf = user?.id === video.user_id;
   const isNearby = Math.abs(index - currentIndex) <= 3;
   const [progress, setProgress] = useState(0);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
 
   useEffect(() => {
     if (!isNearby) return;
@@ -81,7 +89,11 @@ function VideoSlide({ video, index, currentIndex, selectedIndex, hasScrolled, pr
 
     const handleTimeUpdate = () => {
       if (videoEl.duration) {
-        setProgress(videoEl.currentTime / videoEl.duration);
+        const ct = videoEl.currentTime;
+        const dur = videoEl.duration;
+        setProgress(ct / dur);
+        setCurrentTime(ct);
+        setDuration(dur);
       }
     };
 
@@ -124,7 +136,7 @@ function VideoSlide({ video, index, currentIndex, selectedIndex, hasScrolled, pr
             )}
           </div>
           <div className="pointer-events-none absolute inset-0 z-10">
-            <div className="pointer-events-auto absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black/70 to-transparent px-4 pt-0 pb-4 text-left backdrop-blur-[2px]">
+            <div className="pointer-events-auto absolute bottom-10 left-0 right-0 bg-gradient-to-t from-black via-black/70 to-transparent px-4 pt-0 pb-2 text-left backdrop-blur-[2px]">
               {profile && (
                 <div className="mb-2 flex items-center justify-between">
                   <Link
@@ -166,8 +178,12 @@ function VideoSlide({ video, index, currentIndex, selectedIndex, hasScrolled, pr
                   {video.hashtags.map((h) => (h.startsWith("#") ? h : `#${h}`)).join(" ")}
                 </p>
               )}
+            </div>
+          </div>
+          <div className="absolute bottom-0 left-0 right-0 z-20 px-4 pb-2">
+            <div className="pointer-events-auto flex items-center gap-2">
               <div
-                className="mt-2 h-1 w-full cursor-pointer rounded-full bg-zinc-600"
+                className="h-1.5 flex-1 cursor-pointer rounded-full bg-zinc-600"
                 onClick={handleSeek}
               >
                 <div
@@ -175,6 +191,9 @@ function VideoSlide({ video, index, currentIndex, selectedIndex, hasScrolled, pr
                   style={{ width: `${progress * 100}%` }}
                 />
               </div>
+              <span className="text-xs text-white tabular-nums">
+                {formatTime(currentTime)} / {formatTime(duration)}
+              </span>
             </div>
           </div>
         </>
