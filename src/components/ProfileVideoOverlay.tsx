@@ -88,6 +88,8 @@ function VideoSlide({ video, index, currentIndex, selectedIndex, profile, videoR
     videoEl.currentTime = (x / rect.width) * videoEl.duration;
   };
 
+  const showPlayer = index === selectedIndex;
+
   return (
     <div
       ref={videoRef}
@@ -96,13 +98,18 @@ function VideoSlide({ video, index, currentIndex, selectedIndex, profile, videoR
     >
       {isNearby ? (
         <>
-          <div className="relative flex h-full w-full items-center justify-center">
+          <div className="relative flex h-full w-full items-center justify-center bg-zinc-900">
+            {showPlayer ? (
               <MuxVideoPlayer
                 playbackId={video.mux_playback_id}
                 src={video.video_url}
-                autoPlay={index === selectedIndex}
+                autoPlay
+                muted
                 showControls={false}
               />
+            ) : (
+              <div className="h-full w-full" />
+            )}
           </div>
           <div className="pointer-events-none absolute inset-0 z-10">
             <div className="pointer-events-auto absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black/70 to-transparent px-4 pt-0 pb-4 text-left backdrop-blur-[2px]">
