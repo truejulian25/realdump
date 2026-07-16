@@ -45,7 +45,7 @@ export default function MuxVideoPlayer({
         style={
           fill
             ? { width: "100%", height: "100%", objectFit: "cover" as const }
-            : { width: "100%", aspectRatio: "9/16" as const }
+            : { width: "100%", aspectRatio: "9/16" as const, objectFit: "cover" as const }
         }
       />
     );
