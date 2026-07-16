@@ -158,7 +158,7 @@ export default function VideoFeed() {
               userId={video.user_id}
             />
             <div className="relative mt-3 w-full overflow-hidden rounded-lg bg-zinc-900">
-              <MuxVideoPlayer playbackId={video.mux_playback_id} src={video.video_url} />
+              <MuxVideoPlayer playbackId={video.mux_playback_id} src={video.video_url} muted={true} />
               <div className="absolute right-2 top-2 z-30">
                 <VideoMenu
                   videoId={video.id}

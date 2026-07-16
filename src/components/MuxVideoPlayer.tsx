@@ -28,7 +28,7 @@ export default function MuxVideoPlayer({
   src,
   autoPlay = true,
   fill = false,
-  muted = true,
+  muted = false,
   loop = true,
   className,
   showControls = true,
