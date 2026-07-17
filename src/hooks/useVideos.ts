@@ -28,24 +28,19 @@ export function useVideoFeed() {
   return useInfiniteQuery<VideoWithProfile[]>({
     queryKey: ["videos", "feed"],
     queryFn: async ({ pageParam = 0 }) => {
-      const { data: activeProfiles } = await supabase
-        .from("profiles")
-        .select("id")
-        .is("deactivated_at", null)
-        .is("deleted_at", null);
-
-      const ids = (activeProfiles || []).map((p) => p.id);
-      if (ids.length === 0) return [];
-
       const start = (pageParam as number) * PAGE_SIZE;
       const end = start + PAGE_SIZE - 1;
 
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("videos")
-        .select("*, profiles(username, display_name, avatar_url)")
-        .in("user_id", ids)
+        .select("*, profiles!inner(username, display_name, avatar_url)")
         .order("created_at", { ascending: false })
         .range(start, end);
+
+      if (error) {
+        console.error("[useVideoFeed] videos error:", error);
+        return [];
+      }
 
       return (data as VideoWithProfile[]) || [];
     },

@@ -106,18 +106,9 @@ export default function SearchPage() {
           }
 
           if (recommended.length < 6) {
-            const { data: activeProfiles } = await supabase
-              .from("profiles")
-              .select("id")
-              .is("deactivated_at", null)
-              .is("deleted_at", null);
-
-            const activeIds = (activeProfiles ?? []).map((p) => p.id);
-            if (activeIds.length > 0) {
               const { data: fallback } = await supabase
                 .from("videos")
-                .select("*, profiles(username, display_name, avatar_url)")
-                .in("user_id", activeIds)
+                .select("*, profiles!inner(username, display_name, avatar_url)")
                 .order("created_at", { ascending: false })
                 .limit(20);
 
@@ -126,7 +117,6 @@ export default function SearchPage() {
                   recommended.push(v);
                 }
               }
-            }
           }
         }
       }
@@ -140,20 +130,10 @@ export default function SearchPage() {
 
   useEffect(() => {
     const fetchFirstPage = async () => {
-      const { data: activeProfiles } = await supabase
-        .from("profiles")
-        .select("id")
-        .is("deactivated_at", null)
-        .is("deleted_at", null);
-
-      const activeIds = (activeProfiles ?? []).map((p) => p.id);
-      if (activeIds.length === 0) return;
-
       const ALL_PAGE_SIZE = 60;
       const { data } = await supabase
         .from("videos")
-        .select("*, profiles(username, display_name, avatar_url)")
-        .in("user_id", activeIds)
+        .select("*, profiles!inner(username, display_name, avatar_url)")
         .order("created_at", { ascending: false })
         .range(0, ALL_PAGE_SIZE - 1);
 
@@ -168,24 +148,12 @@ export default function SearchPage() {
   const doFetchAllVideos = useCallback(async () => {
     if (allLoading || !allHasMore || allPage === 0) return;
     setAllLoading(true);
-    const { data: activeProfiles } = await supabase
-      .from("profiles")
-      .select("id")
-      .is("deactivated_at", null)
-      .is("deleted_at", null);
-    const activeIds = (activeProfiles ?? []).map((p) => p.id);
-    if (activeIds.length === 0) {
-      setAllHasMore(false);
-      setAllLoading(false);
-      return;
-    }
     const ALL_PAGE_SIZE = 60;
     const start = allPage * ALL_PAGE_SIZE;
     const end = start + ALL_PAGE_SIZE - 1;
     const { data } = await supabase
       .from("videos")
-      .select("*, profiles(username, display_name, avatar_url)")
-      .in("user_id", activeIds)
+      .select("*, profiles!inner(username, display_name, avatar_url)")
       .order("created_at", { ascending: false })
       .range(start, end);
     setAllVideos((prev) => [...prev, ...(data ?? [])]);
@@ -278,24 +246,13 @@ export default function SearchPage() {
       }
 
       // 3. Always fetch recommendations to supplement results
-      const { data: activeProfiles } = await supabase
-        .from("profiles")
-        .select("id")
-        .is("deactivated_at", null)
-        .is("deleted_at", null);
+      const { data: recsData } = await supabase
+        .from("videos")
+        .select("*, profiles!inner(username, display_name, avatar_url)")
+        .order("created_at", { ascending: false })
+        .limit(20);
 
-      const activeIds = (activeProfiles || []).map((p) => p.id);
-
-      if (activeIds.length > 0) {
-        const { data: recsData } = await supabase
-          .from("videos")
-          .select("*, profiles(username, display_name, avatar_url)")
-          .in("user_id", activeIds)
-          .order("created_at", { ascending: false })
-          .limit(20);
-
-        recommendations = recsData ?? [];
-      }
+      recommendations = recsData ?? [];
 
       // Deduplicate and merge: search results first, then recommendations
       const foundIds = new Set(foundVideos.map((v) => v.id));
