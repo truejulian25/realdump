@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useMemo, useCallback } from "react";
+import { useEffect, useRef, useState, useMemo, useCallback, startTransition } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -36,7 +36,6 @@ export default function SearchPage() {
   const [recommendedVideos, setRecommendedVideos] = useState<VideoWithProfile[]>([]);
   const [recsLoading, setRecsLoading] = useState(true);
   const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
-  const [hasInteractionData, setHasInteractionData] = useState<boolean | null>(null);
   const [allVideos, setAllVideos] = useState<VideoWithProfile[]>([]);
   const [allPage, setAllPage] = useState(0);
   const [allHasMore, setAllHasMore] = useState(true);
@@ -44,12 +43,12 @@ export default function SearchPage() {
   const supabase = useMemo(() => createClient(), []);
   const debounceRef = useRef<number | undefined>(undefined);
   const sentinelRef = useRef<HTMLDivElement>(null);
+  const fetchAllVideosRef = useRef(async () => {});
 
   useEffect(() => {
     const fetchRecommendations = async () => {
       let recommended: VideoWithProfile[] = [];
       const interactedIds = new Set<string>();
-      let hasInteraction = false;
 
       if (user) {
         const [{ data: likedRows }, { data: savedRows }] = await Promise.all([
@@ -69,11 +68,10 @@ export default function SearchPage() {
 
         const likedIds = (likedRows ?? []).map((r) => r.video_id);
         const savedIds = (savedRows ?? []).map((r) => r.video_id);
-        hasInteraction = likedIds.length > 0 || savedIds.length > 0;
         likedIds.forEach((id) => interactedIds.add(id));
         savedIds.forEach((id) => interactedIds.add(id));
 
-        if (hasInteraction) {
+        if (likedIds.length > 0 || savedIds.length > 0) {
           const allInteractedIds = [...likedIds, ...savedIds];
           let interestTags: string[] = [];
 
@@ -133,7 +131,6 @@ export default function SearchPage() {
         }
       }
 
-      setHasInteractionData(hasInteraction);
       setRecommendedVideos(recommended);
       setRecsLoading(false);
     };
@@ -168,73 +165,56 @@ export default function SearchPage() {
     fetchFirstPage();
   }, [supabase]);
 
-  useEffect(() => {
+  const doFetchAllVideos = useCallback(async () => {
     if (allLoading || !allHasMore || allPage === 0) return;
+    setAllLoading(true);
+    const { data: activeProfiles } = await supabase
+      .from("profiles")
+      .select("id")
+      .is("deactivated_at", null)
+      .is("deleted_at", null);
+    const activeIds = (activeProfiles ?? []).map((p) => p.id);
+    if (activeIds.length === 0) {
+      setAllHasMore(false);
+      setAllLoading(false);
+      return;
+    }
+    const ALL_PAGE_SIZE = 60;
+    const start = allPage * ALL_PAGE_SIZE;
+    const end = start + ALL_PAGE_SIZE - 1;
+    const { data } = await supabase
+      .from("videos")
+      .select("*, profiles(username, display_name, avatar_url)")
+      .in("user_id", activeIds)
+      .order("created_at", { ascending: false })
+      .range(start, end);
+    setAllVideos((prev) => [...prev, ...(data ?? [])]);
+    setAllHasMore((data ?? []).length === ALL_PAGE_SIZE);
+    setAllPage((prev) => prev + 1);
+    setAllLoading(false);
+  }, [allLoading, allHasMore, allPage, supabase]);
+
+  useEffect(() => { fetchAllVideosRef.current = doFetchAllVideos; }, [doFetchAllVideos]);
+
+  useEffect(() => {
     const sentinel = sentinelRef.current;
     if (!sentinel) return;
-
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting && allHasMore && !allLoading) {
-          setAllLoading(true);
-        }
+        if (entry.isIntersecting) fetchAllVideosRef.current();
       },
       { rootMargin: "300px" }
     );
-
     observer.observe(sentinel);
     return () => observer.disconnect();
-  }, [allLoading, allHasMore, allPage]);
-
-  useEffect(() => {
-    if (!allLoading) return;
-
-    const fetchNextPage = async () => {
-      const { data: activeProfiles } = await supabase
-        .from("profiles")
-        .select("id")
-        .is("deactivated_at", null)
-        .is("deleted_at", null);
-
-      const activeIds = (activeProfiles ?? []).map((p) => p.id);
-      if (activeIds.length === 0) {
-        setAllHasMore(false);
-        setAllLoading(false);
-        return;
-      }
-
-      const ALL_PAGE_SIZE = 60;
-      const start = allPage * ALL_PAGE_SIZE;
-      const end = start + ALL_PAGE_SIZE - 1;
-
-      const { data } = await supabase
-        .from("videos")
-        .select("*, profiles(username, display_name, avatar_url)")
-        .in("user_id", activeIds)
-        .order("created_at", { ascending: false })
-        .range(start, end);
-
-      setAllVideos((prev) => [...prev, ...(data ?? [])]);
-      setAllHasMore((data ?? []).length === ALL_PAGE_SIZE);
-      setAllPage((prev) => prev + 1);
-      setAllLoading(false);
-    };
-
-    fetchNextPage();
-  }, [allLoading, allPage, supabase]);
+  }, [allHasMore]);
 
   useEffect(() => {
     const trimmed = query.trim();
     const tag = trimmed.replace(/^#/, "");
-    if (!trimmed) {
-      setProfiles([]);
-      setVideos([]);
-      setSearched(false);
-      setSearchType("exact");
-      return;
-    }
+    if (!trimmed) return;
 
-    setLoading(true);
+    startTransition(() => setLoading(true));
     window.clearTimeout(debounceRef.current);
 
     debounceRef.current = window.setTimeout(async () => {
@@ -352,11 +332,8 @@ export default function SearchPage() {
     window.history.back();
   }, []);
 
-  const currentVideos = searched
-    ? videos
-    : hasInteractionData && recommendedVideos.length > 0
-      ? recommendedVideos
-      : allVideos;
+  const hasActiveSearch = searched && query.trim().length > 0;
+  const currentVideos = hasActiveSearch ? videos : allVideos;
 
   return (
     <div className="flex min-h-screen flex-col bg-black pt-14 pb-20">
@@ -398,19 +375,25 @@ export default function SearchPage() {
       </div>
 
       <div className="flex-1 px-4 py-4">
-        {loading ? (
+        {loading && hasActiveSearch ? (
           <div className="flex items-center justify-center py-20">
             <p className="text-zinc-400">Buscando...</p>
           </div>
-        ) : !searched ? (
+        ) : !hasActiveSearch ? (
           <div className="py-4">
-            {hasInteractionData && recommendedVideos.length > 0 ? (
-              <div className="grid grid-cols-3 gap-0.5">
-                {recommendedVideos.map((video) => (
-                  <ProfileVideoCard key={video.id} video={video} onClick={handleVideoClick} />
-                ))}
+            {!recsLoading && recommendedVideos.length > 0 && (
+              <div className="mb-6">
+                <h2 className="mb-3 text-sm font-semibold text-zinc-400 uppercase tracking-wider">
+                  Recomendados
+                </h2>
+                <div className="grid grid-cols-3 gap-0.5">
+                  {recommendedVideos.map((video) => (
+                    <ProfileVideoCard key={video.id} video={video} onClick={handleVideoClick} />
+                  ))}
+                </div>
               </div>
-            ) : allVideos.length > 0 ? (
+            )}
+            {allVideos.length > 0 ? (
               <>
                 <div className="grid grid-cols-3 gap-0.5">
                   {allVideos.map((video) => (

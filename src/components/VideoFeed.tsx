@@ -48,6 +48,9 @@ export default function VideoFeed() {
     }
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
+  const loadMoreRef = useRef(loadMore);
+  useEffect(() => { loadMoreRef.current = loadMore; }, [loadMore]);
+
   const handleDeleteVideo = useCallback(async (videoId: string) => {
     if (!window.confirm("¿Estás seguro de eliminar esta publicación?")) return;
     queryClient.setQueryData<InfiniteData<VideoWithProfile[]>>(["videos", "feed"], (old) => {
@@ -78,7 +81,7 @@ export default function VideoFeed() {
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting) {
-          loadMore();
+          loadMoreRef.current();
         }
       },
       { rootMargin: "300px" }
@@ -86,7 +89,7 @@ export default function VideoFeed() {
 
     observer.observe(sentinel);
     return () => observer.disconnect();
-  }, [loadMore]);
+  }, [hasNextPage]);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -152,7 +155,7 @@ export default function VideoFeed() {
       className="scroll-container h-screen w-full overflow-y-auto overflow-x-hidden bg-black pt-14 pb-20"
     >
       <div className="mx-auto w-full max-w-md border-x border-zinc-800">
-        {items.map((video, idx) => (
+        {items.map((video) => (
         <div
           key={video.id}
           className="flex w-full flex-col pb-5"
