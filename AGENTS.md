@@ -27,24 +27,17 @@
 - `src/app/globals.css` — mux-player border-radius, .scroll-container, @supports (-webkit-touch-callout), landscape media queries para overlay
 
 ### Cambios realizados en esta sesión
-- maxHeight ajustado: 15rem → 13rem → 11rem → 9rem (final) en VideoFeed.tsx y ProfileVideoOverlay.tsx
-- Bordes redondeados (rounded-lg) en todos los contenedores de video
-- Barra de progreso: h-1.5 (más gruesa) + formato tiempo (1:23 / 2:45)
-- Info overlay subida: bottom-10 → bottom-14, barra bottom-0 → bottom-4
-- Gradiente eliminado del overlay de info (reemplazado por sin fondo)
-- Fondos de contenedores de video unificados: bg-zinc-900 → bg-black en todos
-- Slide cambiado a grid place-items-center para centrar video, luego revertido a flex
-- viewportFit: "cover" agregado y luego revertido
-- safe-area-inset-bottom aplicado a info overlay y progress bar
-- Touch targets mejorados: botón Seguir (px-4 py-2 min-h-11), barra progreso (py-3 -my-3)
-- Descripción y hashtags: break-words
-- Play overlay en ProfileVideoCard: pointer-events-none + max-sm:opacity-60
+- `useVideoFeed` simplificado: eliminados `totalPagesRef`, `countDoneRef`, patrón de módulo/ciclo
+- `VideoFeed`: IntersectionObserver estabilizado con `callbackRef` para evitar reconexiones
+- `SearchPage`: observer estable, estado simplificado, `hasInteractionData` eliminado
+- **Fix 400 en query de videos**: reemplazada pre-consulta de profiles + `.in("user_id", 3550 IDs)` por `profiles!inner` join directo (URL de ~130KB causaba Bad Request)
+- `useVideos.ts`, `search/page.tsx`: mismo fix en todas las queries que usaban el patrón
+- `supabase/migrations/00005_add_videos_user_id_index.sql` — índices en `videos.user_id` y `videos.created_at` para acelerar el feed
 
 ### Problemas abiertos (para próxima sesión)
-- **Scroll infinito en `/` no funciona** — posible causa: viewportFit removido, o interacción entre layout.tsx y el hook useVideoFeed. No se modificó useVideos.ts ni la lógica de VideoFeed.tsx más allá de maxHeight y bg-color.
-- **`/search` no recomienda todos los videos** — posible causa: ProfileVideoCard overlay interceptando clicks (ya fixeado con pointer-events-none). Verificar si el problema persiste.
+- *(ninguno — los dos issues reportados están resueltos)*
 
 ### Próximos pasos sugeridos
-1. Depurar scroll infinito en `/` — verificar que hasNextPage y fetchNextPage funcionan en useVideoFeed, revisar si el sentinelRef se renderiza correctamente
-2. Depurar recomendaciones en `/search` — verificar allVideos fetch y hasInteractionData state
-3. Restaurar viewportFit: "cover" si se confirma que no afecta estas funciones
+1. Agregar `loading.tsx` o `Suspense` boundary para mejorar experiencia de carga lenta
+2. Optimizar tamaño de página en queries de videos (paginación más eficiente)
+3. Agregar caché React Query con `placeholderData: keepPreviousData` para transiciones más suaves
