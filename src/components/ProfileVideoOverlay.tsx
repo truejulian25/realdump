@@ -9,6 +9,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useFollowToggle } from "@/hooks/useFollow";
 import { toast } from "sonner";
 import MuxVideoPlayer from "./MuxVideoPlayer";
+import VideoControls from "./VideoControls";
 import InteractionBar from "./InteractionBar";
 import VideoMenu from "./VideoMenu";
 import ReportModal from "./ReportModal";
@@ -29,12 +30,6 @@ function formatDate(dateStr: string) {
     month: "long",
     day: "numeric",
   });
-}
-
-function formatTime(seconds: number): string {
-  const m = Math.floor(seconds / 60);
-  const s = Math.floor(seconds % 60);
-  return `${m}:${s.toString().padStart(2, "0")}`;
 }
 
 function useMountAnimation(open: boolean) {
@@ -69,74 +64,104 @@ interface VideoSlideProps {
   selectedIndex: number;
   hasScrolled: boolean;
   profile: { username: string | null; display_name: string | null; avatar_url: string | null } | null;
-  videoRef: (el: HTMLElement | null) => void;
-  videoElementsRef: React.MutableRefObject<Map<string, HTMLVideoElement>>;
 }
 
-function VideoSlide({ video, index, currentIndex, selectedIndex, hasScrolled, profile, videoRef, videoElementsRef }: VideoSlideProps) {
+function VideoSlide({ video, index, currentIndex, selectedIndex, hasScrolled, profile }: VideoSlideProps) {
   const { user } = useAuth();
   const { isFollowing, toggling, toggle: toggleFollow } = useFollowToggle(video.user_id);
   const isSelf = user?.id === video.user_id;
   const isNearby = Math.abs(index - currentIndex) <= 3;
-  const [progress, setProgress] = useState(0);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
+  const slideRef = useRef<HTMLDivElement>(null);
+  const [paused, setPaused] = useState(true);
+  const videoContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!isNearby) return;
-    const videoEl = videoElementsRef.current.get(video.id);
-    if (!videoEl) return;
+    let mounted = true;
 
-    const handleTimeUpdate = () => {
-      if (videoEl.duration) {
-        const ct = videoEl.currentTime;
-        const dur = videoEl.duration;
-        setProgress(ct / dur);
-        setCurrentTime(ct);
-        setDuration(dur);
+    const sync = () => {
+      const player = slideRef.current?.querySelector<HTMLMediaElement>(
+        "mux-player, video"
+      );
+      if (!player) {
+        if (mounted) requestAnimationFrame(sync);
+        return;
       }
+
+      const onPlay = () => {
+        if (mounted) setPaused(false);
+      };
+      const onPause = () => {
+        if (mounted) setPaused(true);
+      };
+
+      player.addEventListener("play", onPlay);
+      player.addEventListener("pause", onPause);
+      setPaused(player.paused);
+
+      return () => {
+        player.removeEventListener("play", onPlay);
+        player.removeEventListener("pause", onPause);
+      };
     };
 
-    videoEl.addEventListener("timeupdate", handleTimeUpdate);
-    return () => videoEl.removeEventListener("timeupdate", handleTimeUpdate);
-  }, [video.id, isNearby, videoElementsRef]);
+    const cleanup = sync();
+    return () => {
+      mounted = false;
+      if (typeof cleanup === "function") cleanup();
+    };
+  }, [video.id, isNearby, currentIndex]);
 
-  const handleSeek = (e: React.MouseEvent<HTMLDivElement>) => {
-    const videoEl = videoElementsRef.current.get(video.id);
-    if (!videoEl || !videoEl.duration) return;
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    videoEl.currentTime = (x / rect.width) * videoEl.duration;
-  };
+  const togglePlay = useCallback(() => {
+    const player = slideRef.current?.querySelector<HTMLMediaElement>("mux-player, video");
+    if (!player) return;
+    if (player.paused) player.play().catch(() => {});
+    else player.pause();
+  }, []);
+
+  useEffect(() => {
+    const el = videoContainerRef.current;
+    if (!el) return;
+    el.addEventListener("click", togglePlay, { capture: true });
+    return () => el.removeEventListener("click", togglePlay, { capture: true });
+  }, [togglePlay]);
 
   const showPlayer = index === currentIndex;
 
   return (
     <div
-      ref={videoRef}
+      ref={slideRef}
       data-video-id={video.id}
       className="relative flex h-dvh w-full flex-shrink-0 snap-start items-center justify-center h-screen-fix"
     >
       {isNearby ? (
         <>
           <div
-            className="relative flex h-full w-full items-center justify-center overflow-hidden rounded-lg bg-black"
+            ref={videoContainerRef}
+            className="relative flex h-full w-full items-center justify-center overflow-hidden rounded-lg bg-black cursor-pointer"
             style={{ maxHeight: "calc(100dvh - 9rem)" }}
           >
+            {showPlayer && paused && (
+              <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/20 pointer-events-none">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="white">
+                  <polygon points="5 3 19 12 5 21 5 3" />
+                </svg>
+              </div>
+            )}
             {showPlayer ? (
               <MuxVideoPlayer
                 playbackId={video.mux_playback_id}
                 src={video.video_url}
                 autoPlay
                 muted={showPlayer && index === selectedIndex && !hasScrolled}
-                showControls={false}
               />
             ) : (
               <div className="h-full w-full" />
             )}
           </div>
-          <div className="pointer-events-none absolute inset-0 z-10">
-            <div className="pointer-events-auto overlay-info absolute left-0 right-0 px-4 pt-0 pb-2 text-left" style={{ bottom: "calc(3.5rem + env(safe-area-inset-bottom, 0px))" }}>
+          <div className="pointer-events-none absolute inset-0 z-10 flex flex-col justify-end">
+            <div className="pointer-events-auto bg-gradient-to-t from-black/70 via-black/40 to-transparent px-4 pt-8 pb-3 text-left"
+                 style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom, 0px))" }}>
               {profile && (
                 <div className="mb-2 flex items-center justify-between">
                   <Link
@@ -178,22 +203,7 @@ function VideoSlide({ video, index, currentIndex, selectedIndex, hasScrolled, pr
                   {video.hashtags.map((h) => (h.startsWith("#") ? h : `#${h}`)).join(" ")}
                 </p>
               )}
-            </div>
-          </div>
-          <div className="overlay-progress absolute bottom-0 left-0 right-0 z-20 px-4" style={{ paddingBottom: "max(0.5rem, env(safe-area-inset-bottom, 0px))" }}>
-            <div className="pointer-events-auto flex items-center gap-2">
-              <div
-                className="h-1.5 flex-1 cursor-pointer rounded-full bg-zinc-600 py-3 -my-3"
-                onClick={handleSeek}
-              >
-                <div
-                  className="h-full rounded-full bg-white transition-all"
-                  style={{ width: `${progress * 100}%` }}
-                />
-              </div>
-              <span className="text-xs text-white tabular-nums">
-                {formatTime(currentTime)} / {formatTime(duration)}
-              </span>
+              <VideoControls containerRef={slideRef} variant="overlay" />
             </div>
           </div>
         </>
@@ -328,19 +338,6 @@ export default function ProfileVideoOverlay({ video, allVideos, open, onClose, o
     }
   }, [queryClient, onClose]);
 
-  const videoElementsRef = useRef<Map<string, HTMLVideoElement>>(new Map());
-
-  const stableVideoRef = useCallback((el: HTMLElement | null) => {
-    const id = el?.dataset.videoId;
-    if (!id) return;
-    if (el) {
-      const video = el.querySelector<HTMLVideoElement>("video");
-      if (video) videoElementsRef.current.set(id, video);
-    } else {
-      videoElementsRef.current.delete(id);
-    }
-  }, []);
-
   useEffect(() => {
     const container = containerRef.current;
     if (!container || !open) return;
@@ -348,7 +345,7 @@ export default function ProfileVideoOverlay({ video, allVideos, open, onClose, o
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          const v = entry.target as HTMLVideoElement;
+          const v = entry.target as HTMLMediaElement;
           if (entry.isIntersecting) {
             v.play().catch(() => {});
           } else {
@@ -360,9 +357,9 @@ export default function ProfileVideoOverlay({ video, allVideos, open, onClose, o
     );
 
     const syncObserved = () => {
-      const videos = container.querySelectorAll<HTMLVideoElement>("video");
+      const players = container.querySelectorAll<HTMLMediaElement>("mux-player, video");
       observer.disconnect();
-      videos.forEach((v) => observer.observe(v));
+      players.forEach((v) => observer.observe(v));
     };
 
     syncObserved();
@@ -440,8 +437,6 @@ export default function ProfileVideoOverlay({ video, allVideos, open, onClose, o
               selectedIndex={selectedIndex}
               hasScrolled={hasScrolled}
               profile={profile}
-              videoRef={stableVideoRef}
-              videoElementsRef={videoElementsRef}
             />
           ))}
         </div>

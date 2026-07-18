@@ -17,8 +17,11 @@
   display: none;
 }
 
+mux-player.hide-controls {
+  --controls: none;
+}
 mux-player.hide-controls::part(control-layer) {
-  display: none;
+  display: none !important;
 }
 
 mux-player {
@@ -33,12 +36,6 @@ mux-player {
 }
 
 @media (orientation: landscape) and (max-height: 500px) {
-  .overlay-info {
-    bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px)) !important;
-  }
-  .overlay-progress {
-    padding-bottom: max(0.25rem, env(safe-area-inset-bottom, 0px)) !important;
-  }
   .overlay-info .text-sm {
     font-size: 0.75rem;
   }

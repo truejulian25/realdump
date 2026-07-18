@@ -7,6 +7,7 @@ import { useVideoFeed } from "@/hooks/useVideos";
 import { toast } from "sonner";
 import type { Video } from "@/types";
 import MuxVideoPlayer from "./MuxVideoPlayer";
+import VideoControls from "./VideoControls";
 import ProfileRow from "./ProfileRow";
 import InteractionBar from "./InteractionBar";
 import FeedSkeleton from "./FeedSkeleton";
@@ -95,12 +96,12 @@ export default function VideoFeed() {
     const container = containerRef.current;
     if (!container) return;
 
-    const videoElements = container.querySelectorAll<HTMLVideoElement>("video");
+    const players = container.querySelectorAll<HTMLMediaElement>("mux-player, video");
 
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          const video = entry.target as HTMLVideoElement;
+          const video = entry.target as HTMLMediaElement;
           if (entry.isIntersecting) {
             video.play().catch(() => {});
           } else {
@@ -111,7 +112,7 @@ export default function VideoFeed() {
       { threshold: 0.7 }
     );
 
-    videoElements.forEach((video) => observer.observe(video));
+    players.forEach((video) => observer.observe(video));
 
     return () => observer.disconnect();
   }, [items]);
@@ -124,6 +125,50 @@ export default function VideoFeed() {
       day: "numeric",
     });
   };
+
+  function VideoCard({ video }: { video: VideoWithProfile }) {
+    const playerContainerRef = useRef<HTMLDivElement>(null);
+
+    return (
+      <div className="flex w-full flex-col pb-5">
+        <ProfileRow
+          header
+          username={video.profiles?.username ?? "usuario"}
+          avatarUrl={video.profiles?.avatar_url}
+          userId={video.user_id}
+        />
+        <div
+          ref={playerContainerRef}
+          className="relative mt-3 w-full overflow-hidden rounded-lg bg-black"
+          style={{ maxHeight: "calc(100dvh - 9rem)" }}
+        >
+          <MuxVideoPlayer playbackId={video.mux_playback_id} src={video.video_url} muted={true} />
+          <VideoControls containerRef={playerContainerRef} variant="feed" />
+          <div className="absolute right-2 top-2 z-30">
+            <VideoMenu
+              videoId={video.id}
+              isOwner={video.user_id === user?.id}
+              onDelete={() => handleDeleteVideo(video.id)}
+              onReport={() => setReportVideoId(video.id)}
+            />
+          </div>
+        </div>
+
+        <div className="mt-3 flex flex-col gap-1.5 px-3">
+          <InteractionBar videoId={video.id} />
+          {video.description && (
+            <p className="text-sm leading-relaxed text-zinc-300">{video.description}</p>
+          )}
+          {video.hashtags && video.hashtags.length > 0 && (
+            <p className="text-sm text-blue-400">
+              {video.hashtags.map((h) => h.startsWith("#") ? h : `#${h}`).join(" ")}
+            </p>
+          )}
+          <p className="text-xs text-zinc-500">{formatDate(video.created_at)}</p>
+        </div>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (
@@ -156,44 +201,7 @@ export default function VideoFeed() {
     >
       <div className="mx-auto w-full max-w-md border-x border-zinc-800">
         {items.map((video) => (
-        <div
-          key={video.id}
-          className="flex w-full flex-col pb-5"
-        >
-            <ProfileRow
-              header
-              username={video.profiles?.username ?? "usuario"}
-              avatarUrl={video.profiles?.avatar_url}
-              userId={video.user_id}
-            />
-            <div
-              className="relative mt-3 w-full overflow-hidden rounded-lg bg-black"
-              style={{ maxHeight: "calc(100dvh - 9rem)" }}
-            >
-              <MuxVideoPlayer playbackId={video.mux_playback_id} src={video.video_url} muted={true} />
-              <div className="absolute right-2 top-2 z-30">
-                <VideoMenu
-                  videoId={video.id}
-                  isOwner={video.user_id === user?.id}
-                  onDelete={() => handleDeleteVideo(video.id)}
-                  onReport={() => setReportVideoId(video.id)}
-                />
-              </div>
-            </div>
-
-            <div className="mt-3 flex flex-col gap-1.5 px-3">
-              <InteractionBar videoId={video.id} />
-              {video.description && (
-                <p className="text-sm leading-relaxed text-zinc-300">{video.description}</p>
-              )}
-              {video.hashtags && video.hashtags.length > 0 && (
-                <p className="text-sm text-blue-400">
-                  {video.hashtags.map((h) => h.startsWith("#") ? h : `#${h}`).join(" ")}
-                </p>
-              )}
-              <p className="text-xs text-zinc-500">{formatDate(video.created_at)}</p>
-            </div>
-        </div>
+          <VideoCard key={video.id} video={video} />
         ))}
 
         {isFetchingNextPage && (
