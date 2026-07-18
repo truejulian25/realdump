@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "seed": "tsx scripts/seed-test-users.ts"
+    "seed": "tsx scripts/seed-test-users.ts",
+    "prepare": "husky"
   },
   "dependencies": {
     "@mux/mux-player-react": "^3.13.0",
@@ -28,6 +29,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.2.9",
+    "husky": "^9.1.7",
     "tailwindcss": "^4",
     "tsx": "^4.23.1",
     "typescript": "^5"
