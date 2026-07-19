@@ -7,6 +7,7 @@ src/components/FeedSkeleton.tsx
 src/components/InteractionBar.tsx
 src/components/MuxVideoPlayer.tsx
 src/components/ProfileVideoCard.tsx
+src/components/ProfileVideoOverlay.tsx
 src/components/ReportModal.tsx
 src/components/VideoControls.tsx
 src/components/VideoFeed.tsx
