@@ -26,36 +26,41 @@ export default function VideoControls({ containerRef, variant }: Props) {
   }, [containerRef]);
 
   useEffect(() => {
-    const video = getVideo();
-    if (!video) return;
+    let mounted = true;
 
-    const onTimeUpdate = () => {
-      setCurrentTime(video.currentTime);
-      if (video.duration) {
-        setDuration(video.duration);
-        setProgress(video.currentTime / video.duration);
+    const sync = () => {
+      const video = getVideo();
+      if (!video) {
+        if (mounted) requestAnimationFrame(sync);
+        return;
       }
-    };
-    const onPlay = () => setPlaying(true);
-    const onPause = () => setPlaying(false);
-    const onVolumeChange = () => {
-      setMuted(video.muted);
-      setVolume(video.volume);
-    };
-    const onLoadedMetadata = () => {
-      if (video.duration) {
-        setDuration(video.duration);
-        setProgress(video.currentTime / video.duration);
-      }
-    };
 
-    video.addEventListener("timeupdate", onTimeUpdate);
-    video.addEventListener("play", onPlay);
-    video.addEventListener("pause", onPause);
-    video.addEventListener("volumechange", onVolumeChange);
-    video.addEventListener("loadedmetadata", onLoadedMetadata);
+      const onTimeUpdate = () => {
+        setCurrentTime(video.currentTime);
+        if (video.duration) {
+          setDuration(video.duration);
+          setProgress(video.currentTime / video.duration);
+        }
+      };
+      const onPlay = () => setPlaying(true);
+      const onPause = () => setPlaying(false);
+      const onVolumeChange = () => {
+        setMuted(video.muted);
+        setVolume(video.volume);
+      };
+      const onLoadedMetadata = () => {
+        if (video.duration) {
+          setDuration(video.duration);
+          setProgress(video.currentTime / video.duration);
+        }
+      };
 
-    requestAnimationFrame(() => {
+      video.addEventListener("timeupdate", onTimeUpdate);
+      video.addEventListener("play", onPlay);
+      video.addEventListener("pause", onPause);
+      video.addEventListener("volumechange", onVolumeChange);
+      video.addEventListener("loadedmetadata", onLoadedMetadata);
+
       setPlaying(!video.paused);
       setMuted(video.muted);
       setVolume(video.volume);
@@ -64,14 +69,20 @@ export default function VideoControls({ containerRef, variant }: Props) {
         setDuration(video.duration);
         setProgress(video.currentTime / video.duration);
       }
-    });
 
+      return () => {
+        video.removeEventListener("timeupdate", onTimeUpdate);
+        video.removeEventListener("play", onPlay);
+        video.removeEventListener("pause", onPause);
+        video.removeEventListener("volumechange", onVolumeChange);
+        video.removeEventListener("loadedmetadata", onLoadedMetadata);
+      };
+    };
+
+    const cleanup = sync();
     return () => {
-      video.removeEventListener("timeupdate", onTimeUpdate);
-      video.removeEventListener("play", onPlay);
-      video.removeEventListener("pause", onPause);
-      video.removeEventListener("volumechange", onVolumeChange);
-      video.removeEventListener("loadedmetadata", onLoadedMetadata);
+      mounted = false;
+      if (typeof cleanup === "function") cleanup();
     };
   }, [getVideo]);
 
