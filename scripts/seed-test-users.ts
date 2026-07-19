@@ -42,7 +42,7 @@ async function batchUpsert<T>(
 ) {
   for (let i = 0; i < rows.length; i += batchSize) {
     const batch = rows.slice(i, i + batchSize);
-    const { error } = await supabase.from(table).upsert(batch, {
+    const { error } = await supabase.from(table).upsert(batch as any, {
       onConflict: "id",
       ignoreDuplicates: true,
     });
@@ -62,7 +62,7 @@ async function batchInsert<T>(
 ) {
   for (let i = 0; i < rows.length; i += batchSize) {
     const batch = rows.slice(i, i + batchSize);
-    const { error } = await supabase.from(table).insert(batch);
+    const { error } = await supabase.from(table).insert(batch as any);
     if (error) {
       throw new Error(`[${table}] batch ${i}-${i + batch.length}: ${error.message}`);
     }
