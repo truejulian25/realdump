@@ -129,6 +129,19 @@ export default function VideoControls({ containerRef, variant }: Props) {
     video.currentTime = (x / rect.width) * dur;
   }, [getVideo, duration]);
 
+  const handleSeekTouchStart = useCallback((e: React.TouchEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDraggingSeek(true);
+    const video = getVideo();
+    if (!video) return;
+    const dur = video.duration || duration;
+    if (!dur || !isFinite(dur)) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.touches[0].clientX - rect.left;
+    video.currentTime = (x / rect.width) * dur;
+  }, [getVideo, duration]);
+
   const toggleMute = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
     const video = getVideo();
@@ -192,11 +205,25 @@ export default function VideoControls({ containerRef, variant }: Props) {
       video.currentTime = (x / rect.width) * dur;
     };
     const handleMouseUp = () => setDraggingSeek(false);
+    const handleTouchMove = (e: TouchEvent) => {
+      const video = getVideo();
+      if (!video) return;
+      const dur = video.duration || duration;
+      if (!dur || !isFinite(dur)) return;
+      const rect = bar.getBoundingClientRect();
+      const x = e.touches[0].clientX - rect.left;
+      video.currentTime = (x / rect.width) * dur;
+    };
+    const handleTouchEnd = () => setDraggingSeek(false);
     window.addEventListener("mousemove", handleMouseMove);
     window.addEventListener("mouseup", handleMouseUp);
+    window.addEventListener("touchmove", handleTouchMove, { passive: false });
+    window.addEventListener("touchend", handleTouchEnd);
     return () => {
       window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("mouseup", handleMouseUp);
+      window.removeEventListener("touchmove", handleTouchMove);
+      window.removeEventListener("touchend", handleTouchEnd);
     };
   }, [draggingSeek, getVideo, duration]);
 
@@ -241,9 +268,10 @@ export default function VideoControls({ containerRef, variant }: Props) {
         >
           <div
             ref={seekBarRef}
-            className="mb-2 h-px w-full cursor-pointer rounded-full bg-zinc-600"
+            className="mb-2 h-1 w-full cursor-pointer rounded-full bg-zinc-600 touch-none"
             onClick={handleSeek}
             onMouseDown={handleSeekDragStart}
+            onTouchStart={handleSeekTouchStart}
           >
             <div
               className="h-full rounded-full bg-white transition-all"
@@ -317,9 +345,10 @@ export default function VideoControls({ containerRef, variant }: Props) {
     <div className="flex items-center gap-2 pt-3 border-t border-white/10">
       <div
         ref={seekBarRef}
-        className="relative flex-1 cursor-pointer py-3 -my-3"
+        className="relative flex-1 cursor-pointer py-3 -my-3 touch-none"
         onClick={handleSeek}
         onMouseDown={handleSeekDragStart}
+        onTouchStart={handleSeekTouchStart}
       >
         <div className="absolute inset-y-0 left-0 right-0 flex items-center pointer-events-none">
           <div className="h-px w-full rounded-full bg-zinc-600">
