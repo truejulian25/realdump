@@ -14,29 +14,33 @@ export default function VideoMenu({ videoId, onReport, isOwner, onEdit, onDelete
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  const handleCopyLink = useCallback(() => {
+  const handleCopyLink = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
     const url = `${window.location.origin}/profile?video_id=${videoId}`;
     navigator.clipboard.writeText(url).catch(() => {});
     setOpen(false);
   }, [videoId]);
 
-  const handleReport = useCallback(() => {
+  const handleReport = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
     setOpen(false);
     onReport();
   }, [onReport]);
 
-  const handleEdit = useCallback(() => {
+  const handleEdit = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
     setOpen(false);
     onEdit?.();
   }, [onEdit]);
 
-  const handleDelete = useCallback(() => {
+  const handleDelete = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
     setOpen(false);
     onDelete?.();
   }, [onDelete]);
 
   useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
+    const handleClickOutside = (e: MouseEvent | TouchEvent) => {
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
         setOpen(false);
       }
@@ -44,8 +48,12 @@ export default function VideoMenu({ videoId, onReport, isOwner, onEdit, onDelete
 
     if (open) {
       document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener("touchstart", handleClickOutside, { passive: true });
     }
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleClickOutside);
+    };
   }, [open]);
 
   return (
