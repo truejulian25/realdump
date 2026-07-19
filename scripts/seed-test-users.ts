@@ -1,4 +1,4 @@
-import { createClient } from "@supabase/supabase-js";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import * as fs from "fs";
 import * as path from "path";
 
@@ -35,7 +35,7 @@ function shuffleAndPick<T>(arr: T[], count: number): T[] {
 }
 
 async function batchUpsert<T>(
-  supabase: ReturnType<typeof createClient>,
+  supabase: SupabaseClient,
   table: string,
   rows: T[],
   batchSize = 500
@@ -55,7 +55,7 @@ async function batchUpsert<T>(
 }
 
 async function batchInsert<T>(
-  supabase: ReturnType<typeof createClient>,
+  supabase: SupabaseClient,
   table: string,
   rows: T[],
   batchSize = 500
@@ -72,7 +72,7 @@ async function batchInsert<T>(
 }
 
 async function findExistingAuthUsers(
-  supabase: ReturnType<typeof createClient>,
+  supabase: SupabaseClient,
   emails: string[]
 ): Promise<Map<string, string>> {
   const map = new Map<string, string>();
