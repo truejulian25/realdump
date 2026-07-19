@@ -30,8 +30,8 @@ export default function VideoControls({ containerRef, variant }: Props) {
     if (!video) return;
 
     const onTimeUpdate = () => {
+      setCurrentTime(video.currentTime);
       if (video.duration) {
-        setCurrentTime(video.currentTime);
         setDuration(video.duration);
         setProgress(video.currentTime / video.duration);
       }
@@ -42,18 +42,25 @@ export default function VideoControls({ containerRef, variant }: Props) {
       setMuted(video.muted);
       setVolume(video.volume);
     };
+    const onLoadedMetadata = () => {
+      if (video.duration) {
+        setDuration(video.duration);
+        setProgress(video.currentTime / video.duration);
+      }
+    };
 
     video.addEventListener("timeupdate", onTimeUpdate);
     video.addEventListener("play", onPlay);
     video.addEventListener("pause", onPause);
     video.addEventListener("volumechange", onVolumeChange);
+    video.addEventListener("loadedmetadata", onLoadedMetadata);
 
     requestAnimationFrame(() => {
       setPlaying(!video.paused);
       setMuted(video.muted);
       setVolume(video.volume);
+      setCurrentTime(video.currentTime);
       if (video.duration) {
-        setCurrentTime(video.currentTime);
         setDuration(video.duration);
         setProgress(video.currentTime / video.duration);
       }
@@ -64,6 +71,7 @@ export default function VideoControls({ containerRef, variant }: Props) {
       video.removeEventListener("play", onPlay);
       video.removeEventListener("pause", onPause);
       video.removeEventListener("volumechange", onVolumeChange);
+      video.removeEventListener("loadedmetadata", onLoadedMetadata);
     };
   }, [getVideo]);
 
