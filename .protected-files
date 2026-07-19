@@ -9,7 +9,6 @@ src/components/MuxVideoPlayer.tsx
 src/components/ProfileVideoCard.tsx
 src/components/ProfileVideoOverlay.tsx
 src/components/ReportModal.tsx
-src/components/VideoControls.tsx
 src/components/VideoFeed.tsx
 src/components/VideoMenu.tsx
 src/app/globals.css

@@ -89,22 +89,26 @@ export default function VideoControls({ containerRef, variant }: Props) {
 
   const handleSeek = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     const video = getVideo();
-    if (!video || !video.duration) return;
+    if (!video) return;
+    const dur = video.duration || duration;
+    if (!dur || !isFinite(dur)) return;
     const rect = e.currentTarget.getBoundingClientRect();
     const x = e.clientX - rect.left;
-    video.currentTime = (x / rect.width) * video.duration;
-  }, [getVideo]);
+    video.currentTime = (x / rect.width) * dur;
+  }, [getVideo, duration]);
 
   const handleSeekDragStart = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
     setDraggingSeek(true);
     const video = getVideo();
-    if (!video || !video.duration) return;
+    if (!video) return;
+    const dur = video.duration || duration;
+    if (!dur || !isFinite(dur)) return;
     const rect = e.currentTarget.getBoundingClientRect();
     const x = e.clientX - rect.left;
-    video.currentTime = (x / rect.width) * video.duration;
-  }, [getVideo]);
+    video.currentTime = (x / rect.width) * dur;
+  }, [getVideo, duration]);
 
   const toggleMute = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
@@ -161,10 +165,12 @@ export default function VideoControls({ containerRef, variant }: Props) {
     if (!bar) return;
     const handleMouseMove = (e: MouseEvent) => {
       const video = getVideo();
-      if (!video || !video.duration) return;
+      if (!video) return;
+      const dur = video.duration || duration;
+      if (!dur || !isFinite(dur)) return;
       const rect = bar.getBoundingClientRect();
       const x = e.clientX - rect.left;
-      video.currentTime = (x / rect.width) * video.duration;
+      video.currentTime = (x / rect.width) * dur;
     };
     const handleMouseUp = () => setDraggingSeek(false);
     window.addEventListener("mousemove", handleMouseMove);
@@ -173,7 +179,7 @@ export default function VideoControls({ containerRef, variant }: Props) {
       window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("mouseup", handleMouseUp);
     };
-  }, [draggingSeek, getVideo]);
+  }, [draggingSeek, getVideo, duration]);
 
   const toggleFullscreen = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
