@@ -18,6 +18,8 @@ export default function VideoControls({ containerRef, variant }: Props) {
   const controlsTimer = useRef<number | undefined>(undefined);
   const [draggingVolume, setDraggingVolume] = useState(false);
   const volumeSliderRef = useRef<HTMLDivElement>(null);
+  const [draggingSeek, setDraggingSeek] = useState(false);
+  const seekBarRef = useRef<HTMLDivElement>(null);
 
   const getVideo = useCallback(() => {
     return containerRef.current?.querySelector<HTMLMediaElement>("mux-player, video");
@@ -93,6 +95,17 @@ export default function VideoControls({ containerRef, variant }: Props) {
     video.currentTime = (x / rect.width) * video.duration;
   }, [getVideo]);
 
+  const handleSeekDragStart = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDraggingSeek(true);
+    const video = getVideo();
+    if (!video || !video.duration) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    video.currentTime = (x / rect.width) * video.duration;
+  }, [getVideo]);
+
   const toggleMute = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
     const video = getVideo();
@@ -142,6 +155,26 @@ export default function VideoControls({ containerRef, variant }: Props) {
     };
   }, [draggingVolume, handleVolumeChange]);
 
+  useEffect(() => {
+    if (!draggingSeek) return;
+    const bar = seekBarRef.current;
+    if (!bar) return;
+    const handleMouseMove = (e: MouseEvent) => {
+      const video = getVideo();
+      if (!video || !video.duration) return;
+      const rect = bar.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      video.currentTime = (x / rect.width) * video.duration;
+    };
+    const handleMouseUp = () => setDraggingSeek(false);
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, [draggingSeek, getVideo]);
+
   const toggleFullscreen = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
     const el = containerRef.current;
@@ -182,8 +215,10 @@ export default function VideoControls({ containerRef, variant }: Props) {
           onClick={(e) => e.stopPropagation()}
         >
           <div
+            ref={seekBarRef}
             className="mb-2 h-px w-full cursor-pointer rounded-full bg-zinc-600"
             onClick={handleSeek}
+            onMouseDown={handleSeekDragStart}
           >
             <div
               className="h-full rounded-full bg-white transition-all"
@@ -256,8 +291,10 @@ export default function VideoControls({ containerRef, variant }: Props) {
   return (
     <div className="flex items-center gap-2 pt-3 border-t border-white/10">
       <div
+        ref={seekBarRef}
         className="relative flex-1 cursor-pointer py-3 -my-3"
         onClick={handleSeek}
+        onMouseDown={handleSeekDragStart}
       >
         <div className="absolute inset-y-0 left-0 right-0 flex items-center pointer-events-none">
           <div className="h-px w-full rounded-full bg-zinc-600">
