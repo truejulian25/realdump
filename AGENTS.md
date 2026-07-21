@@ -27,15 +27,12 @@
 - `src/app/globals.css` — mux-player border-radius, .scroll-container, @supports (-webkit-touch-callout), landscape media queries para overlay
 
 ### Cambios realizados en esta sesión
-- `useVideoFeed` simplificado: eliminados `totalPagesRef`, `countDoneRef`, patrón de módulo/ciclo
-- `VideoFeed`: IntersectionObserver estabilizado con `callbackRef` para evitar reconexiones
-- `SearchPage`: observer estable, estado simplificado, `hasInteractionData` eliminado
-- **Fix 400 en query de videos**: reemplazada pre-consulta de profiles + `.in("user_id", 3550 IDs)` por `profiles!inner` join directo (URL de ~130KB causaba Bad Request)
-- `useVideos.ts`, `search/page.tsx`: mismo fix en todas las queries que usaban el patrón
-- `supabase/migrations/00005_add_videos_user_id_index.sql` — índices en `videos.user_id` y `videos.created_at` para acelerar el feed
+- `VideoFeed.tsx`: scroll infinito con bucle — reemplazado `IntersectionObserver` + `fetchNextPage`/`loadMore`/`hasNextPage` por scroll event listener sobre `containerRef` con estado `cycles`. Cuando el usuario se acerca al final, se agrega otro ciclo completo de videos vía `flat.length * cycles` con módulo. Sin MULTIPLIER, sin llamadas a Supabase para más páginas.
+- Eliminados: `fetchNextPage`, `hasNextPage`, `isFetchingNextPage`, `loadMore`, `loadMoreRef`, spinner de carga, sentinel condicional.
+- Agregados: `cycles` state, `lastExtend` ref para guardia de 1s, key `${video.id}-${idx}` para reconciliación correcta de React.
 
 ### Problemas abiertos (para próxima sesión)
-- *(ninguno — los dos issues reportados están resueltos)*
+- *(ninguno)*
 
 ### Próximos pasos sugeridos
 1. Agregar `loading.tsx` o `Suspense` boundary para mejorar experiencia de carga lenta

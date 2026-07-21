@@ -11,7 +11,6 @@ src/components/ProfileVideoOverlay.tsx
 src/components/VideoControls.tsx
 src/components/VideoMenu.tsx
 src/components/ReportModal.tsx
-src/components/VideoFeed.tsx
 src/app/globals.css
 src/app/layout.tsx
 src/app/search/page.tsx

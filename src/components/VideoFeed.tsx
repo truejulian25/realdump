@@ -25,9 +25,6 @@ interface VideoWithProfile extends Video {
 export default function VideoFeed() {
   const {
     data,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
     isLoading,
     isError,
   } = useVideoFeed();
@@ -35,22 +32,20 @@ export default function VideoFeed() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
-  const items: VideoWithProfile[] = useMemo(
-    () => data?.pages.flat() ?? [],
-    [data?.pages],
-  );
+  const [cycles, setCycles] = useState(1);
+  const lastExtend = useRef(0);
+
+  const items: VideoWithProfile[] = useMemo(() => {
+    const flat = data?.pages.flat() ?? [];
+    if (flat.length === 0) return [];
+    return Array.from(
+      { length: flat.length * cycles },
+      (_, i) => flat[i % flat.length],
+    );
+  }, [data?.pages, cycles]);
   const containerRef = useRef<HTMLDivElement>(null);
   const sentinelRef = useRef<HTMLDivElement>(null);
   const [reportVideoId, setReportVideoId] = useState<string | null>(null);
-
-  const loadMore = useCallback(() => {
-    if (hasNextPage && !isFetchingNextPage) {
-      fetchNextPage();
-    }
-  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
-
-  const loadMoreRef = useRef(loadMore);
-  useEffect(() => { loadMoreRef.current = loadMore; }, [loadMore]);
 
   const handleDeleteVideo = useCallback(async (videoId: string) => {
     if (!window.confirm("¿Estás seguro de eliminar esta publicación?")) return;
@@ -76,21 +71,20 @@ export default function VideoFeed() {
   }, [queryClient]);
 
   useEffect(() => {
-    const sentinel = sentinelRef.current;
-    if (!sentinel) return;
+    const container = containerRef.current;
+    if (!container) return;
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting) {
-          loadMoreRef.current();
-        }
-      },
-      { rootMargin: "300px" }
-    );
+    const handleScroll = () => {
+      const { scrollTop, scrollHeight, clientHeight } = container;
+      if (scrollHeight - scrollTop - clientHeight < 300 && Date.now() - lastExtend.current > 1000) {
+        lastExtend.current = Date.now();
+        setCycles((c) => c + 1);
+      }
+    };
 
-    observer.observe(sentinel);
-    return () => observer.disconnect();
-  }, [hasNextPage]);
+    container.addEventListener("scroll", handleScroll, { passive: true });
+    return () => container.removeEventListener("scroll", handleScroll);
+  }, []);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -200,17 +194,11 @@ export default function VideoFeed() {
       className="scroll-container h-screen w-full overflow-y-auto overflow-x-hidden bg-black pt-14 pb-20"
     >
       <div className="mx-auto w-full max-w-md border-x border-zinc-800">
-        {items.map((video) => (
-          <VideoCard key={video.id} video={video} />
+        {items.map((video, idx) => (
+          <VideoCard key={`${video.id}-${idx}`} video={video} />
         ))}
 
-        {isFetchingNextPage && (
-          <div className="flex justify-center py-6">
-            <div className="h-6 w-6 animate-spin rounded-full border-2 border-zinc-600 border-t-white" />
-          </div>
-        )}
-
-        {hasNextPage && <div ref={sentinelRef} />}
+        <div ref={sentinelRef} />
       </div>
 
       <ReportModal
