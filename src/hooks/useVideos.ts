@@ -1,4 +1,4 @@
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { createClient } from "@/lib/supabase/client";
 import type { Video } from "@/types";
@@ -25,17 +25,13 @@ interface SavedVideoWithVideo {
 export function useVideoFeed() {
   const supabase = useMemo(() => createClient(), []);
 
-  return useInfiniteQuery<VideoWithProfile[]>({
+  return useQuery<VideoWithProfile[]>({
     queryKey: ["videos", "feed"],
-    queryFn: async ({ pageParam = 0 }) => {
-      const start = (pageParam as number) * PAGE_SIZE;
-      const end = start + PAGE_SIZE - 1;
-
+    queryFn: async () => {
       const { data, error } = await supabase
         .from("videos")
         .select("*, profiles!inner(username, display_name, avatar_url)")
-        .order("created_at", { ascending: false })
-        .range(start, end);
+        .order("created_at", { ascending: false });
 
       if (error) {
         console.error("[useVideoFeed] videos error:", error);
@@ -44,11 +40,6 @@ export function useVideoFeed() {
 
       return (data as VideoWithProfile[]) || [];
     },
-    getNextPageParam: (lastPage, pages) => {
-      if (lastPage.length < PAGE_SIZE) return undefined;
-      return pages.length;
-    },
-    initialPageParam: 0,
     staleTime: 30 * 60 * 1000,
     gcTime: 60 * 60 * 1000,
   });
@@ -59,26 +50,17 @@ export function useVideoFeed() {
 export function useProfileVideos(userId: string | undefined) {
   const supabase = useMemo(() => createClient(), []);
 
-  return useInfiniteQuery<Video[]>({
+  return useQuery<Video[]>({
     queryKey: ["videos", "profile", userId],
-    queryFn: async ({ pageParam = 0 }) => {
-      const start = (pageParam as number) * PAGE_SIZE;
-      const end = start + PAGE_SIZE - 1;
-
+    queryFn: async () => {
       const { data } = await supabase
         .from("videos")
         .select("*")
         .eq("user_id", userId!)
-        .order("created_at", { ascending: false })
-        .range(start, end);
+        .order("created_at", { ascending: false });
 
       return (data as Video[]) || [];
     },
-    getNextPageParam: (lastPage, pages) => {
-      if (lastPage.length < PAGE_SIZE) return undefined;
-      return pages.length;
-    },
-    initialPageParam: 0,
     enabled: !!userId,
   });
 }

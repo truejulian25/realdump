@@ -1,24 +1,18 @@
 "use client";
 
-import { useRef, useEffect, useState, useCallback } from "react";
+import { useRef, useState, useCallback } from "react";
 
 interface Props {
   src: string;
   autoPlay?: boolean;
   fill?: boolean;
   hideControls?: boolean;
+  muted?: boolean;
 }
 
-export default function CustomVideoPlayer({ src, autoPlay = true, fill = false }: Props) {
+export default function CustomVideoPlayer({ src, autoPlay = true, fill = false, muted = false }: Props) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [aspectRatio, setAspectRatio] = useState<{ w: number; h: number } | null>(null);
-
-  useEffect(() => {
-    if (!autoPlay) return;
-    const video = videoRef.current;
-    if (!video) return;
-    video.play().catch(() => {});
-  }, [autoPlay]);
 
   const handleLoadedMetadata = useCallback(() => {
     const video = videoRef.current;
@@ -41,7 +35,7 @@ export default function CustomVideoPlayer({ src, autoPlay = true, fill = false }
         src={src}
         loop
         playsInline
-        autoPlay
+        muted={muted}
         onLoadedMetadata={handleLoadedMetadata}
       />
     </div>

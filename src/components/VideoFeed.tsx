@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useEffect, useCallback, useState, useMemo } from "react";
-import { useQueryClient, InfiniteData } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
 import { useVideoFeed } from "@/hooks/useVideos";
 import { toast } from "sonner";
@@ -32,29 +32,15 @@ export default function VideoFeed() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
-  const [cycles, setCycles] = useState(1);
-  const lastExtend = useRef(0);
-
-  const items: VideoWithProfile[] = useMemo(() => {
-    const flat = data?.pages.flat() ?? [];
-    if (flat.length === 0) return [];
-    return Array.from(
-      { length: flat.length * cycles },
-      (_, i) => flat[i % flat.length],
-    );
-  }, [data?.pages, cycles]);
+  const items: VideoWithProfile[] = useMemo(() => data ?? [], [data]);
   const containerRef = useRef<HTMLDivElement>(null);
-  const sentinelRef = useRef<HTMLDivElement>(null);
   const [reportVideoId, setReportVideoId] = useState<string | null>(null);
 
   const handleDeleteVideo = useCallback(async (videoId: string) => {
     if (!window.confirm("¿Estás seguro de eliminar esta publicación?")) return;
-    queryClient.setQueryData<InfiniteData<VideoWithProfile[]>>(["videos", "feed"], (old) => {
+    queryClient.setQueryData<VideoWithProfile[]>(["videos", "feed"], (old) => {
       if (!old) return old;
-      return {
-        ...old,
-        pages: old.pages.map((page) => page.filter((v) => v.id !== videoId)),
-      };
+      return old.filter((v) => v.id !== videoId);
     });
     try {
       const res = await fetch(`/api/videos/${videoId}`, { method: "DELETE" });
@@ -69,22 +55,6 @@ export default function VideoFeed() {
       console.error("Error al eliminar video:", e);
     }
   }, [queryClient]);
-
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-
-    const handleScroll = () => {
-      const { scrollTop, scrollHeight, clientHeight } = container;
-      if (scrollHeight - scrollTop - clientHeight < 300 && Date.now() - lastExtend.current > 1000) {
-        lastExtend.current = Date.now();
-        setCycles((c) => c + 1);
-      }
-    };
-
-    container.addEventListener("scroll", handleScroll, { passive: true });
-    return () => container.removeEventListener("scroll", handleScroll);
-  }, []);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -197,8 +167,6 @@ export default function VideoFeed() {
         {items.map((video, idx) => (
           <VideoCard key={`${video.id}-${idx}`} video={video} />
         ))}
-
-        <div ref={sentinelRef} />
       </div>
 
       <ReportModal

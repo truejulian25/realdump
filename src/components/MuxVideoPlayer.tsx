@@ -50,7 +50,7 @@ export default function MuxVideoPlayer({
   }
 
   if (src) {
-    return <CustomVideoPlayer src={src} autoPlay={autoPlay} fill={fill} />;
+    return <CustomVideoPlayer src={src} autoPlay={autoPlay} fill={fill} muted={muted} />;
   }
 
   return null;

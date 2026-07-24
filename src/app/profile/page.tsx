@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState, useRef } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import ProfileVideoCard from "@/components/ProfileVideoCard";
 import ProfileVideoOverlay from "@/components/ProfileVideoOverlay";
@@ -21,48 +21,17 @@ export default function ProfilePage() {
   const [requestLoading, setRequestLoading] = useState(false);
 
   const {
-    data,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
+    data: videos = [],
     isLoading: videosLoading,
   } = useProfileVideos(user?.id);
   const followerCount = useFollowerCount(profile?.id);
   const followingCount = useFollowingCount(profile?.id);
-
-  const videos = useMemo(() => {
-    const seen = new Set<string>();
-    return (data?.pages.flat() ?? []).filter((v) => {
-      if (seen.has(v.id)) return false;
-      seen.add(v.id);
-      return true;
-    });
-  }, [data?.pages]);
-  const sentinelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!loading && !user) {
       window.location.href = "/auth/login";
     }
   }, [loading, user]);
-
-  // Infinite scroll sentinel
-  useEffect(() => {
-    const sentinel = sentinelRef.current;
-    if (!sentinel || !hasNextPage || isFetchingNextPage) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting) {
-          fetchNextPage();
-        }
-      },
-      { rootMargin: "200px" }
-    );
-
-    observer.observe(sentinel);
-    return () => observer.disconnect();
-  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   useEffect(() => {
     if (!profile?.role) return;
@@ -216,17 +185,6 @@ export default function ProfilePage() {
               ))}
             </div>
           )}
-
-          {/* Infinite scroll sentinel */}
-          {hasNextPage && (
-            <div ref={sentinelRef} className="h-10" />
-          )}
-
-          {isFetchingNextPage && (
-            <div className="flex justify-center py-4">
-              <div className="h-5 w-5 animate-spin rounded-full border-2 border-zinc-600 border-t-white" />
-            </div>
-          )}
         </>
       )}
 
@@ -235,7 +193,6 @@ export default function ProfilePage() {
         allVideos={videos}
         open={!!selectedVideo}
         onClose={handleCloseOverlay}
-        onLoadMore={hasNextPage ? fetchNextPage : undefined}
       />
     </div>
   );
