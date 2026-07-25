@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useCallback } from "react";
+import { useRef, useState, useCallback, useEffect } from "react";
 
 interface Props {
   src: string;
@@ -12,7 +12,32 @@ interface Props {
 
 export default function CustomVideoPlayer({ src, autoPlay = true, fill = false, muted = false }: Props) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const [aspectRatio, setAspectRatio] = useState<{ w: number; h: number } | null>(null);
+
+  useEffect(() => {
+    if (!autoPlay) return;
+    const container = containerRef.current;
+    if (!container) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          const video = videoRef.current;
+          if (!video) return;
+          if (entry.isIntersecting) {
+            video.play().catch(() => {});
+          } else {
+            video.pause();
+          }
+        });
+      },
+      { threshold: 0.7 }
+    );
+
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, [autoPlay]);
 
   const handleLoadedMetadata = useCallback(() => {
     const video = videoRef.current;
@@ -22,6 +47,7 @@ export default function CustomVideoPlayer({ src, autoPlay = true, fill = false, 
 
   return (
     <div
+      ref={containerRef}
       className={`group relative w-full overflow-hidden ${fill ? "h-full bg-black" : "rounded-lg bg-black"}`}
       style={fill ? undefined : { aspectRatio: aspectRatio ? `${aspectRatio.w}/${aspectRatio.h}` : "9/16" }}
     >

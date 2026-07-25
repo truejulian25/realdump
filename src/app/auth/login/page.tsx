@@ -35,19 +35,27 @@ export default function LoginPage() {
       return;
     }
 
-    const { data: profile } = await supabase
+    const { data: profile, error: profileError } = await supabase
       .from("profiles")
       .select("deactivated_at, deleted_at")
+      .eq("id", signInData.user.id)
       .single();
 
-    if (profile?.deleted_at) {
+    if (profileError || !profile) {
+      setError("Error al verificar el estado de la cuenta");
+      await supabase.auth.signOut();
+      setLoading(false);
+      return;
+    }
+
+    if (profile.deleted_at) {
       setAccountStatus("deleted");
       await supabase.auth.signOut();
       setLoading(false);
       return;
     }
 
-    if (profile?.deactivated_at) {
+    if (profile.deactivated_at) {
       setDeactivatedUserId(signInData.user.id);
       setAccountStatus("deactivated");
       await supabase.auth.signOut();

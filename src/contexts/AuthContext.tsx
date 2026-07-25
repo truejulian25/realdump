@@ -33,6 +33,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .select("*")
       .eq("id", userId)
       .single();
+    if (data?.deactivated_at) {
+      await supabase.auth.signOut();
+      setUser(null);
+      setProfile(null);
+      return;
+    }
     setProfile(data);
   };
 

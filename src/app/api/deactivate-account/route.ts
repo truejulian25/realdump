@@ -33,11 +33,9 @@ export async function POST() {
     return NextResponse.json({ error: "Error al generar token" }, { status: 500 });
   }
 
-  try {
-    await sendReactivationEmail(user.email!, token);
-  } catch {
-    return NextResponse.json({ error: "Error al enviar el correo" }, { status: 500 });
-  }
+  sendReactivationEmail(user.email!, token).catch((err) => {
+    console.warn("[deactivate-account] No se pudo enviar el email de reactivación:", err);
+  });
 
   await admin.auth.admin.signOut(user.id);
 

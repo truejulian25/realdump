@@ -1,28 +1,27 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 
-type Status = "loading" | "success" | "error";
+type Status = "idle" | "loading" | "success" | "error";
 
 const messages: Record<string, { title: string; desc: string }> = {
+  idle: { title: "Reactivar cuenta", desc: "Ingresa el token que recibiste en tu correo para reactivar tu cuenta." },
   loading: { title: "Reactivando cuenta…", desc: "Por favor espera un momento." },
   success: { title: "Cuenta reactivada", desc: "Tu cuenta ha sido reactivada con éxito. Ya puedes iniciar sesión." },
-  error: { title: "Enlace inválido o expirado", desc: "El enlace que usaste no es válido o ya expiró. Solicita un nuevo correo de reactivación." },
+  error: { title: "Enlace inválido o expirado", desc: "El enlace que usaste no es válido o ya expiró. Verifica el token e intenta de nuevo." },
 };
 
 function ReactivateContent() {
   const searchParams = useSearchParams();
-  const [status, setStatus] = useState<Status>("loading");
+  const [status, setStatus] = useState<Status>("idle");
+  const [manualToken, setManualToken] = useState("");
 
   useEffect(() => {
     const token = searchParams.get("token");
-    if (!token) {
-      setStatus("error");
-      return;
-    }
-
+    if (!token) return;
+    setStatus("loading");
     fetch("/api/reactivate-account", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -35,6 +34,23 @@ function ReactivateContent() {
       .catch(() => setStatus("error"));
   }, [searchParams]);
 
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!manualToken.trim()) return;
+    setStatus("loading");
+    try {
+      const res = await fetch("/api/reactivate-account", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: manualToken.trim() }),
+      });
+      if (res.ok) setStatus("success");
+      else setStatus("error");
+    } catch {
+      setStatus("error");
+    }
+  }, [manualToken]);
+
   const msg = messages[status];
 
   return (
@@ -46,13 +62,32 @@ function ReactivateContent() {
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
         </div>
       ) : (
-        <div className="mx-auto mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-red-500/20 text-red-400">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+        <div className="mx-auto mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-amber-500/20 text-amber-400">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12a9 9 0 1 1-9-9" /><polyline points="22 4 12 14.01 9 11.01" /></svg>
         </div>
       )}
 
       <h1 className="text-lg font-bold text-white">{msg.title}</h1>
       <p className="mt-2 text-sm text-zinc-400">{msg.desc}</p>
+
+      {status === "idle" && (
+        <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-3">
+          <input
+            type="text"
+            value={manualToken}
+            onChange={(e) => setManualToken(e.target.value)}
+            placeholder="Pega tu token aquí"
+            className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2 text-sm text-white placeholder-zinc-500 outline-none focus:border-blue-500"
+          />
+          <button
+            type="submit"
+            disabled={!manualToken.trim()}
+            className="rounded-lg bg-blue-600 px-5 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
+          >
+            Reactivar
+          </button>
+        </form>
+      )}
 
       {status === "success" && (
         <Link
@@ -63,7 +98,7 @@ function ReactivateContent() {
         </Link>
       )}
 
-      {status === "error" && (
+      {(status === "error" || status === "idle") && (
         <Link
           href="/auth/login"
           className="mt-6 inline-block rounded-lg bg-zinc-800 px-5 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-zinc-700"
