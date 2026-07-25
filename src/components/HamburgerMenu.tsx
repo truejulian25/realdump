@@ -457,7 +457,7 @@ function QRView({ onBack }: { onBack: () => void }) {
     setOrigin(window.location.origin);
   }, []);
 
-  const profileUrl = origin ? `${origin}/profile` : "";
+  const profileUrl = origin && profile?.id ? `${origin}/user/${profile.id}` : "";
 
   return (
     <>

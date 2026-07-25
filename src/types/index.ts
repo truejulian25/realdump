@@ -10,6 +10,7 @@ export interface Profile {
   role: string;
   is_admin: boolean;
   deactivated_at: string | null;
+  deleted_at: string | null;
 }
 
 export interface RoleRequest {
