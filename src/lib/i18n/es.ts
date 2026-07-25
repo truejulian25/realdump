@@ -124,6 +124,8 @@ const es = {
     likesReceived: "Likes recibidos",
     comments: "Comentarios",
     timesSaved: "Veces guardado",
+    profileViews: "Visitas al perfil",
+    videoViews: "Reproducciones",
     noVideosYet: "Publica tu primer video para empezar a ver estadísticas.",
   },
   blocked: {

@@ -126,6 +126,8 @@ const de: Translations = {
     likesReceived: "Erhaltene Likes",
     comments: "Kommentare",
     timesSaved: "Mal gespeichert",
+    profileViews: "Profilbesuche",
+    videoViews: "Videoaufrufe",
     noVideosYet: "Veröffentlichen Sie Ihr erstes Video, um Statistiken zu sehen.",
   },
   blocked: {

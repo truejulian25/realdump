@@ -12,6 +12,8 @@ interface Stats {
   likes: number;
   comments: number;
   saved: number;
+  profileViews: number;
+  videoViews: number;
 }
 
 export default function StatsPage() {
@@ -20,7 +22,7 @@ export default function StatsPage() {
   const router = useRouter();
   const supabase = createClient();
 
-  const [stats, setStats] = useState<Stats>({ videos: 0, likes: 0, comments: 0, saved: 0 });
+  const [stats, setStats] = useState<Stats>({ videos: 0, likes: 0, comments: 0, saved: 0, profileViews: 0, videoViews: 0 });
   const [fetching, setFetching] = useState(true);
 
   useEffect(() => {
@@ -44,19 +46,27 @@ export default function StatsPage() {
       let likesCount = 0;
       let commentsCount = 0;
       let savedCount = 0;
+      let videoViewsCount = 0;
 
       if (videoIds.length > 0) {
-        const [{ count: likes }, { count: comments }, { count: saved }] = await Promise.all([
+        const [{ count: likes }, { count: comments }, { count: saved }, { count: videoViews }] = await Promise.all([
           supabase.from("likes").select("*", { count: "exact", head: true }).in("video_id", videoIds),
           supabase.from("comments").select("*", { count: "exact", head: true }).in("video_id", videoIds),
           supabase.from("saved_videos").select("*", { count: "exact", head: true }).in("video_id", videoIds),
+          supabase.from("video_views").select("*", { count: "exact", head: true }).in("video_id", videoIds),
         ]);
         likesCount = likes ?? 0;
         commentsCount = comments ?? 0;
         savedCount = saved ?? 0;
+        videoViewsCount = videoViews ?? 0;
       }
 
-      setStats({ videos: videoCount, likes: likesCount, comments: commentsCount, saved: savedCount });
+      const { count: profileViews } = await supabase
+        .from("profile_views")
+        .select("*", { count: "exact", head: true })
+        .eq("profile_id", user.id);
+
+      setStats({ videos: videoCount, likes: likesCount, comments: commentsCount, saved: savedCount, profileViews: profileViews ?? 0, videoViews: videoViewsCount });
       setFetching(false);
     };
 
@@ -70,6 +80,8 @@ export default function StatsPage() {
     { label: t("stats.likesReceived"), value: stats.likes, color: "text-rose-400" },
     { label: t("stats.comments"), value: stats.comments, color: "text-emerald-400" },
     { label: t("stats.timesSaved"), value: stats.saved, color: "text-amber-400" },
+    { label: t("stats.profileViews"), value: stats.profileViews, color: "text-violet-400" },
+    { label: t("stats.videoViews"), value: stats.videoViews, color: "text-cyan-400" },
   ];
 
   return (

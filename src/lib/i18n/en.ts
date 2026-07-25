@@ -126,6 +126,8 @@ const en: Translations = {
     likesReceived: "Likes received",
     comments: "Comments",
     timesSaved: "Times saved",
+    profileViews: "Profile views",
+    videoViews: "Video views",
     noVideosYet: "Publish your first video to start seeing statistics.",
   },
   blocked: {

@@ -56,6 +56,18 @@ export default function UserPage() {
   }, [id, supabase]);
 
   useEffect(() => {
+    if (!profile || isSelf) return;
+    const key = `tracked_pv_${profile.id}`;
+    if (sessionStorage.getItem(key)) return;
+    sessionStorage.setItem(key, "1");
+    fetch("/api/track-profile-view", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ profileId: profile.id }),
+    }).catch(() => {});
+  }, [profile, isSelf]);
+
+  useEffect(() => {
     const sentinel = sentinelRef.current;
     if (!sentinel || !hasNextPage || isFetchingNextPage) return;
 
@@ -82,6 +94,21 @@ export default function UserPage() {
     window.history.pushState(null, "");
     setSelectedVideo(video);
   }, []);
+
+  useEffect(() => {
+    if (!selectedVideo) return;
+    const key = `tracked_vv_${selectedVideo.id}`;
+    if (sessionStorage.getItem(key)) return;
+    const timer = setTimeout(() => {
+      sessionStorage.setItem(key, "1");
+      fetch("/api/track-video-view", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ videoId: selectedVideo.id }),
+      }).catch(() => {});
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, [selectedVideo]);
 
   const handleCloseOverlay = useCallback(() => {
     setSelectedVideo(null);

@@ -229,6 +229,13 @@ async function main() {
 
   // ── 4. Follows ──────────────────────────────────────────
   console.log("\n4. Creando follows...");
+
+  // Clean existing follows involving testusers
+  for (const uid of testUserIds) {
+    await supabase.from("follows").delete().or(`follower_id.eq.${uid},following_id.eq.${uid}`);
+  }
+  console.log("   Follows previos eliminados");
+
   const followRows: { follower_id: string; following_id: string }[] = [];
   const userStats: { email: string; following: number; followers: number }[] = [];
 
@@ -250,6 +257,33 @@ async function main() {
 
   console.log(`   Insertando ${followRows.length.toLocaleString()} registros...`);
   await batchInsert(supabase, "follows", followRows, 1000);
+
+  // ── 5. Reset following (reducir a 1-200) ─────────────────
+  console.log("\n5. Reduciendo siguiendo de testusers...");
+
+  const FOLLOW_MIN_NEW = 1;
+  const FOLLOW_MAX_NEW = 200;
+
+  // Delete existing siguiendo (testuser → filler) from section 4
+  for (const uid of testUserIds) {
+    await supabase.from("follows").delete().eq("follower_id", uid);
+  }
+  console.log("   Siguiendo viejos eliminados");
+
+  const newFollowRows: { follower_id: string; following_id: string }[] = [];
+  for (let i = 0; i < testUserIds.length; i++) {
+    const count = randomInt(FOLLOW_MIN_NEW, FOLLOW_MAX_NEW);
+    for (const fid of shuffleAndPick(allFillerIds, count)) {
+      newFollowRows.push({ follower_id: testUserIds[i], following_id: fid });
+    }
+    const padded = String(i + 1).padStart(2, "0");
+    const email = `testuser_${padded}@test.com`;
+    const stat = userStats.find((s) => s.email === email);
+    if (stat) stat.following = count;
+  }
+
+  await batchInsert(supabase, "follows", newFollowRows, 1000);
+  console.log(`   Nuevos siguiendo insertados: ${newFollowRows.length.toLocaleString()}`);
 
   // ── Summary ─────────────────────────────────────────────
   console.log("\n" + "".repeat(55));

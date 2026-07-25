@@ -126,6 +126,8 @@ const tr: Translations = {
     likesReceived: "Alınan beğeniler",
     comments: "Yorumlar",
     timesSaved: "Kaydedilme sayısı",
+    profileViews: "Profil ziyaretleri",
+    videoViews: "Video görüntülenmeleri",
     noVideosYet: "İstatistikleri görmeye başlamak için ilk videonuzu yayınlayın.",
   },
   blocked: {

@@ -126,6 +126,8 @@ const ar: Translations = {
     likesReceived: "الإعجابات المستلمة",
     comments: "التعليقات",
     timesSaved: "مرات الحفظ",
+    profileViews: "زيارات الملف الشخصي",
+    videoViews: "مشاهدات الفيديو",
     noVideosYet: "انشر أول فيديو لبدء رؤية الإحصائيات.",
   },
   blocked: {

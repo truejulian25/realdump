@@ -126,6 +126,8 @@ const pt: Translations = {
     likesReceived: "Curtidas recebidas",
     comments: "Comentários",
     timesSaved: "Vezes salvo",
+    profileViews: "Visitas ao perfil",
+    videoViews: "Reproduções",
     noVideosYet: "Publique seu primeiro vídeo para começar a ver estatísticas.",
   },
   blocked: {

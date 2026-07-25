@@ -13,7 +13,6 @@ export default function FiltersPage() {
 
   const [filterWords, setFilterWords] = useState("");
   const [hideOffensive, setHideOffensive] = useState(true);
-  const [customWords, setCustomWords] = useState("");
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
@@ -21,15 +20,22 @@ export default function FiltersPage() {
   }, [loading, user, router]);
 
   useEffect(() => {
-    setFilterWords(localStorage.getItem("filterWords") ?? "");
+    const stored = localStorage.getItem("filterWords") ?? "";
+    const custom = localStorage.getItem("customWords");
+    if (custom) {
+      const merged = [stored, custom].filter(Boolean).join(", ");
+      localStorage.setItem("filterWords", merged);
+      localStorage.removeItem("customWords");
+      setFilterWords(merged);
+    } else {
+      setFilterWords(stored);
+    }
     setHideOffensive(localStorage.getItem("hideOffensive") !== "false");
-    setCustomWords(localStorage.getItem("customWords") ?? "");
   }, []);
 
   const handleSave = () => {
     localStorage.setItem("filterWords", filterWords);
     localStorage.setItem("hideOffensive", JSON.stringify(hideOffensive));
-    localStorage.setItem("customWords", customWords);
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   };
@@ -67,17 +73,6 @@ export default function FiltersPage() {
           >
             <span className={`absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white transition-transform ${hideOffensive ? "translate-x-5" : ""}`} />
           </button>
-        </div>
-
-        <div>
-          <label className="mb-1 block text-sm font-medium text-zinc-300">{t("filters.customWordsLabel")}</label>
-          <textarea
-            value={customWords}
-            onChange={(e) => setCustomWords(e.target.value)}
-            placeholder={t("filters.customWordsPlaceholder")}
-            rows={2}
-            className="w-full resize-none bg-transparent px-0 py-2 text-sm text-white placeholder-zinc-500 outline-none caret-blue-500"
-          />
         </div>
 
         <button

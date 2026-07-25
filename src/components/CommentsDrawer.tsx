@@ -6,6 +6,13 @@ import { useAuth } from "@/contexts/AuthContext";
 import { X, Trash } from "@phosphor-icons/react";
 import type { Comment } from "@/types";
 
+const OFFENSIVE_WORDS = [
+  "puta", "puto", "pendejo", "pendeja", "mierda", "coño", "carajo",
+  "verga", "chinga", "chingar", "cabron", "cabrona", "estupido",
+  "estupida", "idiota", "imbecil", "gilipollas", "hijueputa",
+  "malparido", "marica", "maricon",
+];
+
 interface CommentWithProfile extends Comment {
   profiles: {
     username: string | null;
@@ -19,6 +26,29 @@ interface Props {
   open: boolean;
   onClose: () => void;
   onCountChange: (count: number) => void;
+}
+
+function getBlockedWords(): string[] {
+  const raw = localStorage.getItem("filterWords") ?? "";
+  const hideOffensive = localStorage.getItem("hideOffensive") !== "false";
+
+  const words = new Set<string>();
+
+  for (const w of raw.split(",")) {
+    const t = w.trim().toLowerCase();
+    if (t) words.add(t);
+  }
+  if (hideOffensive) {
+    for (const w of OFFENSIVE_WORDS) words.add(w);
+  }
+
+  return [...words];
+}
+
+function matchesFilter(content: string, blocked: string[]): boolean {
+  if (blocked.length === 0) return false;
+  const lower = content.toLowerCase();
+  return blocked.some((w) => lower.includes(w));
 }
 
 function timeAgo(dateStr: string): string {
@@ -48,6 +78,7 @@ export default function CommentsDrawer({ videoId, open, onClose, onCountChange }
     if (!open) return;
 
     const fetchComments = async () => {
+      const blocked = getBlockedWords();
       const { data } = await supabase
         .from("comments")
         .select("*, profiles(username, display_name, avatar_url)")
@@ -56,8 +87,11 @@ export default function CommentsDrawer({ videoId, open, onClose, onCountChange }
         .limit(50);
 
       if (data) {
-        setComments(data);
-        onCountChange(data.length);
+        const filtered = blocked.length > 0
+          ? data.filter((c) => !matchesFilter(c.content, blocked))
+          : data;
+        setComments(filtered);
+        onCountChange(filtered.length);
       }
       setLoading(false);
     };
@@ -84,8 +118,13 @@ export default function CommentsDrawer({ videoId, open, onClose, onCountChange }
       .single();
 
     if (!error && data) {
-      setComments((prev) => [data, ...prev]);
-      onCountChange(comments.length + 1);
+      const blocked = getBlockedWords();
+      if (blocked.length > 0 && matchesFilter(data.content, blocked)) {
+        onCountChange(comments.length);
+      } else {
+        setComments((prev) => [data, ...prev]);
+        onCountChange(comments.length + 1);
+      }
       setContent("");
     }
 

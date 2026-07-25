@@ -126,6 +126,8 @@ const ja: Translations = {
     likesReceived: "受け取ったいいね",
     comments: "コメント",
     timesSaved: "保存された回数",
+    profileViews: "プロフィール訪問",
+    videoViews: "動画再生数",
     noVideosYet: "最初の動画を公開して統計を確認しましょう。",
   },
   blocked: {

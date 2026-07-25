@@ -73,3 +73,17 @@ export interface Report {
   status: "pending" | "reviewed" | "dismissed";
   created_at: string;
 }
+
+export interface ProfileView {
+  id: string;
+  profile_id: string;
+  viewer_id: string | null;
+  created_at: string;
+}
+
+export interface VideoView {
+  id: string;
+  video_id: string;
+  viewer_id: string | null;
+  created_at: string;
+}

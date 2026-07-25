@@ -38,8 +38,8 @@ export default function UploadPage() {
       return;
     }
 
-    if (file.size > 100 * 1024 * 1024) {
-      setError("El video no puede superar los 100MB");
+    if (file.size > 500 * 1024 * 1024) {
+      setError("El video no puede superar los 500MB");
       return;
     }
 

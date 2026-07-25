@@ -66,6 +66,21 @@ export default function ProfilePage() {
     window.history.back();
   }, []);
 
+  useEffect(() => {
+    if (!selectedVideo) return;
+    const key = `tracked_vv_${selectedVideo.id}`;
+    if (sessionStorage.getItem(key)) return;
+    const timer = setTimeout(() => {
+      sessionStorage.setItem(key, "1");
+      fetch("/api/track-video-view", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ videoId: selectedVideo.id }),
+      }).catch(() => {});
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, [selectedVideo]);
+
   const handleRequestCreator = async () => {
     setRequestLoading(true);
     const res = await fetch("/api/role-request", { method: "POST" });

@@ -126,6 +126,8 @@ const ko: Translations = {
     likesReceived: "받은 좋아요",
     comments: "댓글",
     timesSaved: "저장된 횟수",
+    profileViews: "프로필 방문",
+    videoViews: "동영상 조회수",
     noVideosYet: "첫 동영상을 게시하여 통계를 확인해보세요.",
   },
   blocked: {
