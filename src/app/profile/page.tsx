@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import ProfileVideoCard from "@/components/ProfileVideoCard";
 import ProfileVideoOverlay from "@/components/ProfileVideoOverlay";
 import ProfileGridSkeleton from "@/components/ProfileGridSkeleton";
@@ -16,6 +17,7 @@ export default function ProfilePage() {
   const { t } = useLanguage();
   const { profile, user, loading } = useAuth();
   const supabase = createClient();
+  const router = useRouter();
   const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
   const [requestSent, setRequestSent] = useState(false);
   const [requestLoading, setRequestLoading] = useState(false);
@@ -83,11 +85,10 @@ export default function ProfilePage() {
 
   const handleRequestCreator = async () => {
     setRequestLoading(true);
-    const res = await fetch("/api/role-request", { method: "POST" });
-    if (res.ok) {
-      setRequestSent(true);
-    }
+    const res = await fetch("/api/verification/start", { method: "POST" });
+    if (res.ok) setRequestSent(true);
     setRequestLoading(false);
+    router.push("/verificacion");
   };
 
   if (loading || !profile) {
@@ -165,10 +166,16 @@ export default function ProfilePage() {
       </div>
 
       {isPending && (
-        <div className="flex flex-col items-center gap-2 py-12 px-4 text-center">
+        <div className="flex flex-col items-center gap-3 py-12 px-4 text-center">
           <p className="text-sm text-zinc-400">
             Tu solicitud para ser creador está pendiente de aprobación.
           </p>
+          <Link
+            href="/verificacion"
+            className="rounded-lg bg-blue-600 px-5 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700"
+          >
+            Continuar con mi verificación
+          </Link>
         </div>
       )}
 

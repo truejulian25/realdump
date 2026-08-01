@@ -188,9 +188,10 @@ function MainMenu({ onSelect, onClose }: {
 
   const handleRequestCreator = async () => {
     setRequestLoading(true);
-    const res = await fetch("/api/role-request", { method: "POST" });
+    const res = await fetch("/api/verification/start", { method: "POST" });
     if (res.ok) setRequestSent(true);
     setRequestLoading(false);
+    router.push("/verificacion");
   };
 
   const handleRevokeCreator = async () => {

@@ -11,6 +11,42 @@ export interface Profile {
   is_admin: boolean;
   deactivated_at: string | null;
   deleted_at: string | null;
+  verification_status: string | null;
+  verified_at: string | null;
+  verified_dob: string | null;
+}
+
+export type VerificationStatus = "draft" | "submitted" | "in_review" | "approved" | "denied";
+
+export interface CreatorVerification {
+  id: string;
+  user_id: string;
+  status: VerificationStatus;
+  document_type: string | null;
+  declared_dob: string | null;
+  verified_dob: string | null;
+  document_url: string | null;
+  selfie_url: string | null;
+  holding_document_url: string | null;
+  consent_biometric_at: string | null;
+  consent_data_at: string | null;
+  consent_ip: string | null;
+  content_declaration_at: string | null;
+  submitted_at: string | null;
+  reviewed_by: string | null;
+  reviewed_at: string | null;
+  denial_reason: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface VerificationEvent {
+  id: string;
+  verification_id: string;
+  event: string;
+  metadata: Record<string, unknown> | null;
+  actor_id: string | null;
+  created_at: string;
 }
 
 export interface RoleRequest {
