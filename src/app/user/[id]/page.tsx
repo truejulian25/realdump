@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import type { Video, Profile } from "@/types";
+import { Heart } from "@phosphor-icons/react";
 import ProfileVideoCard from "@/components/ProfileVideoCard";
 import ProfileVideoOverlay from "@/components/ProfileVideoOverlay";
 import ProfileGridSkeleton from "@/components/ProfileGridSkeleton";
@@ -118,6 +119,12 @@ export default function UserPage() {
   const avatarSrc = profile?.avatar_url
     ?? `https://ui-avatars.com/api/?name=${profile?.display_name ?? profile?.username ?? "user"}&background=6366f1&color=fff&size=96`;
 
+  const paypalHref = profile?.paypal_url
+    ? /^https?:\/\//i.test(profile.paypal_url)
+      ? profile.paypal_url
+      : `https://${profile.paypal_url}`
+    : null;
+
   if (profileLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-black pt-14">
@@ -170,17 +177,31 @@ export default function UserPage() {
         )}
 
         {!isSelf && (
-          <button
-            onClick={toggle}
-            disabled={toggling}
-            className={`mt-1 rounded-lg border px-4 py-1.5 text-sm font-medium transition-colors disabled:opacity-50 ${
-              isFollowing
-                ? "border-zinc-600 text-zinc-400"
-                : "border-blue-500 text-blue-500 hover:bg-blue-500/10"
-            }`}
-          >
-            {isFollowing ? "Siguiendo" : "Seguir"}
-          </button>
+          <div className="mt-1 flex items-center gap-2">
+            <button
+              onClick={toggle}
+              disabled={toggling}
+              className={`rounded-lg border px-4 py-1.5 text-sm font-medium transition-colors disabled:opacity-50 ${
+                isFollowing
+                  ? "border-zinc-600 text-zinc-400"
+                  : "border-blue-500 text-blue-500 hover:bg-blue-500/10"
+              }`}
+            >
+              {isFollowing ? "Siguiendo" : "Seguir"}
+            </button>
+
+            {paypalHref && (
+              <a
+                href={paypalHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 rounded-lg border border-blue-500 px-4 py-1.5 text-sm font-medium text-blue-500 transition-colors hover:bg-blue-500/10"
+              >
+                <Heart size={16} weight="fill" />
+                Donar
+              </a>
+            )}
+          </div>
         )}
 
         <div className="flex items-center gap-8 text-center">

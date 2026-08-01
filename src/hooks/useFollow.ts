@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -8,6 +8,9 @@ export function useIsFollowing(targetUserId: string | undefined) {
   const [isFollowing, setIsFollowing] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [refreshTick, setRefreshTick] = useState(0);
+
+  const refetch = useCallback(() => setRefreshTick((t) => t + 1), []);
 
   useEffect(() => {
     if (!user || !targetUserId) {
@@ -15,14 +18,29 @@ export function useIsFollowing(targetUserId: string | undefined) {
       return;
     }
     let cancelled = false;
-    const check = async () => {
-      try {
-        const { data, error: err } = await supabase
+    const isNetworkError = (err: unknown) => {
+      const e = err as { code?: string; message?: string };
+      return e?.code === "FETCH_ERROR" || /failed to fetch|networkerror/i.test(e?.message ?? "");
+    };
+    const fetchFollowState = async () => {
+      let lastError: { code?: string; message?: string } | null = null;
+      for (let attempt = 0; attempt < 3; attempt++) {
+        const { data, error } = await supabase
           .from("follows")
           .select("follower_id")
           .eq("follower_id", user.id)
           .eq("following_id", targetUserId)
           .maybeSingle();
+        if (!error) return { data, error: null };
+        lastError = error;
+        if (cancelled || !isNetworkError(error) || attempt === 2) break;
+        await new Promise((r) => setTimeout(r, 300 * (attempt + 1)));
+      }
+      return { data: null, error: lastError };
+    };
+    const check = async () => {
+      try {
+        const { data, error: err } = await fetchFollowState();
         if (!cancelled) {
           if (err) throw new Error(err.message || "Error de permisos en follows");
           setIsFollowing(!!data);
@@ -39,9 +57,9 @@ export function useIsFollowing(targetUserId: string | undefined) {
     };
     check();
     return () => { cancelled = true; };
-  }, [user, targetUserId, supabase]);
+  }, [user, targetUserId, supabase, refreshTick]);
 
-  return { isFollowing, loading, error };
+  return { isFollowing, loading, error, refetch };
 }
 
 export function useFollowerCount(userId: string | undefined) {
@@ -107,20 +125,24 @@ export function useFollowingCount(userId: string | undefined) {
 export function useFollowToggle(targetUserId: string | undefined) {
   const { user } = useAuth();
   const supabase = useMemo(() => createClient(), []);
-  const { isFollowing, loading } = useIsFollowing(targetUserId);
+  const { isFollowing: serverFollowing, loading, refetch } = useIsFollowing(targetUserId);
+  const [following, setFollowing] = useState<boolean | null>(null);
   const [toggling, setToggling] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const isFollowingRef = useRef(isFollowing);
 
-  useEffect(() => {
-    isFollowingRef.current = isFollowing;
-  }, [isFollowing]);
+  const [prevTarget, setPrevTarget] = useState(targetUserId);
+  if (prevTarget !== targetUserId) {
+    setPrevTarget(targetUserId);
+    setFollowing(null);
+  }
+
+  const isFollowing = following ?? serverFollowing;
 
   const toggle = useCallback(async () => {
     if (!user || !targetUserId || toggling) return;
     setToggling(true);
     setError(null);
-    const wasFollowing = isFollowingRef.current;
+    const wasFollowing = following ?? serverFollowing;
     try {
       if (wasFollowing) {
         const { error: err } = await supabase
@@ -134,8 +156,12 @@ export function useFollowToggle(targetUserId: string | undefined) {
           follower_id: user.id,
           following_id: targetUserId,
         });
-        if (err) throw new Error(err.message || "Error de permisos en follows");
+        if (err && err.code !== "23505") {
+          throw new Error(err.message || "Error de permisos en follows");
+        }
       }
+      setFollowing(!wasFollowing);
+      refetch();
     } catch (e) {
       const message = e instanceof Error ? e.message : "Error al cambiar follow";
       console.error("useFollowToggle error:", e);
@@ -143,7 +169,7 @@ export function useFollowToggle(targetUserId: string | undefined) {
     } finally {
       setToggling(false);
     }
-  }, [user, targetUserId, toggling, supabase]);
+  }, [user, targetUserId, toggling, following, serverFollowing, supabase, refetch]);
 
   return { isFollowing, loading, toggling, error, toggle };
 }

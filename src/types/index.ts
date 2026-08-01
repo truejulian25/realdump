@@ -5,6 +5,7 @@ export interface Profile {
   bio: string | null;
   avatar_url: string | null;
   website: string | null;
+  paypal_url: string | null;
   created_at: string;
   updated_at: string;
   role: string;

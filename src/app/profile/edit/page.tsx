@@ -17,6 +17,7 @@ export default function EditProfilePage() {
   const [username, setUsername] = useState("");
   const [bio, setBio] = useState("");
   const [website, setWebsite] = useState("");
+  const [paypalUrl, setPaypalUrl] = useState("");
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -36,6 +37,7 @@ export default function EditProfilePage() {
       setUsername(profile.username ?? "");
       setBio(profile.bio ?? "");
       setWebsite(profile.website ?? "");
+      setPaypalUrl(profile.paypal_url ?? "");
     }
   }, [profile]);
 
@@ -81,6 +83,7 @@ export default function EditProfilePage() {
         username,
         bio,
         website: website || null,
+        paypal_url: paypalUrl || null,
         avatar_url,
         updated_at: new Date().toISOString(),
       })
@@ -189,6 +192,18 @@ export default function EditProfilePage() {
             value={website}
             onChange={(e) => setWebsite(e.target.value)}
             placeholder={t("profileEdit.websitePlaceholder")}
+            className="w-full bg-transparent px-0 py-2 text-sm text-white placeholder-zinc-500 outline-none caret-blue-500"
+          />
+        </div>
+
+        {/* PayPal / Donation */}
+        <div className="flex flex-col gap-1">
+          <label className="text-xs text-zinc-400">PayPal / link de donación</label>
+          <input
+            type="text"
+            value={paypalUrl}
+            onChange={(e) => setPaypalUrl(e.target.value)}
+            placeholder="https://paypal.me/tu-usuario"
             className="w-full bg-transparent px-0 py-2 text-sm text-white placeholder-zinc-500 outline-none caret-blue-500"
           />
         </div>
