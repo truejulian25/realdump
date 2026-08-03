@@ -41,6 +41,7 @@
 
 ### Problemas abiertos (para próxima sesión)
 - Usuarios que se registran con rol "Creador" quedan en `pending` sin entrada a `/verificacion` (el botón "Solicitar ser creador" solo se muestra a `viewer`). Decidir: ajustar el registro (role viewer + verificar) o hacer navegable el row "Creador — Pendiente" del menú (archivo protegido).
+- **Moderación de reportes (pendiente):** los reportes solo cubren videos (`reports.video_id NOT NULL`) vía "Reportar" en `VideoMenu`; no hay reporte de perfil ni panel admin de moderación. Falta: target de perfil/tipo de reporte, página `admin/reports` (listado `pending`), y acciones de moderación (eliminar video / suspender-desactivar perfil) reutilizando `deactivated_at` y `is_admin()`. Base: `supabase/migrations/00003_create_reports.sql`.
 
 ### Próximos pasos sugeridos
 1. Agregar `loading.tsx` o `Suspense` boundary para mejorar experiencia de carga lenta
