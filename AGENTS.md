@@ -23,10 +23,10 @@
 - `src/app/api/verification/submit/route.ts` — valida completitud, registra consentimiento (timestamps + IP) y declaración de contenido, status `submitted`
 - `src/app/api/verification/reapply/route.ts` — denied → draft (limpia campos de revisión)
 - `src/app/api/verification/activate/route.ts` — verificado + rol viewer → rol `creator`
-- `src/app/api/admin/verifications/signed-urls/route.ts` — URLs firmadas de las 3 fotos para el admin
+- `src/app/api/admin/verifications/signed-urls/route.ts` — URLs firmadas de las 3 fotos para el admin. Importante: devuelve las claves en minúscula `{ document, selfie, holding }` (no `documentUrl`/etc.), que es el contrato que consume el admin (`photos.[kind]`).
 - `src/app/api/admin/verifications/[id]/review/route.ts` — aprobar (verified_dob) / denegar (motivo), actualiza perfil y audita
 - `src/app/api/role-request/route.ts` — repurposed: delega en el flujo de verificación (obsoleto, se mantiene por compatibilidad)
-- `src/app/admin/creators/page.tsx` — reemplaza role_requests por solicitudes de verificación con fotos, checklist de 8 pasos, auditoría y decisión
+- `src/app/admin/creators/page.tsx` — reemplaza role_requests por solicitudes de verificación con fotos, checklist de 8 pasos, auditoría y decisión. Incluye `PhotoModal` (amplía las fotos al hacer clic; cierra con X, clic fuera o Escape).
 - `src/components/HamburgerMenu.tsx` — handler "Solicitar ser creador" → `/api/verification/start` + navega a `/verificacion`
 
 ### Cambios realizados en esta sesión
@@ -36,6 +36,8 @@
 - Añadida Declaración de titularidad, autorización y consentimiento sobre el contenido (9 cláusulas) como segundo checkbox del paso 5 del wizard, registrada en `content_declaration_at` y en la auditoría (`content_declaration_accepted`). El admin la ve en el checklist (item 5) y en el detalle.
 - Paso de selfie usa cámara frontal/webcam obligatoria (`src/components/CameraCapture.tsx`, `getUserMedia` + `facingMode: user`), sin fallback a subir archivo. Pasos de documento y foto con documento siguen con `PhotoField` + `capture="environment"`.
 - Texto de estado "En revisión": indica que mientras el usuario permanece en `pending` puede seguir usando la página en modo no creador (ver/buscar/likes/comentarios); la subida de videos queda solo para rol exacto `creator` (`src/app/upload/page.tsx`).
+- Fix fotos en admin de verificación: la API `signed-urls` devolvía `{ documentUrl, selfieUrl, holdingUrl }` pero el admin lee `photos.document|selfie|holding` → las 3 fotos siempre mostraban "Sin imagen" aunque el storage estaba sano. Normalizada la API a claves en minúscula.
+- Añadido `PhotoModal` en `src/app/admin/creators/page.tsx`: las miniaturas de las fotos de verificación ahora se pueden ampliar al hacer clic (modal a pantalla completa, cierra con X / clic fuera / Escape).
 
 ### Problemas abiertos (para próxima sesión)
 - Usuarios que se registran con rol "Creador" quedan en `pending` sin entrada a `/verificacion` (el botón "Solicitar ser creador" solo se muestra a `viewer`). Decidir: ajustar el registro (role viewer + verificar) o hacer navegable el row "Creador — Pendiente" del menú (archivo protegido).
