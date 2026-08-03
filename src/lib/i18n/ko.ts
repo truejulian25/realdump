@@ -290,6 +290,10 @@ const ko: Translations = {
     sentDesc: "커뮤니티를 안전하게 지키는 데 도움을 주셔서 감사합니다. 신고를 검토하겠습니다.",
     close: "닫기",
     errorSend: "신고 전송 중 오류가 발생했습니다",
+    guestTitle: "회원가입이 필요합니다",
+    guestDesc: "동영상을 신고하려면 회원가입이 필요합니다. 동영상을 올바르게 신고할 수 있도록 앱에 가입하시기 바랍니다.",
+    guestRegister: "가입하기",
+    guestLogin: "로그인",
   },
   share: {
     title: "공유",
@@ -512,6 +516,7 @@ const ko: Translations = {
     descriptionLabel: "설명:",
     videoFallback: "동영상",
     videoDeleted: "삭제됨 또는 사용 불가",
+    openVideo: "동영상 열기",
     resolve: "해결됨으로 표시",
     dismiss: "기각",
     deleteVideo: "동영상 삭제",

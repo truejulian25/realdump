@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface Props {
   open: boolean;
@@ -11,6 +13,7 @@ interface Props {
 
 export default function ReportModal({ open, onClose, videoId }: Props) {
   const { t } = useLanguage();
+  const { user } = useAuth();
   const reasons = t<string[]>("report.reasons");
   const [selectedReason, setSelectedReason] = useState("");
   const [description, setDescription] = useState("");
@@ -60,7 +63,40 @@ export default function ReportModal({ open, onClose, videoId }: Props) {
         className="w-full max-w-md rounded-t-2xl bg-zinc-900 p-5 sm:rounded-2xl"
         onClick={(e) => e.stopPropagation()}
       >
-        {sent ? (
+        {!user ? (
+          <div className="flex flex-col items-center gap-3 py-8 text-center">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-500/20">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
+              </svg>
+            </div>
+            <h2 className="text-lg font-bold text-white">{t("report.guestTitle")}</h2>
+            <p className="text-sm text-zinc-400">{t("report.guestDesc")}</p>
+            <div className="mt-2 flex w-full flex-col gap-2">
+              <Link
+                href="/auth/register"
+                onClick={onClose}
+                className="w-full rounded-lg bg-blue-600 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700"
+              >
+                {t("report.guestRegister")}
+              </Link>
+              <Link
+                href="/auth/login"
+                onClick={onClose}
+                className="w-full rounded-lg border border-zinc-600 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-zinc-800"
+              >
+                {t("report.guestLogin")}
+              </Link>
+            </div>
+            <button
+              onClick={onClose}
+              className="mt-1 rounded-lg bg-zinc-800 px-5 py-2 text-sm text-white transition-colors hover:bg-zinc-700"
+            >
+              {t("report.close")}
+            </button>
+          </div>
+        ) : sent ? (
           <div className="flex flex-col items-center gap-3 py-8 text-center">
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-500/20">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">

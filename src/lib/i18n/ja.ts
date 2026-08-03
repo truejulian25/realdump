@@ -290,6 +290,10 @@ const ja: Translations = {
     sentDesc: "コミュニティを安全に保つご協力に感謝します。通報内容を確認します。",
     close: "閉じる",
     errorSend: "通報の送信中にエラーが発生しました",
+    guestTitle: "登録が必要です",
+    guestDesc: "動画を報告するには登録が必要です。動画を正しく報告できるよう、アプリへの登録をご案内します。",
+    guestRegister: "登録する",
+    guestLogin: "ログイン",
   },
   share: {
     title: "共有",
@@ -512,6 +516,7 @@ const ja: Translations = {
     descriptionLabel: "説明:",
     videoFallback: "動画",
     videoDeleted: "削除済みまたは利用不可",
+    openVideo: "動画を開く",
     resolve: "解決済みにする",
     dismiss: "却下",
     deleteVideo: "動画を削除",

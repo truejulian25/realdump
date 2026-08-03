@@ -1,9 +1,9 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { createClient } from "@/lib/supabase/client";
 import type { Report } from "@/types";
 
 type ReportStatus = Report["status"];
@@ -52,25 +52,18 @@ function thumbSrc(video: ReportRow["video"]) {
 export default function AdminReportsPage() {
   const { profile, loading } = useAuth();
   const { t, locale } = useLanguage();
-  const supabase = useMemo(() => createClient(), []);
   const [reports, setReports] = useState<ReportRow[]>([]);
   const [filter, setFilter] = useState<Filter>("all");
   const [processing, setProcessing] = useState<string | null>(null);
 
   const fetchReports = useCallback(async () => {
-    const { data } = await supabase
-      .from("reports")
-      .select(`
-        *,
-        video:videos(id, title, thumbnail_url, mux_playback_id, user_id, profiles(username, display_name, avatar_url, deactivated_at)),
-        reporter:profiles!reports_reporter_id_fkey(username, display_name, avatar_url)
-      `)
-      .order("created_at", { ascending: false });
-
-    if (data) {
-      setReports(data as ReportRow[]);
+    const res = await fetch("/api/admin/reports");
+    if (!res.ok) return;
+    const data = (await res.json()) as ReportRow[];
+    if (Array.isArray(data)) {
+      setReports(data);
     }
-  }, [supabase]);
+  }, []);
 
   useEffect(() => {
     if (profile?.is_admin) {
@@ -162,13 +155,19 @@ export default function AdminReportsPage() {
                   className="overflow-hidden rounded-lg border border-zinc-800 bg-zinc-900/50"
                 >
                   <div className="flex items-start gap-3 p-4">
-                    {thumb ? (
-                      /* eslint-disable-next-line @next/next/no-img-element */
-                      <img
-                        src={thumb}
-                        alt=""
-                        className="h-16 w-28 shrink-0 rounded-lg border border-zinc-800 object-cover"
-                      />
+                    {thumb && report.video ? (
+                      <Link
+                        href={`/user/${report.video.user_id}?video_id=${report.video.id}`}
+                        title={t("adminReports.openVideo")}
+                        className="shrink-0"
+                      >
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={thumb}
+                          alt=""
+                          className="h-16 w-28 rounded-lg border border-zinc-800 object-cover transition-transform hover:scale-105 hover:border-blue-500"
+                        />
+                      </Link>
                     ) : (
                       <div className="flex h-16 w-28 shrink-0 items-center justify-center rounded-lg border border-zinc-800 bg-zinc-950">
                         <span className="text-[10px] text-zinc-600">

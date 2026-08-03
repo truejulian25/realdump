@@ -290,6 +290,10 @@ const tr: Translations = {
     sentDesc: "Topluluğu güvende tutmamıza yardım ettiğiniz için teşekkürler. Bildiriminizi inceleyeceğiz.",
     close: "Kapat",
     errorSend: "Bildirim gönderilirken hata oluştu",
+    guestTitle: "Kayıtlı olmanız gerekli",
+    guestDesc: "Bir videoyu bildirmek için kayıtlı olmanız gerekir. Videoları doğru şekilde bildirebilmeniz için sizi uygulamamıza kaydolmaya davet ediyoruz.",
+    guestRegister: "Kayıt ol",
+    guestLogin: "Giriş yap",
   },
   share: {
     title: "Paylaş",
@@ -512,6 +516,7 @@ const tr: Translations = {
     descriptionLabel: "Açıklama:",
     videoFallback: "Video",
     videoDeleted: "Silinmiş veya kullanılamıyor",
+    openVideo: "Videoyu aç",
     resolve: "Çözüldü olarak işaretle",
     dismiss: "Reddet",
     deleteVideo: "Videoyu sil",

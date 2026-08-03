@@ -290,6 +290,10 @@ const en: Translations = {
     sentDesc: "Thank you for helping us keep the community safe. We will review your report.",
     close: "Close",
     errorSend: "Error sending report",
+    guestTitle: "You must be registered",
+    guestDesc: "You must be registered to report a video. We invite you to sign up in our app so you can report videos properly.",
+    guestRegister: "Register",
+    guestLogin: "Sign in",
   },
   share: {
     title: "Share",
@@ -512,6 +516,7 @@ const en: Translations = {
     descriptionLabel: "Description:",
     videoFallback: "Video",
     videoDeleted: "Deleted or unavailable",
+    openVideo: "Open video",
     resolve: "Mark as resolved",
     dismiss: "Dismiss",
     deleteVideo: "Delete video",

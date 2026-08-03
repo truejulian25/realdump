@@ -93,6 +93,18 @@ export default function UserPage() {
     return () => window.removeEventListener("popstate", handlePopState);
   }, []);
 
+  useEffect(() => {
+    if (selectedVideo) return;
+    const params = new URLSearchParams(window.location.search);
+    const videoIdParam = params.get("video_id");
+    if (!videoIdParam) return;
+    const found = videos.find((v) => v.id === videoIdParam);
+    if (found) {
+      window.history.pushState(null, "");
+      setSelectedVideo(found);
+    }
+  }, [videos, selectedVideo]);
+
   const handleVideoClick = useCallback((video: Video) => {
     window.history.pushState(null, "");
     setSelectedVideo(video);

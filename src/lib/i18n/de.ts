@@ -290,6 +290,10 @@ const de: Translations = {
     sentDesc: "Danke, dass Sie helfen, die Community sicher zu halten. Wir prüfen Ihre Meldung.",
     close: "Schließen",
     errorSend: "Fehler beim Senden der Meldung",
+    guestTitle: "Du musst registriert sein",
+    guestDesc: "Du musst registriert sein, um ein Video zu melden. Wir laden dich ein, dich in unserer App zu registrieren, um Videos korrekt melden zu können.",
+    guestRegister: "Registrieren",
+    guestLogin: "Anmelden",
   },
   share: {
     title: "Teilen",
@@ -512,6 +516,7 @@ const de: Translations = {
     descriptionLabel: "Beschreibung:",
     videoFallback: "Video",
     videoDeleted: "Gelöscht oder nicht verfügbar",
+    openVideo: "Video öffnen",
     resolve: "Als gelöst markieren",
     dismiss: "Verwerfen",
     deleteVideo: "Video löschen",

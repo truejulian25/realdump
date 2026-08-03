@@ -288,6 +288,10 @@ const es = {
     sentDesc: "Gracias por ayudarnos a mantener la comunidad segura. Revisaremos tu reporte.",
     close: "Cerrar",
     errorSend: "Error al enviar reporte",
+    guestTitle: "Debes estar registrado",
+    guestDesc: "Debes estar registrado para reportar un video. Te invitamos a registrarte en nuestra app para reportar de manera correcta el video.",
+    guestRegister: "Registrarme",
+    guestLogin: "Iniciar sesión",
   },
   share: {
     title: "Compartir",
@@ -510,6 +514,7 @@ const es = {
     descriptionLabel: "Descripción:",
     videoFallback: "Video",
     videoDeleted: "Eliminado o no disponible",
+    openVideo: "Abrir video",
     resolve: "Marcar como resuelto",
     dismiss: "Descartar",
     deleteVideo: "Eliminar video",
