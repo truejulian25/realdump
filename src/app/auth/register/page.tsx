@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function RegisterPage() {
   const [email, setEmail] = useState("");
@@ -13,6 +14,7 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const supabase = createClient();
+  const { t } = useLanguage();
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,11 +48,11 @@ export default function RegisterPage() {
         onSubmit={handleRegister}
         className="flex w-full max-w-sm flex-col gap-4"
       >
-        <h1 className="text-center text-xl font-bold text-white">Crear cuenta</h1>
+        <h1 className="text-center text-xl font-bold text-white">{t("auth.register.title")}</h1>
 
         <input
           type="email"
-          placeholder="Email"
+          placeholder={t("common.email")}
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
@@ -59,7 +61,7 @@ export default function RegisterPage() {
 
         <input
           type="password"
-          placeholder="Contraseña (mín. 6 caracteres)"
+          placeholder={t("auth.register.passwordPlaceholder")}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
@@ -68,7 +70,7 @@ export default function RegisterPage() {
         />
 
         <div className="flex flex-col gap-2">
-          <p className="text-sm text-zinc-400">Tipo de cuenta</p>
+          <p className="text-sm text-zinc-400">{t("auth.register.accountType")}</p>
           <div className="flex gap-3">
             <button
               type="button"
@@ -79,8 +81,8 @@ export default function RegisterPage() {
                   : "border-zinc-800 text-zinc-400 hover:border-zinc-600"
               }`}
             >
-              <div className="font-medium">Espectador</div>
-              <div className="mt-0.5 text-xs opacity-70">Ver y comentar</div>
+              <div className="font-medium">{t("auth.register.viewer")}</div>
+              <div className="mt-0.5 text-xs opacity-70">{t("auth.register.viewerDesc")}</div>
             </button>
             <button
               type="button"
@@ -91,13 +93,13 @@ export default function RegisterPage() {
                   : "border-zinc-800 text-zinc-400 hover:border-zinc-600"
               }`}
             >
-              <div className="font-medium">Creador</div>
-              <div className="mt-0.5 text-xs opacity-70">Subir videos</div>
+              <div className="font-medium">{t("auth.register.creator")}</div>
+              <div className="mt-0.5 text-xs opacity-70">{t("auth.register.creatorDesc")}</div>
             </button>
           </div>
           {role === "creator" && (
             <p className="text-xs text-zinc-500">
-              Los creadores requieren aprobación del administrador. Mientras tanto tu cuenta estará en estado pendiente.
+              {t("auth.register.creatorNote")}
             </p>
           )}
         </div>
@@ -109,13 +111,13 @@ export default function RegisterPage() {
           disabled={loading}
           className="self-start rounded-lg bg-blue-600 px-5 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
         >
-          {loading ? "Creando..." : "Crear cuenta"}
+          {loading ? t("auth.register.creating") : t("auth.register.title")}
         </button>
 
         <p className="text-sm text-zinc-400">
-          ¿Ya tienes cuenta?{" "}
+          {t("auth.register.alreadyHaveAccount")}{" "}
           <Link href="/auth/login" className="text-blue-400 hover:underline">
-            Inicia sesión
+            {t("auth.register.loginLink")}
           </Link>
         </p>
       </form>

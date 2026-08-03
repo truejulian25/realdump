@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface Props {
   open: boolean;
@@ -8,14 +9,9 @@ interface Props {
   videoId: string;
 }
 
-const REASONS = [
-  "Aparezco en este video y no autoricé su publicación",
-  "Contenido violento",
-  "Spam o engaño",
-  "Otro",
-];
-
 export default function ReportModal({ open, onClose, videoId }: Props) {
+  const { t } = useLanguage();
+  const reasons = t<string[]>("report.reasons");
   const [selectedReason, setSelectedReason] = useState("");
   const [description, setDescription] = useState("");
   const [sending, setSending] = useState(false);
@@ -44,12 +40,12 @@ export default function ReportModal({ open, onClose, videoId }: Props) {
 
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.error || "Error al enviar reporte");
+        throw new Error(data.error || t("report.errorSend"));
       }
 
       setSent(true);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Error desconocido");
+      setError(e instanceof Error ? e.message : t("common.unknownError"));
     } finally {
       setSending(false);
     }
@@ -71,19 +67,19 @@ export default function ReportModal({ open, onClose, videoId }: Props) {
                 <polyline points="20 6 9 17 4 12" />
               </svg>
             </div>
-            <h2 className="text-lg font-bold text-white">Reporte enviado</h2>
-            <p className="text-sm text-zinc-400">Gracias por ayudarnos a mantener la comunidad segura. Revisaremos tu reporte.</p>
+            <h2 className="text-lg font-bold text-white">{t("report.sentTitle")}</h2>
+            <p className="text-sm text-zinc-400">{t("report.sentDesc")}</p>
             <button
               onClick={onClose}
               className="mt-2 rounded-lg bg-zinc-800 px-5 py-2 text-sm text-white transition-colors hover:bg-zinc-700"
             >
-              Cerrar
+              {t("report.close")}
             </button>
           </div>
         ) : (
           <>
             <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-lg font-bold text-white">Reportar video</h2>
+              <h2 className="text-lg font-bold text-white">{t("report.title")}</h2>
               <button onClick={onClose} className="text-zinc-400 hover:text-white">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <line x1="18" y1="6" x2="6" y2="18" />
@@ -93,10 +89,10 @@ export default function ReportModal({ open, onClose, videoId }: Props) {
             </div>
 
             <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-              <p className="text-sm text-zinc-400">¿Por qué reportas este video?</p>
+              <p className="text-sm text-zinc-400">{t("report.question")}</p>
 
               <div className="flex flex-col gap-2">
-                {REASONS.map((reason) => (
+                {reasons.map((reason) => (
                   <label
                     key={reason}
                     className={`flex cursor-pointer items-center gap-3 rounded-lg border p-3 text-sm transition-colors ${
@@ -121,7 +117,7 @@ export default function ReportModal({ open, onClose, videoId }: Props) {
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="Describe el problema"
+                placeholder={t("report.describePlaceholder")}
                 rows={3}
                 required
                 className="w-full resize-none rounded-lg border border-zinc-700 bg-zinc-800 p-3 text-sm text-white placeholder-zinc-500 outline-none focus:border-blue-500"
@@ -134,7 +130,7 @@ export default function ReportModal({ open, onClose, videoId }: Props) {
                 disabled={!selectedReason || !description.trim() || sending}
                 className="w-full rounded-lg bg-red-600 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-red-700 disabled:opacity-50"
               >
-                {sending ? "Enviando..." : "Enviar reporte"}
+                {sending ? t("report.sending") : t("report.send")}
               </button>
             </form>
           </>

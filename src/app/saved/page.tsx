@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { useSavedVideos } from "@/hooks/useVideos";
 import type { Video } from "@/types";
 import ProfileVideoCard from "@/components/ProfileVideoCard";
@@ -18,6 +19,7 @@ interface SavedVideoWithVideo {
 
 export default function SavedPage() {
   const { user, loading: authLoading } = useAuth();
+  const { t } = useLanguage();
   const router = useRouter();
   const sentinelRef = useRef<HTMLDivElement>(null);
 
@@ -77,7 +79,7 @@ export default function SavedPage() {
               <line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" />
             </svg>
           </Link>
-          <h1 className="text-lg font-bold text-white">Guardados</h1>
+          <h1 className="text-lg font-bold text-white">{t("saved.title")}</h1>
         </div>
 
         {items.length === 0 ? (
@@ -87,8 +89,8 @@ export default function SavedPage() {
                 <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
               </svg>
             </div>
-            <p className="text-sm text-zinc-400">No has guardado ningún video</p>
-            <p className="mt-1 text-xs text-zinc-600">Los videos que guardes aparecerán aquí</p>
+            <p className="text-sm text-zinc-400">{t("saved.emptyTitle")}</p>
+            <p className="mt-1 text-xs text-zinc-600">{t("saved.emptyDesc")}</p>
           </div>
         ) : (
           <>

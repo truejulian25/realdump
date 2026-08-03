@@ -1,5 +1,12 @@
 # Tareas pendientes
 
+## Regla de protección (IMPORTANTE, permanente)
+- El **aspecto visual** de la página (componentes, estilos, clases Tailwind, layouts, animaciones, overlays, menús, spinners, colores, fondos) es crítico y **NO debe modificarse** sin autorización explícita.
+- Trabajar estrictamente **paso a paso**: solo los cambios autorizados. Nada de refactoring ni mejoras no solicitadas.
+- En caso de error, comando de reversión del usuario: **"reverta los cambios"** → volver al último commit estable.
+- Al internacionalizar (i18n) se sustituyen únicamente **cadenas de texto** por `t("...")`; no se alteran clases ni estructura.
+- Los commits los realiza el usuario manualmente; no commitear sin orden.
+
 ## Estado actual del proyecto
 
 ### Flujo actual
@@ -38,6 +45,13 @@
 - Texto de estado "En revisión": indica que mientras el usuario permanece en `pending` puede seguir usando la página en modo no creador (ver/buscar/likes/comentarios); la subida de videos queda solo para rol exacto `creator` (`src/app/upload/page.tsx`).
 - Fix fotos en admin de verificación: la API `signed-urls` devolvía `{ documentUrl, selfieUrl, holdingUrl }` pero el admin lee `photos.document|selfie|holding` → las 3 fotos siempre mostraban "Sin imagen" aunque el storage estaba sano. Normalizada la API a claves en minúscula.
 - Añadido `PhotoModal` en `src/app/admin/creators/page.tsx`: las miniaturas de las fotos de verificación ahora se pueden ampliar al hacer clic (modal a pantalla completa, cierra con X / clic fuera / Escape).
+
+### i18n (internacionalización) — plan activo
+- Decisiones: 9 idiomas (en, es, de, fr, it, ja, ko, pt, tr; **sin árabe/RTL por ahora**). Detección automática por **país vía IP** (`x-vercel-ip-country` en `layout.tsx` server), fallback idioma del navegador y default **Inglés**. El idioma elegido manualmente siempre gana (modo `manual` en localStorage) con opción "Automático" en el menú de idiomas.
+- Contenido del usuario (títulos/descripciones/comentarios): **NO se traduce**.
+- Centro Legal: 5 documentos traducidos a los 9 idiomas (`legal-content-{locale}.ts`, fallback español), con nota de que el texto en español prevalece.
+- Fases: 0) regla de protección ✓; 1) quitar árabe + es síncrono + sync lang/dir; 2) detección IP/navegador/override + "Automático"; 3) ampliar `es.ts` (~900 claves, fuente de verdad); 4) espejar 9 idiomas (tipo `Translations`); 5) conectar componentes a `t()`; 6) centro legal multilingüe; 7) verificación lint+build.
+- Fuera de alcance (futuro): emails del servidor y errores de APIs en español; traducción de contenido del usuario (API paga); RTL/árabe.
 
 ### Problemas abiertos (para próxima sesión)
 - Usuarios que se registran con rol "Creador" quedan en `pending` sin entrada a `/verificacion` (el botón "Solicitar ser creador" solo se muestra a `viewer`). Decidir: ajustar el registro (role viewer + verificar) o hacer navegable el row "Creador — Pendiente" del menú (archivo protegido).

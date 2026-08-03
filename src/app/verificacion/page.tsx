@@ -4,107 +4,42 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import CameraCapture from "@/components/CameraCapture";
 import { createClient } from "@/lib/supabase/client";
-import { VERIFICATION_STORAGE_BUCKET, VERIFICATION_EVENT_LABELS, storagePathFor } from "@/lib/verification";
+import { VERIFICATION_STORAGE_BUCKET, storagePathFor } from "@/lib/verification";
 import type { CreatorVerification, VerificationEvent } from "@/types";
 
 const DOCUMENT_TYPES = [
-  { value: "id_card", label: "Cédula de identidad" },
-  { value: "passport", label: "Pasaporte" },
-  { value: "driver_license", label: "Licencia de conducir" },
+  { value: "id_card" },
+  { value: "passport" },
+  { value: "driver_license" },
 ] as const;
 
-const STEP_META = [
-  {
-    n: 1,
-    title: "Documento oficial",
-    desc: "Selecciona tu tipo de documento y toma una foto clara, con buena luz y sin reflejos.",
-  },
-  {
-    n: 2,
-    title: "Fecha de nacimiento",
-    desc: "Declara tu fecha de nacimiento. Será cotejada contra tu documento por un administrador.",
-  },
-  {
-    n: 3,
-    title: "Selfie / prueba de vida",
-    desc: "Toma una selfie de tu rostro con buena luz, mirando a la cámara.",
-  },
-  {
-    n: 4,
-    title: "Comparación facial",
-    desc: "Tu selfie será comparada con la foto de tu documento para confirmar que eres la misma persona.",
-  },
-  {
-    n: 5,
-    title: "Consentimiento explícito",
-    desc: "Necesitamos tu aceptación explícita para tratar tus datos personales y biométricos.",
-  },
-  {
-    n: 6,
-    title: "Registro de auditoría",
-    desc: "Cada paso que completas queda registrado con fecha y hora en tu expediente de verificación.",
-  },
-  {
-    n: 7,
-    title: "Foto sosteniendo el documento",
-    desc: "Sostén tu documento junto a tu rostro y toma una foto donde se vean ambos.",
-  },
-  {
-    n: 8,
-    title: "Revisión manual",
-    desc: "Un administrador revisará toda la información antes de activar tu rol de creador.",
-  },
+const STEP_KEYS = [
+  { n: 1, titleKey: "step1Title", descKey: "step1Desc" },
+  { n: 2, titleKey: "step2Title", descKey: "step2Desc" },
+  { n: 3, titleKey: "step3Title", descKey: "step3Desc" },
+  { n: 4, titleKey: "step4Title", descKey: "step4Desc" },
+  { n: 5, titleKey: "step5Title", descKey: "step5Desc" },
+  { n: 6, titleKey: "step6Title", descKey: "step6Desc" },
+  { n: 7, titleKey: "step7Title", descKey: "step7Desc" },
+  { n: 8, titleKey: "step8Title", descKey: "step8Desc" },
 ] as const;
-
-const CONTENT_DECLARATION = {
-  heading: "Declaración de titularidad, autorización y consentimiento sobre el contenido",
-  intro:
-    "Al completar mi registro como creador, declaro y garantizo expresamente que todo contenido que publique, cargue, transmita o ponga a disposición en la plataforma cumple con las siguientes condiciones:",
-  clauses: [
-    {
-      title: "Contenido propio:",
-      body: "El contenido me representa personalmente o soy titular de los derechos necesarios para publicarlo y distribuirlo en la plataforma.",
-    },
-    {
-      title: "Contenido de terceros:",
-      body: "Cuando el contenido incluya a una o más personas distintas de mí, declaro que cuento con la autorización expresa, válida y suficiente de todas las personas que aparezcan en dicho contenido, incluyendo la autorización necesaria para su grabación, publicación, distribución y exhibición dentro de la plataforma.",
-    },
-    {
-      title: "Personas mayores de edad:",
-      body: "Declaro que todas las personas que aparezcan en el contenido son mayores de 18 años y que cuento con las autorizaciones correspondientes para la publicación del contenido.",
-    },
-    {
-      title: "Ausencia de contenido no autorizado:",
-      body: "No publicaré contenido de terceros sin su conocimiento o autorización, ni contenido obtenido, grabado o distribuido mediante engaño, coacción, amenaza, acceso no autorizado, apropiación indebida o cualquier otro medio contrario a la ley o a las normas de la plataforma.",
-    },
-    {
-      title: "Responsabilidad:",
-      body: "Comprendo y acepto que soy responsable de contar con las autorizaciones y derechos necesarios para publicar cualquier contenido que incorpore a otras personas.",
-    },
-    {
-      title: "Denuncias y reclamaciones:",
-      body: "Reconozco que cualquier persona que aparezca en un contenido publicado en mi cuenta podrá presentar una denuncia o reclamación ante la plataforma cuando considere que dicho contenido fue publicado sin su autorización, consentimiento o derechos suficientes.",
-    },
-    {
-      title: "Retirada del contenido:",
-      body: "La plataforma podrá restringir, suspender o retirar temporalmente el contenido denunciado mientras realiza las verificaciones correspondientes, especialmente cuando existan indicios razonables de publicación no autorizada, vulneración de derechos, falta de consentimiento o incumplimiento de las normas de la plataforma.",
-    },
-    {
-      title: "Medidas sobre la cuenta:",
-      body: "Si se determina que publiqué contenido sin la autorización requerida, o si incumplo las obligaciones establecidas en esta declaración, la plataforma podrá adoptar medidas contra mi cuenta, incluyendo la eliminación del contenido, restricciones de publicación, suspensión temporal o cierre permanente de mi perfil de creador, de acuerdo con las Políticas de la Plataforma y los procedimientos de revisión y apelación aplicables.",
-    },
-    {
-      title: "Declaración de veracidad:",
-      body: "Confirmo que la información proporcionada durante mi registro y las declaraciones realizadas son verdaderas, completas y exactas. Entiendo que proporcionar información falsa, utilizar documentación ajena o intentar evadir los mecanismos de verificación puede resultar en la suspensión o terminación de mi cuenta y en otras medidas que puedan corresponder conforme a la legislación aplicable.",
-    },
-  ],
-  acceptance:
-    "Declaro que he leído, comprendido y acepto esta declaración. Confirmo expresamente que cuento con los derechos, autorizaciones y consentimientos necesarios para publicar el contenido que subiré a la plataforma y que cumpliré las normas aplicables a los creadores.",
-} as const;
 
 type UploadKind = "document" | "selfie" | "holding";
+
+function documentTypeLabel(t: <T = string>(key: string, params?: Record<string, string>) => T, value: string): string {
+  const key =
+    value === "id_card"
+      ? "idCard"
+      : value === "passport"
+        ? "passport"
+        : value === "driver_license"
+          ? "driverLicense"
+          : value;
+  return t(`verificacion.documentTypes.${key}`);
+}
 
 function firstIncompleteStep(v: CreatorVerification): number {
   if (!(v.document_type && v.document_url)) return 0;
@@ -118,6 +53,7 @@ export default function VerificacionPage() {
   const { user, profile, loading: authLoading, refreshProfile } = useAuth();
   const supabase = useMemo(() => createClient(), []);
   const router = useRouter();
+  const { t, locale } = useLanguage();
 
   const [verification, setVerification] = useState<CreatorVerification | null>(null);
   const [events, setEvents] = useState<VerificationEvent[]>([]);
@@ -188,7 +124,7 @@ export default function VerificacionPage() {
     });
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
-      throw new Error(err.error || "Error al guardar");
+      throw new Error(err.error || t("verificacion.saveError"));
     }
     const data = await res.json();
     if (data.verification) setVerification(data.verification);
@@ -201,13 +137,13 @@ export default function VerificacionPage() {
       const res = await fetch("/api/verification/start", { method: "POST" });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
-        throw new Error(err.error || "Error al iniciar");
+        throw new Error(err.error || t("verificacion.startError"));
       }
       const data = await res.json();
       setVerification(data.verification);
       setStep(0);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Error al iniciar");
+      setError(e instanceof Error ? e.message : t("verificacion.startError"));
     } finally {
       setBusy(false);
     }
@@ -220,7 +156,7 @@ export default function VerificacionPage() {
       const res = await fetch("/api/verification/reapply", { method: "POST" });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
-        throw new Error(err.error || "Error al reintentar");
+        throw new Error(err.error || t("verificacion.reapplyError"));
       }
       const v = await load();
       if (v) {
@@ -230,7 +166,7 @@ export default function VerificacionPage() {
         await refreshPreviews(v);
       }
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Error al reintentar");
+      setError(e instanceof Error ? e.message : t("verificacion.reapplyError"));
     } finally {
       setBusy(false);
     }
@@ -243,12 +179,12 @@ export default function VerificacionPage() {
       const res = await fetch("/api/verification/activate", { method: "POST" });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
-        throw new Error(err.error || "Error al activar");
+        throw new Error(err.error || t("verificacion.activateError"));
       }
       await refreshProfile();
       router.refresh();
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Error al activar");
+      setError(e instanceof Error ? e.message : t("verificacion.activateError"));
     } finally {
       setBusy(false);
     }
@@ -272,7 +208,7 @@ export default function VerificacionPage() {
         kind === "document" ? "documentUrl" : kind === "selfie" ? "selfieUrl" : "holdingDocumentUrl";
       await saveVerification({ [key]: path });
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Error al subir la foto");
+      setError(e instanceof Error ? e.message : t("verificacion.uploadError"));
     } finally {
       setBusy(false);
     }
@@ -284,7 +220,7 @@ export default function VerificacionPage() {
     try {
       await saveVerification({ documentType: value });
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Error al guardar");
+      setError(e instanceof Error ? e.message : t("verificacion.saveError"));
     }
   };
 
@@ -293,7 +229,7 @@ export default function VerificacionPage() {
     try {
       await saveVerification({ declaredDob });
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Error al guardar");
+      setError(e instanceof Error ? e.message : t("verificacion.saveError"));
     }
   };
 
@@ -304,12 +240,12 @@ export default function VerificacionPage() {
       const res = await fetch("/api/verification/submit", { method: "POST" });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
-        throw new Error(err.error || "Error al enviar");
+        throw new Error(err.error || t("verificacion.submitError"));
       }
       const v = await load();
       if (v) setVerification(v);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Error al enviar");
+      setError(e instanceof Error ? e.message : t("verificacion.submitError"));
     } finally {
       setBusy(false);
     }
@@ -339,7 +275,7 @@ export default function VerificacionPage() {
   if (authLoading || loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-black pt-14">
-        <p className="text-zinc-400">Cargando...</p>
+        <p className="text-zinc-400">{t("common.loading")}</p>
       </div>
     );
   }
@@ -360,7 +296,7 @@ export default function VerificacionPage() {
             <line x1="19" y1="12" x2="5" y2="12" />
             <polyline points="12 19 5 12 12 5" />
           </svg>
-          Volver al perfil
+          {t("verificacion.backToProfile")}
         </Link>
         {children}
       </div>
@@ -374,22 +310,22 @@ export default function VerificacionPage() {
   if (!status) {
     return pageFrame(
       <>
-        <h1 className="mb-2 text-xl font-bold text-white">Verificación de creador</h1>
+        <h1 className="mb-2 text-xl font-bold text-white">{t("verificacion.noRequestTitle")}</h1>
         <p className="mb-6 text-xs text-zinc-500">
-          Para convertirte en creador debes completar un proceso de verificación de identidad en 8 pasos.
+          {t("verificacion.noRequestDesc")}
         </p>
         <div className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-4">
           <ul className="space-y-2 text-xs text-zinc-300">
-            {STEP_META.map((s) => (
+            {STEP_KEYS.map((s) => (
               <li key={s.n} className="flex items-start gap-2">
                 <span className="shrink-0 font-semibold text-blue-400">{s.n}.</span>
-                <span>{s.title}</span>
+                <span>{t(`verificacion.${s.titleKey}`)}</span>
               </li>
             ))}
           </ul>
         </div>
         <p className="mt-4 text-xs text-zinc-500">
-          Necesitarás tu documento oficial y una cámara. Todo el proceso queda registrado en un expediente de auditoría.
+          {t("verificacion.needDoc")}
         </p>
         {error && <p className="mt-3 text-sm text-red-400">{error}</p>}
         <button
@@ -397,7 +333,7 @@ export default function VerificacionPage() {
           disabled={busy}
           className="mt-6 rounded-lg bg-blue-600 px-5 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
         >
-          {busy ? "Iniciando..." : "Comenzar verificación"}
+          {busy ? t("verificacion.starting") : t("verificacion.startBtn")}
         </button>
       </>
     );
@@ -407,15 +343,15 @@ export default function VerificacionPage() {
   if (status === "denied") {
     return pageFrame(
       <>
-        <h1 className="mb-2 text-xl font-bold text-white">Verificación denegada</h1>
+        <h1 className="mb-2 text-xl font-bold text-white">{t("verificacion.deniedTitle")}</h1>
         <div className="rounded-lg border border-red-800 bg-red-500/10 p-4">
-          <p className="text-sm font-medium text-red-400">Tu solicitud no fue aprobada.</p>
+          <p className="text-sm font-medium text-red-400">{t("verificacion.deniedDesc")}</p>
           {verification?.denial_reason && (
             <p className="mt-2 text-xs text-red-300">{verification.denial_reason}</p>
           )}
         </div>
         <p className="mt-4 text-xs text-zinc-500">
-          Puedes corregir la información y volver a intentar el proceso.
+          {t("verificacion.deniedNote")}
         </p>
         {error && <p className="mt-3 text-sm text-red-400">{error}</p>}
         <button
@@ -423,7 +359,7 @@ export default function VerificacionPage() {
           disabled={busy}
           className="mt-6 rounded-lg bg-blue-600 px-5 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
         >
-          {busy ? "Procesando..." : "Reintentar verificación"}
+          {busy ? t("verificacion.processing") : t("verificacion.retryBtn")}
         </button>
       </>
     );
@@ -433,17 +369,17 @@ export default function VerificacionPage() {
   if (status === "submitted" || status === "in_review") {
     return pageFrame(
       <>
-        <h1 className="mb-2 text-xl font-bold text-white">Verificación en revisión</h1>
+        <h1 className="mb-2 text-xl font-bold text-white">{t("verificacion.inReviewTitle")}</h1>
         <div className="rounded-lg border border-amber-800 bg-amber-500/10 p-4">
           <p className="text-sm font-medium text-amber-400">
-            Recibimos tu solicitud. Un administrador está revisando tu información.
+            {t("verificacion.inReviewDesc")}
           </p>
           <p className="mt-2 text-xs text-amber-300">
-            Recibirás respuesta cuando la revisión termine. Mientras tanto tu cuenta permanece en estado pendiente, pero puedes disfrutar de las funciones de la página en modo no creador.
+            {t("verificacion.inReviewNote")}
           </p>
         </div>
         <div className="mt-6">
-          <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-zinc-500">Registro de auditoría</p>
+          <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-zinc-500">{t("verificacion.auditLog")}</p>
           <AuditTimeline events={events} />
         </div>
       </>
@@ -454,23 +390,23 @@ export default function VerificacionPage() {
   if (status === "approved") {
     return pageFrame(
       <>
-        <h1 className="mb-2 text-xl font-bold text-white">Verificación aprobada</h1>
+        <h1 className="mb-2 text-xl font-bold text-white">{t("verificacion.approvedTitle")}</h1>
         <div className="rounded-lg border border-emerald-800 bg-emerald-500/10 p-4">
           <p className="text-sm font-medium text-emerald-400">
-            Tu identidad fue verificada correctamente.
+            {t("verificacion.approvedDesc")}
           </p>
           {verification?.verified_dob && (
             <p className="mt-2 text-xs text-emerald-300">
-              Fecha de nacimiento verificada: {new Date(verification.verified_dob + "T00:00:00").toLocaleDateString("es-CO")}
+              {t("verificacion.verifiedDob", { date: new Date(verification.verified_dob + "T00:00:00").toLocaleDateString(locale) })}
             </p>
           )}
         </div>
         {isCreator ? (
-          <p className="mt-4 text-sm text-zinc-400">Ya tienes el rol de creador activo.</p>
+          <p className="mt-4 text-sm text-zinc-400">{t("verificacion.alreadyCreator")}</p>
         ) : (
           <>
             <p className="mt-4 text-xs text-zinc-500">
-              Tu verificación está vigente pero tu rol de creador no está activo. Puedes activarlo cuando quieras.
+              {t("verificacion.approvalActive")}
             </p>
             {error && <p className="mt-3 text-sm text-red-400">{error}</p>}
             <button
@@ -478,7 +414,7 @@ export default function VerificacionPage() {
               disabled={busy}
               className="mt-6 rounded-lg bg-blue-600 px-5 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
             >
-              {busy ? "Activando..." : "Activar rol de creador"}
+              {busy ? t("verificacion.activating") : t("verificacion.activateBtn")}
             </button>
           </>
         )}
@@ -487,12 +423,12 @@ export default function VerificacionPage() {
   }
 
   // ── Wizard (draft) ──────────────────────────────────────────────
-  const meta = STEP_META[step];
+  const meta = STEP_KEYS[step];
   return pageFrame(
     <>
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-lg font-bold text-white">Verificación de creador</h1>
-        <span className="text-xs text-zinc-500">Paso {meta.n} de 8</span>
+        <h1 className="text-lg font-bold text-white">{t("verificacion.wizardTitle")}</h1>
+        <span className="text-xs text-zinc-500">{t("verificacion.stepOf", { current: String(meta.n) })}</span>
       </div>
 
       <div className="mb-6 h-1 w-full overflow-hidden rounded-full bg-zinc-800">
@@ -503,14 +439,14 @@ export default function VerificacionPage() {
       </div>
 
       <div className="mb-6">
-        <h2 className="text-base font-semibold text-white">{meta.title}</h2>
-        <p className="mt-1 text-xs text-zinc-400">{meta.desc}</p>
+        <h2 className="text-base font-semibold text-white">{t(`verificacion.${meta.titleKey}`)}</h2>
+        <p className="mt-1 text-xs text-zinc-400">{t(`verificacion.${meta.descKey}`)}</p>
       </div>
 
       {step === 0 && (
         <div className="space-y-4">
           <div className="space-y-2">
-            <p className="text-xs font-medium text-zinc-300">Tipo de documento</p>
+            <p className="text-xs font-medium text-zinc-300">{t("verificacion.documentTypeLabel")}</p>
             <div className="flex flex-col gap-2">
               {DOCUMENT_TYPES.map((dt) => (
                 <button
@@ -523,15 +459,15 @@ export default function VerificacionPage() {
                       : "border-zinc-800 text-zinc-400 hover:border-zinc-600"
                   }`}
                 >
-                  {dt.label}
+                  {documentTypeLabel(t, dt.value)}
                 </button>
               ))}
             </div>
           </div>
           <div>
-            <p className="mb-2 text-xs font-medium text-zinc-300">Foto del documento</p>
+            <p className="mb-2 text-xs font-medium text-zinc-300">{t("verificacion.documentPhotoLabel")}</p>
             <PhotoField
-              label="Tomar foto del documento"
+              label={t("verificacion.takeDocumentPhoto")}
               preview={previews.document}
               capture="environment"
               onSelect={(f) => handleFile("document", f)}
@@ -544,7 +480,7 @@ export default function VerificacionPage() {
       {step === 1 && (
         <div className="space-y-4">
           <div>
-            <label className="mb-1 block text-sm font-medium text-zinc-300">Fecha de nacimiento</label>
+            <label className="mb-1 block text-sm font-medium text-zinc-300">{t("verificacion.dobLabel")}</label>
             <input
               type="date"
               value={declaredDob}
@@ -554,7 +490,7 @@ export default function VerificacionPage() {
             />
           </div>
           <p className="text-xs text-zinc-500">
-            Debes ser mayor de 18 años para publicar contenido. Tu fecha será verificada contra tu documento.
+            {t("verificacion.dobNote")}
           </p>
         </div>
       )}
@@ -568,7 +504,7 @@ export default function VerificacionPage() {
             disabled={busy}
           />
           <p className="text-xs text-zinc-500">
-            Evita lentes, gorras o accesorios que cubran tu rostro. Usa buena luz.
+            {t("verificacion.selfieNote")}
           </p>
         </div>
       )}
@@ -577,8 +513,8 @@ export default function VerificacionPage() {
         <div className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-4">
           <p className="text-sm text-zinc-300">
             {step === 3
-              ? "La comparación facial se realiza cotejando tu selfie con la fotografía de tu documento. Un administrador la verifica manualmente como parte de la revisión."
-              : "Cada acción de este proceso (subidas, datos, consentimiento y decisión) queda registrada en un expediente de auditoría con fecha, hora y responsable. Tú puedes consultarlo en cualquier momento."}
+              ? t("verificacion.faceComparison")
+              : t("verificacion.auditInfo")}
           </p>
         </div>
       )}
@@ -587,11 +523,7 @@ export default function VerificacionPage() {
         <div className="space-y-4">
           <div className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-4">
             <p className="text-xs text-zinc-300 leading-relaxed">
-              Autorizo a la Plataforma a recopilar y tratar mis datos personales y biométricos (fotografía de mi
-              documento oficial, selfie y foto sosteniendo el documento) con la única finalidad de verificar mi
-              identidad y mi edad para otorgar el rol de creador. Comprendo que estos datos se almacenan de forma
-              segura, se utilizan exclusivamente para este proceso de verificación y de revisión manual, y que
-              puedo solicitar su eliminación conforme a la política de privacidad y la legislación aplicable.
+              {t("verificacion.consentText")}
             </p>
           </div>
           <button
@@ -611,9 +543,9 @@ export default function VerificacionPage() {
               )}
             </span>
             <span className="text-xs text-zinc-300">
-              Acepto el tratamiento de mis datos personales y biométricos conforme a lo descrito.{" "}
+              {t("verificacion.consentAccept")}{" "}
               <Link href="/terms" className="text-blue-400 underline">
-                Ver Centro Legal
+                {t("verificacion.viewLegalCenter")}
               </Link>
             </span>
           </button>
@@ -622,13 +554,13 @@ export default function VerificacionPage() {
 
           <div>
             <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-zinc-500">
-              {CONTENT_DECLARATION.heading}
+              {t("verificacion.contentDeclarationHeading")}
             </p>
             <div className="max-h-64 space-y-2 overflow-y-auto rounded-lg border border-zinc-800 bg-zinc-900/50 p-4">
-              <p className="text-xs text-zinc-300 leading-relaxed">{CONTENT_DECLARATION.intro}</p>
+              <p className="text-xs text-zinc-300 leading-relaxed">{t("verificacion.contentDeclarationIntro")}</p>
               <ol className="list-decimal space-y-2 pl-4">
-                {CONTENT_DECLARATION.clauses.map((c) => (
-                  <li key={c.title} className="text-xs text-zinc-300 leading-relaxed">
+                {t<{ title: string; body: string }[]>("verificacion.contentDeclarationClauses").map((c, i) => (
+                  <li key={i} className="text-xs text-zinc-300 leading-relaxed">
                     <span className="font-semibold">{c.title}</span> {c.body}
                   </li>
                 ))}
@@ -650,7 +582,7 @@ export default function VerificacionPage() {
                   </svg>
                 )}
               </span>
-              <span className="text-xs text-zinc-300 font-semibold">{CONTENT_DECLARATION.acceptance}</span>
+              <span className="text-xs text-zinc-300 font-semibold">{t("verificacion.contentDeclarationAcceptance")}</span>
             </button>
           </div>
         </div>
@@ -659,14 +591,14 @@ export default function VerificacionPage() {
       {step === 6 && (
         <div className="space-y-4">
           <PhotoField
-            label="Tomar foto con el documento"
+            label={t("verificacion.takeHoldingPhoto")}
             preview={previews.holding}
             capture="environment"
             onSelect={(f) => handleFile("holding", f)}
             disabled={busy}
           />
           <p className="text-xs text-zinc-500">
-            Sostén tu documento a la altura de tu rostro, con la cara visible y el documento legible.
+            {t("verificacion.holdingNote")}
           </p>
         </div>
       )}
@@ -674,46 +606,44 @@ export default function VerificacionPage() {
       {step === 7 && (
         <div className="space-y-4">
           <div className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-4">
-            <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-zinc-500">Resumen</p>
+            <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-zinc-500">{t("verificacion.summary")}</p>
             <dl className="space-y-2 text-xs">
               <div className="flex justify-between gap-4">
-                <dt className="text-zinc-500">Documento</dt>
+                <dt className="text-zinc-500">{t("verificacion.summaryDocument")}</dt>
                 <dd className="text-right text-white">
-                  {DOCUMENT_TYPES.find((d) => d.value === documentType)?.label ?? "—"}
+                  {documentType ? documentTypeLabel(t, documentType) : "—"}
                 </dd>
               </div>
               <div className="flex justify-between gap-4">
-                <dt className="text-zinc-500">Fecha de nacimiento</dt>
+                <dt className="text-zinc-500">{t("verificacion.summaryDob")}</dt>
                 <dd className="text-right text-white">
-                  {declaredDob ? new Date(declaredDob + "T00:00:00").toLocaleDateString("es-CO") : "—"}
+                  {declaredDob ? new Date(declaredDob + "T00:00:00").toLocaleDateString(locale) : "—"}
                 </dd>
               </div>
               <div className="flex justify-between gap-4">
-                <dt className="text-zinc-500">Selfie</dt>
-                <dd className="text-right text-white">{previews.selfie ? "Completada" : "Pendiente"}</dd>
+                <dt className="text-zinc-500">{t("verificacion.summarySelfie")}</dt>
+                <dd className="text-right text-white">{previews.selfie ? t("verificacion.completed") : t("verificacion.pending")}</dd>
               </div>
               <div className="flex justify-between gap-4">
-                <dt className="text-zinc-500">Foto con documento</dt>
-                <dd className="text-right text-white">{previews.holding ? "Completada" : "Pendiente"}</dd>
+                <dt className="text-zinc-500">{t("verificacion.summaryHolding")}</dt>
+                <dd className="text-right text-white">{previews.holding ? t("verificacion.completed") : t("verificacion.pending")}</dd>
               </div>
               <div className="flex justify-between gap-4">
-                <dt className="text-zinc-500">Consentimiento</dt>
-                <dd className="text-right text-white">{consentChecked ? "Aceptado" : "Pendiente"}</dd>
+                <dt className="text-zinc-500">{t("verificacion.summaryConsent")}</dt>
+                <dd className="text-right text-white">{consentChecked ? t("verificacion.accepted") : t("verificacion.pending")}</dd>
               </div>
               <div className="flex justify-between gap-4">
-                <dt className="text-zinc-500">Declaración de contenido</dt>
-                <dd className="text-right text-white">{declarationChecked ? "Aceptado" : "Pendiente"}</dd>
+                <dt className="text-zinc-500">{t("verificacion.summaryDeclaration")}</dt>
+                <dd className="text-right text-white">{declarationChecked ? t("verificacion.accepted") : t("verificacion.pending")}</dd>
               </div>
             </dl>
           </div>
           <p className="text-xs text-zinc-500">
-            Al enviar, tu solicitud quedará en revisión manual. Esto registra tu consentimiento y tu declaración de
-            contenido con fecha y hora.
+            {t("verificacion.submitNote")}
           </p>
           {(!consentChecked || !declarationChecked) && (
             <p className="text-xs text-amber-400">
-              Debes aceptar el consentimiento y la declaración de contenido en el paso 5 para poder enviar la
-              solicitud.
+              {t("verificacion.mustAcceptNote")}
             </p>
           )}
         </div>
@@ -727,7 +657,7 @@ export default function VerificacionPage() {
           disabled={step === 0 || busy}
           className="rounded-lg border border-zinc-800 px-4 py-1.5 text-sm text-zinc-300 transition-colors hover:border-zinc-600 disabled:opacity-50"
         >
-          Atrás
+          {t("verificacion.back")}
         </button>
         <button
           onClick={nextStep}
@@ -735,10 +665,10 @@ export default function VerificacionPage() {
           className="rounded-lg bg-blue-600 px-5 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
         >
           {busy
-            ? "Procesando..."
+            ? t("verificacion.processing")
             : step === 7
-              ? "Enviar solicitud"
-              : "Continuar"}
+              ? t("verificacion.submitRequest")
+              : t("verificacion.continue")}
         </button>
       </div>
     </>
@@ -796,8 +726,9 @@ function PhotoField({
 /* ------------------------------------------------------------------ */
 
 function AuditTimeline({ events }: { events: VerificationEvent[] }) {
+  const { t, locale } = useLanguage();
   if (events.length === 0) {
-    return <p className="text-xs text-zinc-600">Aún no hay eventos registrados.</p>;
+    return <p className="text-xs text-zinc-600">{t("verificacion.noEvents")}</p>;
   }
   return (
     <ul className="space-y-3">
@@ -806,10 +737,10 @@ function AuditTimeline({ events }: { events: VerificationEvent[] }) {
           <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-blue-500" />
           <div className="min-w-0">
             <p className="text-xs font-medium text-zinc-200">
-              {VERIFICATION_EVENT_LABELS[ev.event] ?? ev.event}
+              {t(`verificacion.events.${ev.event}`)}
             </p>
             <p className="text-[11px] text-zinc-500">
-              {new Date(ev.created_at).toLocaleString("es-CO")}
+              {new Date(ev.created_at).toLocaleString(locale)}
             </p>
           </div>
         </li>

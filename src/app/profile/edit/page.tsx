@@ -65,7 +65,7 @@ export default function EditProfilePage() {
         .upload(filePath, avatarFile, { upsert: true });
 
       if (uploadError) {
-        setError("Error al subir avatar: " + uploadError.message);
+        setError(t("profileEdit.avatarError") + ": " + uploadError.message);
         setSaving(false);
         return;
       }
@@ -128,7 +128,7 @@ export default function EditProfilePage() {
           <div className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-full bg-zinc-800">
             <img
               src={avatarPreview ?? profile.avatar_url ?? `https://ui-avatars.com/api/?name=${profile.display_name ?? profile.username ?? "user"}&background=6366f1&color=fff&size=80`}
-              alt="Avatar"
+              alt={t("profileEdit.avatarAlt")}
               className="h-full w-full object-cover"
             />
           </div>
@@ -198,12 +198,12 @@ export default function EditProfilePage() {
 
         {/* PayPal / Donation */}
         <div className="flex flex-col gap-1">
-          <label className="text-xs text-zinc-400">PayPal / link de donación</label>
+          <label className="text-xs text-zinc-400">{t("profileEdit.paypalLabel")}</label>
           <input
             type="text"
             value={paypalUrl}
             onChange={(e) => setPaypalUrl(e.target.value)}
-            placeholder="https://paypal.me/tu-usuario"
+            placeholder={t("profileEdit.paypalPlaceholder")}
             className="w-full bg-transparent px-0 py-2 text-sm text-white placeholder-zinc-500 outline-none caret-blue-500"
           />
         </div>

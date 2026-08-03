@@ -2,33 +2,30 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { createClient } from "@/lib/supabase/client";
-import { VERIFICATION_EVENT_LABELS } from "@/lib/verification";
 import type { CreatorVerification, Profile, VerificationEvent } from "@/types";
 
 interface RequestRow extends CreatorVerification {
   profile: Profile | null;
 }
 
-const DOCUMENT_TYPES: Record<string, string> = {
-  id_card: "Cédula de identidad",
-  passport: "Pasaporte",
-  driver_license: "Licencia de conducir",
-};
-
-const CHECKLIST = [
-  "1. Documento oficial cargado",
-  "2. Fecha de nacimiento cotejada con el documento",
-  "3. Selfie / prueba de vida",
-  "4. Comparación facial: la selfie coincide con el documento",
-  "5. Consentimiento y declaración registrados",
-  "6. Registro de auditoría completo",
-  "7. Foto sosteniendo el documento",
-  "8. Revisión manual completada",
-];
+function documentTypeLabel(t: <T = string>(key: string, params?: Record<string, string>) => T, value: string): string {
+  const key =
+    value === "id_card"
+      ? "idCard"
+      : value === "passport"
+        ? "passport"
+        : value === "driver_license"
+          ? "driverLicense"
+          : value;
+  return t(`verificacion.documentTypes.${key}`);
+}
 
 export default function AdminCreatorsPage() {
   const { profile, loading } = useAuth();
+  const { t, locale } = useLanguage();
+  const checklist = t<string[]>("admin.checklist");
   const supabase = useMemo(() => createClient(), []);
   const [requests, setRequests] = useState<RequestRow[]>([]);
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -52,7 +49,7 @@ export default function AdminCreatorsPage() {
       const nextChecks: Record<string, boolean[]> = {};
       const nextDobs: Record<string, string> = {};
       for (const r of rows) {
-        nextChecks[r.id] = new Array(CHECKLIST.length).fill(false);
+        nextChecks[r.id] = new Array(checklist.length).fill(false);
         nextDobs[r.id] = r.declared_dob ?? "";
       }
       setChecks(nextChecks);
@@ -109,7 +106,7 @@ export default function AdminCreatorsPage() {
       } else {
         payload.denialReason = denialReasons[row.id]?.trim();
         if (!payload.denialReason) {
-          alert("Escribe un motivo para denegar la solicitud.");
+          alert(t("admin.denialRequiredAlert"));
           return;
         }
       }
@@ -120,7 +117,7 @@ export default function AdminCreatorsPage() {
       });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
-        alert(err.error || "Error al procesar la solicitud");
+        alert(err.error || t("admin.processError"));
         return;
       }
       setRequests((prev) => prev.filter((r) => r.id !== row.id));
@@ -133,7 +130,7 @@ export default function AdminCreatorsPage() {
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-black pt-14">
-        <p className="text-zinc-400">Cargando...</p>
+        <p className="text-zinc-400">{t("common.loading")}</p>
       </div>
     );
   }
@@ -141,7 +138,7 @@ export default function AdminCreatorsPage() {
   if (!profile?.is_admin) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-black pt-14">
-        <p className="text-zinc-500">No tienes acceso a esta página.</p>
+        <p className="text-zinc-500">{t("admin.noAccess")}</p>
       </div>
     );
   }
@@ -149,10 +146,10 @@ export default function AdminCreatorsPage() {
   return (
     <div className="min-h-screen bg-black pt-14 pb-20">
       <div className="mx-auto max-w-lg px-4 py-6">
-        <h1 className="text-lg font-bold text-white mb-6">Solicitudes de verificación de creadores</h1>
+        <h1 className="text-lg font-bold text-white mb-6">{t("admin.title")}</h1>
 
         {requests.length === 0 ? (
-          <p className="text-sm text-zinc-500">No hay solicitudes pendientes.</p>
+          <p className="text-sm text-zinc-500">{t("admin.noPending")}</p>
         ) : (
           <div className="flex flex-col gap-3">
             {requests.map((req) => (
@@ -166,13 +163,13 @@ export default function AdminCreatorsPage() {
                 >
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-white truncate">
-                      {req.profile?.display_name ?? req.profile?.username ?? "Usuario"}
+                      {req.profile?.display_name ?? req.profile?.username ?? t("admin.userFallback")}
                     </p>
                     <p className="text-xs text-zinc-500">
                       @{req.profile?.username ?? "—"} &middot;{" "}
                       {req.submitted_at
-                        ? new Date(req.submitted_at).toLocaleDateString("es-CO")
-                        : new Date(req.created_at).toLocaleDateString("es-CO")}
+                        ? new Date(req.submitted_at).toLocaleDateString(locale)
+                        : new Date(req.created_at).toLocaleDateString(locale)}
                     </p>
                   </div>
                   <span className="shrink-0 text-xs text-zinc-600">
@@ -192,18 +189,18 @@ export default function AdminCreatorsPage() {
                                 type="button"
                                 onClick={() => setSelectedPhoto({ url, kind })}
                                 className="block w-full"
-                                title="Ampliar"
+                                title={t("admin.expandPhoto")}
                               >
                                 {/* eslint-disable-next-line @next/next/no-img-element */}
                                 <img
                                   src={url}
-                                  alt={kind}
+                                  alt={t(`admin.photoLabels.${kind}`)}
                                   className="h-24 w-full rounded-lg border border-zinc-800 object-cover transition-transform hover:scale-105 hover:border-blue-500"
                                 />
                               </button>
                             ) : (
                               <div className="flex h-24 w-full items-center justify-center rounded-lg border border-zinc-800 bg-zinc-950">
-                                <span className="text-[10px] text-zinc-600">Sin imagen</span>
+                                <span className="text-[10px] text-zinc-600">{t("admin.noImage")}</span>
                               </div>
                             )}
                           </div>
@@ -211,45 +208,45 @@ export default function AdminCreatorsPage() {
                       })}
                     </div>
                     <p className="mt-1 text-[10px] text-zinc-600">
-                      Documento &middot; Selfie &middot; Con documento
+                      {t("admin.photoLegend")}
                     </p>
 
                     <dl className="mt-3 space-y-1.5 text-xs">
                       <div className="flex justify-between gap-3">
-                        <dt className="text-zinc-500">Documento</dt>
+                        <dt className="text-zinc-500">{t("admin.documentLabel")}</dt>
                         <dd className="text-right text-zinc-200">
-                          {DOCUMENT_TYPES[req.document_type ?? ""] ?? req.document_type ?? "—"}
+                          {req.document_type ? documentTypeLabel(t, req.document_type) : "—"}
                         </dd>
                       </div>
                       <div className="flex justify-between gap-3">
-                        <dt className="text-zinc-500">Fecha de nacimiento declarada</dt>
+                        <dt className="text-zinc-500">{t("admin.declaredDobLabel")}</dt>
                         <dd className="text-right text-zinc-200">
                           {req.declared_dob
-                            ? new Date(req.declared_dob + "T00:00:00").toLocaleDateString("es-CO")
+                            ? new Date(req.declared_dob + "T00:00:00").toLocaleDateString(locale)
                             : "—"}
                         </dd>
                       </div>
                       <div className="flex justify-between gap-3">
-                        <dt className="text-zinc-500">Consentimiento</dt>
+                        <dt className="text-zinc-500">{t("admin.consentLabel")}</dt>
                         <dd className="text-right text-zinc-200">
                           {req.consent_biometric_at
-                            ? new Date(req.consent_biometric_at).toLocaleString("es-CO")
-                            : "No registrado"}
+                            ? new Date(req.consent_biometric_at).toLocaleString(locale)
+                            : t("admin.notRecorded")}
                         </dd>
                       </div>
                       <div className="flex justify-between gap-3">
-                        <dt className="text-zinc-500">Declaración de contenido</dt>
+                        <dt className="text-zinc-500">{t("admin.declarationLabel")}</dt>
                         <dd className="text-right text-zinc-200">
                           {req.content_declaration_at
-                            ? new Date(req.content_declaration_at).toLocaleString("es-CO")
-                            : "No registrada"}
+                            ? new Date(req.content_declaration_at).toLocaleString(locale)
+                            : t("admin.notRecordedDecl")}
                         </dd>
                       </div>
                     </dl>
 
                     <div className="mt-4">
                       <label className="mb-1 block text-xs font-medium text-zinc-300">
-                        Fecha de nacimiento verificada (cotejo con el documento)
+                        {t("admin.verifiedDobLabel")}
                       </label>
                       <input
                         type="date"
@@ -263,10 +260,10 @@ export default function AdminCreatorsPage() {
 
                     <div className="mt-4">
                       <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-zinc-500">
-                        Checklist de revisión
+                        {t("admin.checklistLabel")}
                       </p>
                       <div className="space-y-1.5">
-                        {CHECKLIST.map((item, i) => {
+                        {checklist.map((item, i) => {
                           const list = checks[req.id] ?? [];
                           const checked = list[i] ?? false;
                           return (
@@ -297,7 +294,7 @@ export default function AdminCreatorsPage() {
 
                     <div className="mt-4">
                       <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-zinc-500">
-                        Registro de auditoría
+                        {t("admin.auditLabel")}
                       </p>
                       <div className="max-h-40 space-y-2 overflow-y-auto rounded-lg border border-zinc-800 bg-zinc-950 p-3">
                         {detail[req.id]?.events.length ? (
@@ -306,22 +303,22 @@ export default function AdminCreatorsPage() {
                               <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-blue-500" />
                               <div className="min-w-0">
                                 <p className="text-[11px] text-zinc-300">
-                                  {VERIFICATION_EVENT_LABELS[ev.event] ?? ev.event}
+                                  {t(`verificacion.events.${ev.event}`)}
                                 </p>
                                 <p className="text-[10px] text-zinc-600">
-                                  {new Date(ev.created_at).toLocaleString("es-CO")}
+                                  {new Date(ev.created_at).toLocaleString(locale)}
                                 </p>
                               </div>
                             </div>
                           ))
                         ) : (
-                          <p className="text-[11px] text-zinc-600">Sin eventos registrados.</p>
+                          <p className="text-[11px] text-zinc-600">{t("admin.noEvents")}</p>
                         )}
                       </div>
                     </div>
 
                     {processing === req.id ? (
-                      <p className="mt-4 text-sm text-blue-400">Procesando...</p>
+                      <p className="mt-4 text-sm text-blue-400">{t("admin.processing")}</p>
                     ) : (
                       <div className="mt-4 space-y-3">
                         <div>
@@ -330,7 +327,7 @@ export default function AdminCreatorsPage() {
                             onChange={(e) =>
                               setDenialReasons((prev) => ({ ...prev, [req.id]: e.target.value }))
                             }
-                            placeholder="Motivo de denegación (obligatorio si se deniega)"
+                            placeholder={t("admin.denialPlaceholder")}
                             rows={2}
                             className="w-full resize-none rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm text-white placeholder-zinc-600 outline-none focus:border-red-500"
                           />
@@ -341,18 +338,18 @@ export default function AdminCreatorsPage() {
                             disabled={(checks[req.id] ?? []).some((c) => !c)}
                             className="flex-1 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-emerald-700 disabled:opacity-50"
                           >
-                            Aprobar
+                            {t("admin.approve")}
                           </button>
                           <button
                             onClick={() => handleDecision(req, "denied")}
                             disabled={!(denialReasons[req.id]?.trim())}
                             className="flex-1 rounded-lg bg-red-600 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-red-700 disabled:opacity-50"
                           >
-                            Denegar
+                            {t("admin.deny")}
                           </button>
                         </div>
                         <p className="text-[10px] text-zinc-600">
-                          El checklist completo es obligatorio para aprobar.
+                          {t("admin.checklistRequired")}
                         </p>
                       </div>
                     )}
@@ -367,7 +364,7 @@ export default function AdminCreatorsPage() {
       {selectedPhoto && (
         <PhotoModal
           src={selectedPhoto.url}
-          label={PHOTO_LABELS[selectedPhoto.kind] ?? "Foto"}
+          label={t(`admin.photoLabels.${selectedPhoto.kind}`)}
           onClose={() => setSelectedPhoto(null)}
         />
       )}
@@ -377,13 +374,8 @@ export default function AdminCreatorsPage() {
 
 /* ------------------------------------------------------------------ */
 
-const PHOTO_LABELS: Record<string, string> = {
-  document: "Documento oficial",
-  selfie: "Selfie",
-  holding: "Foto sosteniendo el documento",
-};
-
 function PhotoModal({ src, label, onClose }: { src: string; label: string; onClose: () => void }) {
+  const { t } = useLanguage();
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
@@ -399,7 +391,7 @@ function PhotoModal({ src, label, onClose }: { src: string; label: string; onClo
     >
       <button
         onClick={onClose}
-        aria-label="Cerrar"
+        aria-label={t("admin.close")}
         className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full bg-zinc-800 text-zinc-300 transition-colors hover:bg-zinc-700 hover:text-white"
       >
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

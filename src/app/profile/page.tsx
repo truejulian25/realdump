@@ -111,7 +111,7 @@ export default function ProfilePage() {
         <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-full bg-zinc-800">
           <img
             src={avatarSrc}
-            alt="Perfil"
+            alt={t("profile.altProfile")}
             className="h-full w-full object-cover"
           />
         </div>
@@ -168,13 +168,13 @@ export default function ProfilePage() {
       {isPending && (
         <div className="flex flex-col items-center gap-3 py-12 px-4 text-center">
           <p className="text-sm text-zinc-400">
-            Tu solicitud para ser creador está pendiente de aprobación.
+            {t("profile.requestPending")}
           </p>
           <Link
             href="/verificacion"
             className="rounded-lg bg-blue-600 px-5 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700"
           >
-            Continuar con mi verificación
+            {t("profile.continueVerification")}
           </Link>
         </div>
       )}
@@ -182,14 +182,14 @@ export default function ProfilePage() {
       {!isCreator && !isPending && (
         <div className="flex flex-col items-center gap-3 py-12 px-4 text-center">
           <p className="text-sm text-zinc-400">
-            Aún no eres creador. Solicita convertirte en creador para empezar a subir videos.
+            {t("profile.notCreatorYet")}
           </p>
           <button
             onClick={handleRequestCreator}
             disabled={requestLoading || requestSent}
             className="rounded-lg bg-blue-600 px-5 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
           >
-            {requestLoading ? "Enviando..." : requestSent ? "Solicitud enviada" : "Solicitar ser creador"}
+            {requestLoading ? t("profile.sending") : requestSent ? t("profile.requestSent") : t("profile.requestCreator")}
           </button>
         </div>
       )}

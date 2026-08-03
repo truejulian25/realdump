@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { useParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import type { Video, Profile } from "@/types";
 import { Heart } from "@phosphor-icons/react";
 import ProfileVideoCard from "@/components/ProfileVideoCard";
@@ -15,6 +16,7 @@ import { useFollowToggle, useFollowerCount, useFollowingCount } from "@/hooks/us
 export default function UserPage() {
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
+  const { t } = useLanguage();
   const supabase = useMemo(() => createClient(), []);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [profileLoading, setProfileLoading] = useState(true);
@@ -128,7 +130,7 @@ export default function UserPage() {
   if (profileLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-black pt-14">
-        <p className="text-zinc-400">Cargando...</p>
+        <p className="text-zinc-400">{t("common.loading")}</p>
       </div>
     );
   }
@@ -136,7 +138,7 @@ export default function UserPage() {
   if (!profile) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-black pt-14">
-        <p className="text-zinc-500">Usuario no encontrado</p>
+        <p className="text-zinc-500">{t("user.notFound")}</p>
       </div>
     );
   }
@@ -147,12 +149,12 @@ export default function UserPage() {
         <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-full bg-zinc-800">
           <img
             src={avatarSrc}
-            alt="Perfil"
+            alt={t("user.altProfile")}
             className="h-full w-full object-cover"
           />
         </div>
 
-        <h1 className="text-lg font-black text-white">{profile.display_name ?? "Sin nombre"}</h1>
+        <h1 className="text-lg font-black text-white">{profile.display_name ?? t("profile.noName")}</h1>
 
         <p className="text-sm text-zinc-500">@{profile.username}</p>
 
@@ -187,7 +189,7 @@ export default function UserPage() {
                   : "border-blue-500 text-blue-500 hover:bg-blue-500/10"
               }`}
             >
-              {isFollowing ? "Siguiendo" : "Seguir"}
+              {isFollowing ? t("common.following") : t("common.follow")}
             </button>
 
             {paypalHref && (
@@ -198,7 +200,7 @@ export default function UserPage() {
                 className="flex items-center gap-1.5 rounded-lg border border-blue-500 px-4 py-1.5 text-sm font-medium text-blue-500 transition-colors hover:bg-blue-500/10"
               >
                 <Heart size={16} weight="fill" />
-                Donar
+                {t("user.donate")}
               </a>
             )}
           </div>
@@ -207,15 +209,15 @@ export default function UserPage() {
         <div className="flex items-center gap-8 text-center">
           <div>
             <p className="text-lg font-bold text-white">{videos.length}</p>
-            <p className="text-sm text-zinc-500">Videos</p>
+            <p className="text-sm text-zinc-500">{t("user.videos")}</p>
           </div>
           <div>
             <p className="text-lg font-bold text-white">{followerCount}</p>
-            <p className="text-sm text-zinc-500">Seguidores</p>
+            <p className="text-sm text-zinc-500">{t("user.followers")}</p>
           </div>
           <div>
             <p className="text-lg font-bold text-white">{followingCount}</p>
-            <p className="text-sm text-zinc-500">Siguiendo</p>
+            <p className="text-sm text-zinc-500">{t("user.following")}</p>
           </div>
         </div>
       </div>
@@ -223,7 +225,7 @@ export default function UserPage() {
       {videosLoading ? (
         <ProfileGridSkeleton />
       ) : videos.length === 0 ? (
-        <p className="py-8 text-center text-zinc-500">Sin videos</p>
+        <p className="py-8 text-center text-zinc-500">{t("user.noVideos")}</p>
       ) : (
         <div className="grid grid-cols-3 gap-0.5 p-0.5">
           {videos.map((video) => (

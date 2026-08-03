@@ -6,6 +6,7 @@ import { useQueryClient, InfiniteData } from "@tanstack/react-query";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { useFollowToggle } from "@/hooks/useFollow";
 import { toast } from "sonner";
 import MuxVideoPlayer from "./MuxVideoPlayer";
@@ -68,6 +69,7 @@ interface VideoSlideProps {
 
 function VideoSlide({ video, index, currentIndex, selectedIndex, hasScrolled, profile }: VideoSlideProps) {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const { isFollowing, toggling, toggle: toggleFollow } = useFollowToggle(video.user_id);
   const isSelf = user?.id === video.user_id;
   const isNearby = Math.abs(index - currentIndex) <= 3;
@@ -163,7 +165,7 @@ function VideoSlide({ video, index, currentIndex, selectedIndex, hasScrolled, pr
               <button
                 onClick={(e) => { e.stopPropagation(); setMuted(p => !p); }}
                 className="absolute bottom-3 right-3 z-20 flex h-9 w-9 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur-sm transition-colors hover:bg-black/70"
-                aria-label={muted ? "Activar sonido" : "Silenciar"}
+                aria-label={muted ? t("common.unmute") : t("common.mute")}
               >
                 {muted ? (
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -198,7 +200,7 @@ function VideoSlide({ video, index, currentIndex, selectedIndex, hasScrolled, pr
                         </span>
                       )}
                     </div>
-                    <p className="text-sm font-semibold text-white">{profile.username ?? "usuario"}</p>
+                    <p className="text-sm font-semibold text-white">{profile.username ?? t("common.usernameAlt")}</p>
                   </Link>
                   {!isSelf && (
                     <button
@@ -210,7 +212,7 @@ function VideoSlide({ video, index, currentIndex, selectedIndex, hasScrolled, pr
                           : "border-blue-500 text-blue-500 hover:bg-blue-500/10"
                       }`}
                     >
-                      {isFollowing ? "Siguiendo" : "Seguir"}
+                      {isFollowing ? t("common.following") : t("common.follow")}
                     </button>
                   )}
                 </div>
@@ -245,6 +247,7 @@ interface Props {
 
 export default function ProfileVideoOverlay({ video, allVideos, open, onClose, onLoadMore }: Props) {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const router = useRouter();
   const supabaseRef = useRef(createClient());
   const containerRef = useRef<HTMLDivElement>(null);
@@ -334,7 +337,7 @@ export default function ProfileVideoOverlay({ video, allVideos, open, onClose, o
   }, [activeVideos.length, onLoadMore]);
 
   const handleDeleteVideo = useCallback(async (videoId: string) => {
-    if (!window.confirm("¿Estás seguro de eliminar esta publicación?")) return;
+    if (!window.confirm(t("common.deleteConfirm"))) return;
     queryClient.setQueryData<InfiniteData<VideoWithProfile[]>>(["videos", "feed"], (old) => {
       if (!old) return old;
       return {
@@ -346,18 +349,18 @@ export default function ProfileVideoOverlay({ video, allVideos, open, onClose, o
       const res = await fetch(`/api/videos/${videoId}`, { method: "DELETE" });
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
-        throw new Error(body.error || "Error al eliminar");
+        throw new Error(body.error || t("common.deleteError"));
       }
       queryClient.invalidateQueries({ queryKey: ["videos", "profile"] });
       queryClient.invalidateQueries({ queryKey: ["videos", "publicaciones"] });
       onClose();
     } catch (e) {
-      const message = e instanceof Error ? e.message : "Error desconocido";
+      const message = e instanceof Error ? e.message : t("common.unknownError");
       toast.error(message);
       queryClient.invalidateQueries({ queryKey: ["videos", "feed"] });
       console.error("Error al eliminar video:", e);
     }
-  }, [queryClient, onClose]);
+  }, [queryClient, onClose, t]);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -421,7 +424,7 @@ export default function ProfileVideoOverlay({ video, allVideos, open, onClose, o
             <button
               onClick={onClose}
               className="flex h-9 w-9 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur-sm transition-colors hover:bg-black/60"
-              aria-label="Volver"
+              aria-label={t("common.back")}
             >
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="19" y1="12" x2="5" y2="12" />

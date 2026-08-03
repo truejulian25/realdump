@@ -225,35 +225,35 @@ function MainMenu({ onSelect, onClose }: {
         <MenuRow icon={<IconBarChart />} label={t("hamburgerMenu.stats")} href="/profile/stats" />
         <MenuRow icon={<IconUserX />} label={t("hamburgerMenu.blocked")} href="/profile/blocked" />
         <MenuRow icon={<IconFilter />} label={t("hamburgerMenu.filters")} onClick={() => onSelect("filters")} />
-        <MenuRow icon={<IconFileText />} label="Centro Legal" href="/terms" />
+        <MenuRow icon={<IconFileText />} label={t("hamburgerMenu.terms")} href="/terms" />
         <MenuRow icon={<IconLock />} label={t("hamburgerMenu.changePassword")} onClick={() => onSelect("changePassword")} />
 
         {isCreator && (
           <>
             <MenuRow
               icon={<span className="text-red-400"><IconUserX /></span>}
-              label="Dejar de ser creador"
+              label={t("hamburgerMenu.leaveCreator")}
               onClick={() => setShowRevokeConfirm(true)}
               hasArrow={false}
             />
 
             {showRevokeConfirm && (
               <div className="mx-4 mt-1 rounded-lg border border-red-800 bg-red-900/20 p-3">
-                <p className="text-sm text-zinc-200">¿Dejar de ser creador?</p>
-                <p className="mt-1 text-xs text-zinc-400">Tus videos seguirán publicados pero no podrás subir nuevos.</p>
+                <p className="text-sm text-zinc-200">{t("hamburgerMenu.leaveCreatorConfirm")}</p>
+                <p className="mt-1 text-xs text-zinc-400">{t("hamburgerMenu.leaveCreatorDesc")}</p>
                 <div className="mt-3 flex gap-2">
                   <button
                     onClick={() => setShowRevokeConfirm(false)}
                     className="flex-1 rounded bg-zinc-800 py-1.5 text-xs text-white transition-colors hover:bg-zinc-700"
                   >
-                    Cancelar
+                    {t("hamburgerMenu.cancel")}
                   </button>
                   <button
                     onClick={handleRevokeCreator}
                     disabled={revoking}
                     className="flex-1 rounded bg-red-600 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-red-700 disabled:opacity-50"
                   >
-                    {revoking ? "Cambiando..." : "Sí, dejar de ser creador"}
+                    {revoking ? t("hamburgerMenu.changing") : t("hamburgerMenu.confirmLeaveCreator")}
                   </button>
                 </div>
               </div>
@@ -266,7 +266,7 @@ function MainMenu({ onSelect, onClose }: {
         {isViewer && (
           <MenuRow
             icon={<span className="text-blue-400"><IconUserPlus /></span>}
-            label={requestSent ? "Solicitud enviada" : requestLoading ? "Enviando..." : "Solicitar ser creador"}
+            label={requestSent ? t("hamburgerMenu.requestSent") : requestLoading ? t("hamburgerMenu.sending") : t("hamburgerMenu.requestCreator")}
             onClick={requestSent || requestLoading ? undefined : handleRequestCreator}
             hasArrow={false}
           />
@@ -275,7 +275,7 @@ function MainMenu({ onSelect, onClose }: {
         {isPending && (
           <MenuRow
             icon={<span className="text-amber-400"><IconClock /></span>}
-            label="Creador — Pendiente"
+            label={t("hamburgerMenu.creatorPending")}
             hasArrow={false}
           />
         )}
@@ -283,7 +283,7 @@ function MainMenu({ onSelect, onClose }: {
         {isAdmin && (
           <MenuRow
             icon={<span className="text-emerald-400"><IconShieldCheck /></span>}
-            label="Admin: Solicitudes"
+            label={t("hamburgerMenu.adminRequests")}
             href="/admin/creators"
           />
         )}
@@ -312,23 +312,36 @@ function ViewHeader({ title, onBack }: { title: string; onBack: () => void }) {
 /* ------------------------------------------------------------------ */
 
 function LanguageView({ onBack }: { onBack: () => void }) {
-  const { t, locale, setLocale } = useLanguage();
+  const { t, locale, mode, setLocale, resetToAuto } = useLanguage();
 
   return (
     <>
       <ViewHeader title={t("hamburgerMenu.language")} onBack={onBack} />
       <div className="flex-1 px-4 py-4">
+        <button
+          onClick={resetToAuto}
+          className={`flex w-full items-center gap-3 px-4 py-3 text-left transition-colors ${mode === "auto" ? "bg-blue-500/10" : "hover:bg-zinc-800"}`}
+        >
+          <div className="flex-1">
+            <p className="text-sm font-medium text-white">{t("hamburgerMenu.autoLanguage")}</p>
+            <p className="text-xs text-zinc-500">{t("hamburgerMenu.autoLanguageDesc")}</p>
+          </div>
+          {mode === "auto" && (
+            <span className="text-blue-400"><IconCheck /></span>
+          )}
+        </button>
+        <div className="my-3 border-t border-zinc-800" />
         {availableLanguages.map((lang) => (
           <button
             key={lang.code}
             onClick={() => setLocale(lang.code)}
-            className={`flex w-full items-center gap-3 px-4 py-3 text-left transition-colors ${locale === lang.code ? "bg-blue-500/10" : "hover:bg-zinc-800"}`}
+            className={`flex w-full items-center gap-3 px-4 py-3 text-left transition-colors ${mode === "manual" && locale === lang.code ? "bg-blue-500/10" : "hover:bg-zinc-800"}`}
           >
             <div className="flex-1">
               <p className="text-sm font-medium text-white">{lang.nativeName}</p>
               <p className="text-xs text-zinc-500">{lang.englishName}</p>
             </div>
-            {locale === lang.code && (
+            {mode === "manual" && locale === lang.code && (
               <span className="text-blue-400"><IconCheck /></span>
             )}
           </button>

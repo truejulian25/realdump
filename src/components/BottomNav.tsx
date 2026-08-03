@@ -44,6 +44,7 @@ export default function BottomNav() {
 }
 
 function ProfileIcon({ profile }: { profile?: { avatar_url?: string | null; display_name?: string | null } | null }) {
+  const { t } = useLanguage();
   const src = profile?.avatar_url
     ?? `https://ui-avatars.com/api/?name=${profile?.display_name ?? "user"}&background=6366f1&color=fff&size=24`;
 
@@ -51,7 +52,7 @@ function ProfileIcon({ profile }: { profile?: { avatar_url?: string | null; disp
     <div className="h-6 w-6 overflow-hidden rounded-full border border-zinc-500 bg-zinc-700">
       <img
         src={src}
-        alt="Perfil"
+        alt={t("bottomNav.profile")}
         className="h-full w-full object-cover"
       />
     </div>

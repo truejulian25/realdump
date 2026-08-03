@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, useMemo, useCallback, startTransition } fr
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import type { Video } from "@/types";
 import ProfileVideoCard from "@/components/ProfileVideoCard";
 import ProfileVideoOverlay from "@/components/ProfileVideoOverlay";
@@ -27,6 +28,7 @@ type SearchType = "exact" | "partial" | "recommended";
 
 export default function SearchPage() {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const [query, setQuery] = useState("");
   const [profiles, setProfiles] = useState<ProfileResult[]>([]);
   const [videos, setVideos] = useState<VideoWithProfile[]>([]);
@@ -314,7 +316,7 @@ export default function SearchPage() {
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Buscar perfiles o videos..."
+            placeholder={t("search.placeholder")}
             className="w-full bg-transparent py-2.5 pl-10 pr-10 text-sm text-white placeholder-zinc-500 outline-none caret-blue-500"
           />
           {query && (
@@ -334,14 +336,14 @@ export default function SearchPage() {
       <div className="flex-1 px-4 py-4">
         {loading && hasActiveSearch ? (
           <div className="flex items-center justify-center py-20">
-            <p className="text-zinc-400">Buscando...</p>
+            <p className="text-zinc-400">{t("search.searching")}</p>
           </div>
         ) : !hasActiveSearch ? (
           <div className="py-4">
             {!recsLoading && recommendedVideos.length > 0 && (
               <div className="mb-6">
                 <h2 className="mb-3 text-sm font-semibold text-zinc-400 uppercase tracking-wider">
-                  Recomendados
+                  {t("search.recommended")}
                 </h2>
                 <div className="grid grid-cols-3 gap-0.5">
                   {recommendedVideos.map((video) => (
@@ -366,7 +368,7 @@ export default function SearchPage() {
               </>
             ) : recsLoading ? (
               <div className="flex items-center justify-center py-20">
-                <p className="text-zinc-400">Cargando...</p>
+                <p className="text-zinc-400">{t("common.loading")}</p>
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center gap-3 py-20 text-zinc-500">
@@ -374,20 +376,20 @@ export default function SearchPage() {
                   <circle cx="11" cy="11" r="8" />
                   <line x1="21" y1="21" x2="16.65" y2="16.65" />
                 </svg>
-                <p className="text-sm">No hay videos disponibles</p>
+                <p className="text-sm">{t("search.noVideosAvailable")}</p>
               </div>
             )}
           </div>
         ) : (
           <>
             {searchType === "partial" && (
-              <p className="mb-4 text-sm text-zinc-500">Quizás quisiste decir:</p>
+              <p className="mb-4 text-sm text-zinc-500">{t("search.didYouMean")}</p>
             )}
 
             {profiles.length > 0 && (
               <div className="mb-6">
                 <h2 className="mb-3 text-sm font-semibold text-zinc-400 uppercase tracking-wider">
-                  Perfiles
+                  {t("search.profiles")}
                 </h2>
                 <div className="flex flex-col gap-2">
                   {profiles.map((p) => (
@@ -402,13 +404,13 @@ export default function SearchPage() {
                             p.avatar_url ??
                             `https://ui-avatars.com/api/?name=${p.display_name ?? p.username ?? "user"}&background=6366f1&color=fff&size=40`
                           }
-                          alt={p.username ?? "usuario"}
+                          alt={p.username ?? t("common.usernameAlt")}
                           className="h-full w-full object-cover"
                         />
                       </div>
                       <div className="flex flex-col">
                         <span className="text-sm font-semibold text-white">
-                          {p.display_name ?? "Sin nombre"}
+                          {p.display_name ?? t("profile.noName")}
                         </span>
                         <span className="text-xs text-zinc-500">@{p.username}</span>
                       </div>
@@ -422,7 +424,7 @@ export default function SearchPage() {
               <div>
                 {profiles.length > 0 && (
                   <h2 className="mb-3 text-sm font-semibold text-zinc-400 uppercase tracking-wider">
-                    Videos
+                    {t("search.videosLabel")}
                   </h2>
                 )}
                 <div className="grid grid-cols-3 gap-0.5">
@@ -439,7 +441,7 @@ export default function SearchPage() {
                   <circle cx="11" cy="11" r="8" />
                   <line x1="21" y1="21" x2="16.65" y2="16.65" />
                 </svg>
-                <p className="text-sm">No hay contenido disponible</p>
+                <p className="text-sm">{t("search.noContentAvailable")}</p>
               </div>
             )}
           </>

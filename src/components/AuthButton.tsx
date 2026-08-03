@@ -1,10 +1,12 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { createClient } from "@/lib/supabase/client";
 
 export default function AuthButton({ email, avatarUrl }: { email: string | null; avatarUrl?: string | null }) {
   const router = useRouter();
+  const { t } = useLanguage();
   const supabase = createClient();
 
   const handleLogout = async () => {
@@ -22,7 +24,7 @@ export default function AuthButton({ email, avatarUrl }: { email: string | null;
       <div className="flex h-7 w-7 items-center justify-center overflow-hidden rounded-full bg-zinc-700">
         <img
           src={avatarUrl ?? `https://ui-avatars.com/api/?name=${email}&background=6366f1&color=fff&size=28`}
-          alt="Avatar"
+          alt={t("profileEdit.avatarAlt")}
           className="h-full w-full object-cover"
         />
       </div>
@@ -30,7 +32,7 @@ export default function AuthButton({ email, avatarUrl }: { email: string | null;
         onClick={handleLogout}
         className="rounded bg-zinc-800 px-3 py-1 text-sm text-white hover:bg-zinc-700"
       >
-        Cerrar sesión
+        {t("hamburgerMenu.logout")}
       </button>
     </div>
   );

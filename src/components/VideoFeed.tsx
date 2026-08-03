@@ -3,6 +3,7 @@
 import { useRef, useEffect, useCallback, useState, useMemo } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { useVideoFeed } from "@/hooks/useVideos";
 import { toast } from "sonner";
 import type { Video } from "@/types";
@@ -22,9 +23,9 @@ interface VideoWithProfile extends Video {
   } | null;
 }
 
-const formatDate = (dateStr: string) => {
+const formatDate = (dateStr: string, locale: string) => {
   const date = new Date(dateStr);
-  return date.toLocaleDateString("es-CO", {
+  return date.toLocaleDateString(locale, {
     year: "numeric",
     month: "long",
     day: "numeric",
@@ -48,6 +49,7 @@ function VideoCard({
   onReport: (videoId: string) => void;
   onCenter: (index: number) => void;
 }) {
+  const { t, locale } = useLanguage();
   const playerContainerRef = useRef<HTMLDivElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
 
@@ -72,7 +74,7 @@ function VideoCard({
     <div ref={cardRef} className="flex w-full flex-col pb-5">
       <ProfileRow
         header
-        username={video.profiles?.username ?? "usuario"}
+        username={video.profiles?.username ?? t("common.usernameAlt")}
         avatarUrl={video.profiles?.avatar_url}
         userId={video.user_id}
       />
@@ -109,7 +111,7 @@ function VideoCard({
             {video.hashtags.map((h) => h.startsWith("#") ? h : `#${h}`).join(" ")}
           </p>
         )}
-        <p className="text-xs text-zinc-500">{formatDate(video.created_at)}</p>
+        <p className="text-xs text-zinc-500">{formatDate(video.created_at, locale)}</p>
       </div>
     </div>
   );
@@ -123,6 +125,7 @@ export default function VideoFeed() {
   } = useVideoFeed();
 
   const { user } = useAuth();
+  const { t } = useLanguage();
   const queryClient = useQueryClient();
 
   const items: VideoWithProfile[] = useMemo(() => data ?? [], [data]);
@@ -133,7 +136,7 @@ export default function VideoFeed() {
   const handleCenter = useCallback((index: number) => setActiveIndex(index), []);
 
   const handleDeleteVideo = useCallback(async (videoId: string) => {
-    if (!window.confirm("¿Estás seguro de eliminar esta publicación?")) return;
+    if (!window.confirm(t("common.deleteConfirm"))) return;
     queryClient.setQueryData<VideoWithProfile[]>(["videos", "feed"], (old) => {
       if (!old) return old;
       return old.filter((v) => v.id !== videoId);
@@ -142,15 +145,15 @@ export default function VideoFeed() {
       const res = await fetch(`/api/videos/${videoId}`, { method: "DELETE" });
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
-        throw new Error(body.error || "Error al eliminar");
+        throw new Error(body.error || t("common.deleteError"));
       }
     } catch (e) {
-      const message = e instanceof Error ? e.message : "Error desconocido";
+      const message = e instanceof Error ? e.message : t("common.unknownError");
       toast.error(message);
       queryClient.invalidateQueries({ queryKey: ["videos", "feed"] });
       console.error("Error al eliminar video:", e);
     }
-  }, [queryClient]);
+  }, [queryClient, t]);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -188,7 +191,7 @@ export default function VideoFeed() {
   if (isError) {
     return (
       <div className="flex h-screen items-center justify-center bg-black pt-14 pb-20">
-        <p className="text-red-400">Error al cargar videos</p>
+        <p className="text-red-400">{t("feed.errorLoading")}</p>
       </div>
     );
   }
@@ -196,7 +199,7 @@ export default function VideoFeed() {
   if (items.length === 0) {
     return (
       <div className="flex h-screen items-center justify-center bg-black pt-14 pb-20">
-        <p className="text-zinc-400">No hay videos aún</p>
+        <p className="text-zinc-400">{t("feed.noVideosYet")}</p>
       </div>
     );
   }

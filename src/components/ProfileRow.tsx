@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { useFollowToggle } from "@/hooks/useFollow";
 
 interface Props {
@@ -13,6 +14,7 @@ interface Props {
 
 export default function ProfileRow({ username, avatarUrl, header, userId }: Props) {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const { isFollowing, toggling, toggle } = useFollowToggle(userId);
   const isSelf = user?.id === userId;
 
@@ -58,7 +60,7 @@ export default function ProfileRow({ username, avatarUrl, header, userId }: Prop
                 : "border-blue-500 text-blue-500"
             }`}
           >
-            {isFollowing ? "Siguiendo" : "Seguir"}
+            {isFollowing ? t("common.following") : t("common.follow")}
           </button>
         )}
       </div>
@@ -93,7 +95,7 @@ export default function ProfileRow({ username, avatarUrl, header, userId }: Prop
                 : "border-blue-500 text-blue-500"
             }`}
           >
-            {isFollowing ? "Siguiendo" : "Seguir"}
+            {isFollowing ? t("common.following") : t("common.follow")}
           </button>
         )}
       </div>

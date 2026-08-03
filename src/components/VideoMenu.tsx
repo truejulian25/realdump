@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState, useCallback, useEffect } from "react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface Props {
   videoId: string;
@@ -11,6 +12,7 @@ interface Props {
 }
 
 export default function VideoMenu({ videoId, onReport, isOwner, onEdit, onDelete }: Props) {
+  const { t } = useLanguage();
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -61,7 +63,7 @@ export default function VideoMenu({ videoId, onReport, isOwner, onEdit, onDelete
       <button
         onClick={(e) => { e.stopPropagation(); setOpen(!open); }}
         className="flex h-8 w-8 items-center justify-center rounded-full bg-black/40 text-white transition-colors hover:bg-black/60"
-        aria-label="Más opciones"
+        aria-label={t("videoMenu.moreOptions")}
       >
         <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
           <circle cx="12" cy="5" r="2" />
@@ -80,7 +82,7 @@ export default function VideoMenu({ videoId, onReport, isOwner, onEdit, onDelete
               <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
               <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
             </svg>
-            Copiar enlace
+            {t("videoMenu.copyLink")}
           </button>
           {isOwner ? (
             <>
@@ -92,7 +94,7 @@ export default function VideoMenu({ videoId, onReport, isOwner, onEdit, onDelete
                   <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
                   <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
                 </svg>
-                Editar
+                {t("videoMenu.edit")}
               </button>
               <button
                 onClick={handleDelete}
@@ -102,7 +104,7 @@ export default function VideoMenu({ videoId, onReport, isOwner, onEdit, onDelete
                   <polyline points="3 6 5 6 21 6" />
                   <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
                 </svg>
-                Eliminar
+                {t("videoMenu.delete")}
               </button>
             </>
           ) : (
@@ -115,7 +117,7 @@ export default function VideoMenu({ videoId, onReport, isOwner, onEdit, onDelete
                 <line x1="12" y1="9" x2="12" y2="13" />
                 <line x1="12" y1="17" x2="12.01" y2="17" />
               </svg>
-              Reportar video
+              {t("videoMenu.reportVideo")}
             </button>
           )}
         </div>

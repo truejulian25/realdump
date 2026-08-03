@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import { Geist, Geist_Mono } from "next/font/google";
 import Header from "@/components/Header";
 import BottomNav from "@/components/BottomNav";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
+import { countryToLocale } from "@/lib/locales";
 import QueryProvider from "@/components/QueryProvider";
 import { Toaster } from "sonner";
 import "./globals.css";
@@ -23,19 +25,23 @@ export const metadata: Metadata = {
   description: "Comparte videos cortos",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const h = await headers();
+  const country = h.get("x-vercel-ip-country") ?? null;
+  const detectedLocale = countryToLocale(country) ?? "en";
+
   return (
     <html
-      lang="es"
+      lang={detectedLocale}
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased bg-black`}
     >
       <body className="min-h-full overflow-x-hidden bg-black text-white">
         <AuthProvider>
-          <LanguageProvider>
+          <LanguageProvider initialCountry={country}>
             <QueryProvider>
               <Header />
               {children}

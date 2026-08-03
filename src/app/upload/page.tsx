@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useRef, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { createClient } from "@/lib/supabase/client";
 
 const POLL_INTERVAL = 2000;
@@ -17,6 +18,7 @@ export default function UploadPage() {
   const { user, profile, loading: authLoading } = useAuth();
   const router = useRouter();
   const supabase = createClient();
+  const { t } = useLanguage();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [videoFile, setVideoFile] = useState<File | null>(null);
@@ -34,12 +36,12 @@ export default function UploadPage() {
     if (!file) return;
 
     if (!file.type.startsWith("video/")) {
-      setError("Solo se permiten archivos de video");
+      setError(t("upload.errorNotVideo"));
       return;
     }
 
     if (file.size > 500 * 1024 * 1024) {
-      setError("El video no puede superar los 500MB");
+      setError(t("upload.errorTooLarge"));
       return;
     }
 
@@ -54,20 +56,20 @@ export default function UploadPage() {
 
     setUploading(true);
     setError(null);
-    setUploadStatus("Preparando subida...");
+    setUploadStatus(t("upload.preparing"));
 
     try {
       // 1. Create Mux upload URL
-      setUploadStatus("Obteniendo URL de subida...");
+      setUploadStatus(t("upload.gettingUrl"));
       const uploadResp = await fetch("/api/mux/upload", { method: "POST" });
       if (!uploadResp.ok) {
         const err = await uploadResp.json();
-        throw new Error(err.error || "Error al crear upload");
+        throw new Error(err.error || t("upload.createUploadError"));
       }
       const { uploadUrl, uploadId } = await uploadResp.json();
 
       // 2. Upload file directly to Mux
-      setUploadStatus("Subiendo video a Mux...");
+      setUploadStatus(t("upload.uploadingToMux"));
       const fileResp = await fetch(uploadUrl, {
         method: "PUT",
         body: videoFile,
@@ -75,11 +77,11 @@ export default function UploadPage() {
       });
 
       if (!fileResp.ok) {
-        throw new Error("Error al subir el archivo a Mux");
+        throw new Error(t("upload.uploadFileError"));
       }
 
       // 3. Poll for asset creation
-      setUploadStatus("Procesando video...");
+      setUploadStatus(t("upload.processing"));
       let assetId: string | null = null;
 
       for (let i = 0; i < MAX_POLLS; i++) {
@@ -94,11 +96,11 @@ export default function UploadPage() {
       }
 
       if (!assetId) {
-        throw new Error("El video tardó demasiado en procesarse. Intenta de nuevo.");
+        throw new Error(t("upload.timeoutError"));
       }
 
       // 4. Poll for playback ID
-      setUploadStatus("Generando playback...");
+      setUploadStatus(t("upload.generatingPlayback"));
       let playbackId: string | null = null;
 
       for (let i = 0; i < MAX_POLLS; i++) {
@@ -113,11 +115,11 @@ export default function UploadPage() {
       }
 
       if (!playbackId) {
-        throw new Error("Error al obtener playback del video.");
+        throw new Error(t("upload.playbackError"));
       }
 
       // 5. Save to database
-      setUploadStatus("Guardando...");
+      setUploadStatus(t("upload.saving"));
       const hashtagList = hashtags
         .split(/\s+/)
         .filter((tag) => tag.length > 0);
@@ -133,14 +135,14 @@ export default function UploadPage() {
       });
 
       if (insertError) {
-        throw new Error("Error al guardar metadata: " + insertError.message);
+        throw new Error(t("upload.saveError") + ": " + insertError.message);
       }
 
       setSuccess(true);
       setUploadStatus("");
       setTimeout(() => router.push("/profile"), 1500);
     } catch (e) {
-      const message = e instanceof Error ? e.message : "Error desconocido";
+      const message = e instanceof Error ? e.message : t("common.unknownError");
       setError(message);
     } finally {
       setUploading(false);
@@ -150,7 +152,7 @@ export default function UploadPage() {
   if (authLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-black pt-14">
-        <p className="text-zinc-400">Cargando...</p>
+        <p className="text-zinc-400">{t("common.loading")}</p>
       </div>
     );
   }
@@ -164,15 +166,15 @@ export default function UploadPage() {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-black pt-14 pb-20 px-4">
         <div className="flex flex-col items-center gap-4 text-center max-w-sm">
-          <h1 className="text-lg font-bold text-white">Subir video</h1>
+          <h1 className="text-lg font-bold text-white">{t("upload.title")}</h1>
           <p className="text-sm text-zinc-400">
-            Solo los creadores pueden subir videos. Si deseas convertirte en creador, solicítalo desde tu perfil.
+            {t("upload.onlyCreatorDesc")}
           </p>
           <button
             onClick={() => router.push("/profile")}
             className="rounded-lg bg-blue-600 px-5 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700"
           >
-            Ir a mi perfil
+            {t("upload.goToProfile")}
           </button>
         </div>
       </div>
@@ -188,7 +190,7 @@ export default function UploadPage() {
               <line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" />
             </svg>
           </Link>
-          <h1 className="text-lg font-bold text-white">Subir video</h1>
+          <h1 className="text-lg font-bold text-white">{t("upload.title")}</h1>
         </div>
       <form onSubmit={handleSubmit} className="flex w-full max-w-sm flex-col gap-3">
 
@@ -218,7 +220,7 @@ export default function UploadPage() {
                 <line x1="12" y1="8" x2="12" y2="16" />
                 <line x1="8" y1="12" x2="16" y2="12" />
               </svg>
-              <span className="text-sm">Seleccionar video</span>
+              <span className="text-sm">{t("upload.selectVideo")}</span>
             </div>
           )}
         </div>
@@ -234,14 +236,14 @@ export default function UploadPage() {
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          placeholder="Título"
+          placeholder={t("common.titleLabel")}
           className="w-full bg-transparent px-0 py-2 text-sm text-white placeholder-zinc-500 outline-none caret-blue-500"
         />
  
         <textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          placeholder="Descripción"
+          placeholder={t("common.descriptionLabel")}
           rows={2}
           className="w-full resize-none bg-transparent px-0 py-2 text-sm text-white placeholder-zinc-500 outline-none caret-blue-500"
         />
@@ -250,7 +252,7 @@ export default function UploadPage() {
           type="text"
           value={hashtags}
           onChange={(e) => setHashtags(e.target.value)}
-          placeholder="Hashtags (separados por espacio)"
+          placeholder={t("common.hashtagsPlaceholder")}
           className="w-full bg-transparent px-0 py-2 text-sm text-white placeholder-zinc-500 outline-none caret-blue-500"
         />
 
@@ -262,14 +264,14 @@ export default function UploadPage() {
         )}
 
         {error && <p className="text-sm text-red-400">{error}</p>}
-        {success && <p className="text-sm text-green-400">¡Video subido con éxito!</p>}
+        {success && <p className="text-sm text-green-400">{t("upload.success")}</p>}
 
         <button
           type="submit"
           disabled={uploading || !videoFile}
           className="self-start rounded-lg bg-blue-600 px-5 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
         >
-          {uploading ? "Subiendo..." : "Subir video"}
+          {uploading ? t("upload.uploading") : t("upload.title")}
         </button>
       </form>
       </div>

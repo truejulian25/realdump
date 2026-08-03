@@ -3,20 +3,22 @@
 import { Suspense, useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 type Status = "idle" | "loading" | "success" | "error";
-
-const messages: Record<string, { title: string; desc: string }> = {
-  idle: { title: "Reactivar cuenta", desc: "Ingresa el token que recibiste en tu correo para reactivar tu cuenta." },
-  loading: { title: "Reactivando cuenta…", desc: "Por favor espera un momento." },
-  success: { title: "Cuenta reactivada", desc: "Tu cuenta ha sido reactivada con éxito. Ya puedes iniciar sesión." },
-  error: { title: "Enlace inválido o expirado", desc: "El enlace que usaste no es válido o ya expiró. Verifica el token e intenta de nuevo." },
-};
 
 function ReactivateContent() {
   const searchParams = useSearchParams();
   const [status, setStatus] = useState<Status>("idle");
   const [manualToken, setManualToken] = useState("");
+  const { t } = useLanguage();
+
+  const messages: Record<string, { title: string; desc: string }> = {
+    idle: { title: t("auth.reactivate.idleTitle"), desc: t("auth.reactivate.idleDesc") },
+    loading: { title: t("auth.reactivate.loadingTitle"), desc: t("auth.reactivate.loadingDesc") },
+    success: { title: t("auth.reactivate.successTitle"), desc: t("auth.reactivate.successDesc") },
+    error: { title: t("auth.reactivate.errorTitle"), desc: t("auth.reactivate.errorDesc") },
+  };
 
   useEffect(() => {
     const token = searchParams.get("token");
@@ -76,7 +78,7 @@ function ReactivateContent() {
             type="text"
             value={manualToken}
             onChange={(e) => setManualToken(e.target.value)}
-            placeholder="Pega tu token aquí"
+            placeholder={t("auth.reactivate.tokenPlaceholder")}
             className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2 text-sm text-white placeholder-zinc-500 outline-none focus:border-blue-500"
           />
           <button
@@ -84,7 +86,7 @@ function ReactivateContent() {
             disabled={!manualToken.trim()}
             className="rounded-lg bg-blue-600 px-5 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
           >
-            Reactivar
+            {t("auth.reactivate.reactivateBtn")}
           </button>
         </form>
       )}
@@ -94,7 +96,7 @@ function ReactivateContent() {
           href="/auth/login"
           className="mt-6 inline-block rounded-lg bg-blue-600 px-5 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700"
         >
-          Iniciar sesión
+          {t("auth.reactivate.signIn")}
         </Link>
       )}
 
@@ -103,7 +105,7 @@ function ReactivateContent() {
           href="/auth/login"
           className="mt-6 inline-block rounded-lg bg-zinc-800 px-5 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-zinc-700"
         >
-          Volver al inicio de sesión
+          {t("auth.reactivate.backToLogin")}
         </Link>
       )}
     </div>
@@ -111,12 +113,13 @@ function ReactivateContent() {
 }
 
 export default function ReactivatePage() {
+  const { t } = useLanguage();
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-black px-4">
       <Suspense fallback={
     <div className="w-full max-w-sm text-center">
           <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-2 border-white/20 border-t-blue-500" />
-          <h1 className="text-lg font-bold text-white">Reactivando cuenta…</h1>
+          <h1 className="text-lg font-bold text-white">{t("auth.reactivate.loadingTitle")}</h1>
         </div>
       }>
         <ReactivateContent />
