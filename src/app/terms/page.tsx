@@ -2,7 +2,9 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { legalSections } from "@/lib/legal-content";
+import { legalSections as legalSectionsEs } from "@/lib/legal-content";
+import { legalSections as legalSectionsEn } from "@/lib/legal-content-en";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 function SectionContent({ content }: { content: string }) {
   const paragraphs = content.split("\n\n");
@@ -28,6 +30,8 @@ function SectionContent({ content }: { content: string }) {
 
 export default function TermsPage() {
   const [openSections, setOpenSections] = useState<Set<string>>(new Set());
+  const { t, locale } = useLanguage();
+  const legalSections = locale === "es" ? legalSectionsEs : legalSectionsEn;
 
   const toggle = (id: string) => {
     setOpenSections((prev) => {
@@ -67,17 +71,17 @@ export default function TermsPage() {
             <line x1="19" y1="12" x2="5" y2="12" />
             <polyline points="12 19 5 12 12 5" />
           </svg>
-          Volver al perfil
+          {t("terms.backToProfile")}
         </Link>
 
-        <h1 className="mb-2 text-xl font-bold text-white">Centro Legal</h1>
+        <h1 className="mb-2 text-xl font-bold text-white">{t("terms.title")}</h1>
         <p className="mb-6 text-xs text-zinc-500">
-          Última actualización: Julio 2026
+          {t("terms.updated")}
         </p>
 
         {/* índice */}
         <nav className="mb-8 rounded-lg border border-zinc-800 bg-zinc-900/50 p-4">
-          <h2 className="mb-3 text-sm font-semibold text-zinc-300">Índice</h2>
+          <h2 className="mb-3 text-sm font-semibold text-zinc-300">{t("terms.index")}</h2>
           <ol className="space-y-1.5">
             {legalSections.map((s) => (
               <li key={s.id}>
