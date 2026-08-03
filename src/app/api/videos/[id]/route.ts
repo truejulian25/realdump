@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { createAdminClient } from "@/lib/supabase/admin";
-import { deleteAsset } from "@/lib/mux";
+import { deleteVideo } from "@/lib/delete-video";
 
 export async function DELETE(
   _req: NextRequest,
@@ -26,32 +25,22 @@ export async function DELETE(
     return NextResponse.json({ error: "Video no encontrado" }, { status: 404 });
   }
 
-  if (video.user_id !== user.id) {
+  const { data: adminProfile } = await supabase
+    .from("profiles")
+    .select("is_admin")
+    .eq("id", user.id)
+    .single();
+
+  const isAdmin = adminProfile?.is_admin === true;
+
+  if (video.user_id !== user.id && !isAdmin) {
     return NextResponse.json({ error: "No tienes permiso para eliminar este video" }, { status: 403 });
   }
 
-  if (video.mux_asset_id) {
-    try {
-      await deleteAsset(video.mux_asset_id);
-    } catch {
-      console.warn("No se pudo eliminar el asset de Mux, continuando...");
-    }
-  }
+  const result = await deleteVideo(id, video.mux_asset_id);
 
-  const admin = createAdminClient();
-
-  const tables = ["likes", "comments", "saved_videos", "reports"] as const;
-  for (const table of tables) {
-    const { error: delError } = await admin.from(table).delete().eq("video_id", id);
-    if (delError) {
-      console.error(`Error deleting from ${table}:`, delError);
-    }
-  }
-
-  const { error: deleteError } = await admin.from("videos").delete().eq("id", id);
-
-  if (deleteError) {
-    return NextResponse.json({ error: "Error al eliminar el video" }, { status: 500 });
+  if (!result.ok) {
+    return NextResponse.json({ error: result.error }, { status: 500 });
   }
 
   return NextResponse.json({ success: true });
