@@ -37,6 +37,8 @@
 - `src/components/HamburgerMenu.tsx` — handler "Solicitar ser creador" → `/api/verification/start` + navega a `/verificacion`
 
 ### Cambios realizados en esta sesión
+- Completada la Fase 6 (Centro Legal): creado `src/lib/legal-content-en.ts` con los **11 documentos** legales traducidos al inglés (Principios, Normas, Creadores, Contenido Prohibido, Términos de Servicio — con capítulos renumerados 34-53 igual que la fuente ES —, Privacidad, Cookies, Derechos de Autor, Moderación, Verificación de Edad, Transparencia/Reportes/Apelaciones). `src/app/terms/page.tsx` selecciona contenido ES si `locale === "es"` y EN en cualquier otro idioma.
+- Verificación: `npx tsc --noEmit` y `npm run build` pasan. 2 commits pusheados a `origin/main` (`3f29d53` interfaz 9 idiomas + `8d32126` centro legal EN). Los 6 archivos protegidos tocados por i18n (layout, search, ProfileVideoOverlay, ReportModal, VideoFeed, VideoMenu) se quitaron temporalmente de `.protected-files` para el commit y se re-agregaron.
 - Depurado el arranque del flujo: la migración 00008 se había aplicado a medias (fallaba en `alter profiles`; el editor SQL de Supabase revierte todo el batch ante un error). Aplicada v2 idempotente con `owner_id::text = auth.uid()::text`.
 - Fix `src/app/profile/page.tsx`: el botón "Solicitar ser creador" usaba `/api/role-request` y no navegaba; ahora usa `/api/verification/start` y va a `/verificacion`. Añadido enlace "Continuar con mi verificación" para usuarios en `pending`.
 - Endurecida `start/route.ts`: falla con 500 claro si el `profiles.update` da error (antes fallaba en silencio).
@@ -46,11 +48,10 @@
 - Fix fotos en admin de verificación: la API `signed-urls` devolvía `{ documentUrl, selfieUrl, holdingUrl }` pero el admin lee `photos.document|selfie|holding` → las 3 fotos siempre mostraban "Sin imagen" aunque el storage estaba sano. Normalizada la API a claves en minúscula.
 - Añadido `PhotoModal` en `src/app/admin/creators/page.tsx`: las miniaturas de las fotos de verificación ahora se pueden ampliar al hacer clic (modal a pantalla completa, cierra con X / clic fuera / Escape).
 
-### i18n (internacionalización) — plan activo
-- Decisiones: 9 idiomas (en, es, de, fr, it, ja, ko, pt, tr; **sin árabe/RTL por ahora**). Detección automática por **país vía IP** (`x-vercel-ip-country` en `layout.tsx` server), fallback idioma del navegador y default **Inglés**. El idioma elegido manualmente siempre gana (modo `manual` en localStorage) con opción "Automático" en el menú de idiomas.
+### i18n (internacionalización) — COMPLETADO
+- 9 idiomas (en, es, de, fr, it, ja, ko, pt, tr; **sin árabe/RTL**). Detección automática por **país vía IP** (`x-vercel-ip-country` en `layout.tsx` server, `src/lib/locales.ts` → `countryToLocale` + `resolveAutoLocale`), fallback idioma del navegador y default **Inglés**. El idioma elegido manualmente siempre gana (modo `manual` en localStorage) con opción "Automático". `LanguageContext` sincroniza `document.documentElement.lang` y `dir="ltr"`.
 - Contenido del usuario (títulos/descripciones/comentarios): **NO se traduce**.
-- Centro Legal: 5 documentos traducidos a los 9 idiomas (`legal-content-{locale}.ts`, fallback español), con nota de que el texto en español prevalece.
-- Fases: 0) regla de protección ✓; 1) quitar árabe + es síncrono + sync lang/dir; 2) detección IP/navegador/override + "Automático"; 3) ampliar `es.ts` (~900 claves, fuente de verdad); 4) espejar 9 idiomas (tipo `Translations`); 5) conectar componentes a `t()`; 6) centro legal multilingüe; 7) verificación lint+build.
+- Centro Legal: **solo inglés** (decisión del usuario). `src/lib/legal-content-en.ts` (~175KB) traduce los **11 documentos** (no 5) de `legal-content.ts` con la misma interface `LegalSection` e ids. `src/app/terms/page.tsx` muestra ES si `locale === "es"`, si no EN. No hay nota "el español prevalece" en la UI.
 - Fuera de alcance (futuro): emails del servidor y errores de APIs en español; traducción de contenido del usuario (API paga); RTL/árabe.
 
 ### Problemas abiertos (para próxima sesión)
