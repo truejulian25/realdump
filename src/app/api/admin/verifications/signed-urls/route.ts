@@ -50,5 +50,5 @@ export async function POST(req: Request) {
     sign(verification.holding_document_url),
   ]);
 
-  return NextResponse.json({ documentUrl, selfieUrl, holdingUrl });
+  return NextResponse.json({ document: documentUrl, selfie: selfieUrl, holding: holdingUrl });
 }

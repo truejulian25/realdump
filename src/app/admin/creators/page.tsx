@@ -37,6 +37,7 @@ export default function AdminCreatorsPage() {
   const [checks, setChecks] = useState<Record<string, boolean[]>>({});
   const [verifiedDobs, setVerifiedDobs] = useState<Record<string, string>>({});
   const [denialReasons, setDenialReasons] = useState<Record<string, string>>({});
+  const [selectedPhoto, setSelectedPhoto] = useState<{ url: string; kind: string } | null>(null);
 
   const fetchRequests = useCallback(async () => {
     const { data } = await supabase
@@ -187,12 +188,19 @@ export default function AdminCreatorsPage() {
                         return (
                           <div key={kind}>
                             {url ? (
-                              // eslint-disable-next-line @next/next/no-img-element
-                              <img
-                                src={url}
-                                alt={kind}
-                                className="h-24 w-full rounded-lg border border-zinc-800 object-cover"
-                              />
+                              <button
+                                type="button"
+                                onClick={() => setSelectedPhoto({ url, kind })}
+                                className="block w-full"
+                                title="Ampliar"
+                              >
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img
+                                  src={url}
+                                  alt={kind}
+                                  className="h-24 w-full rounded-lg border border-zinc-800 object-cover transition-transform hover:scale-105 hover:border-blue-500"
+                                />
+                              </button>
                             ) : (
                               <div className="flex h-24 w-full items-center justify-center rounded-lg border border-zinc-800 bg-zinc-950">
                                 <span className="text-[10px] text-zinc-600">Sin imagen</span>
@@ -355,6 +363,57 @@ export default function AdminCreatorsPage() {
           </div>
         )}
       </div>
+
+      {selectedPhoto && (
+        <PhotoModal
+          src={selectedPhoto.url}
+          label={PHOTO_LABELS[selectedPhoto.kind] ?? "Foto"}
+          onClose={() => setSelectedPhoto(null)}
+        />
+      )}
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+
+const PHOTO_LABELS: Record<string, string> = {
+  document: "Documento oficial",
+  selfie: "Selfie",
+  holding: "Foto sosteniendo el documento",
+};
+
+function PhotoModal({ src, label, onClose }: { src: string; label: string; onClose: () => void }) {
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [onClose]);
+
+  return (
+    <div
+      onClick={onClose}
+      className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/90 p-4"
+    >
+      <button
+        onClick={onClose}
+        aria-label="Cerrar"
+        className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full bg-zinc-800 text-zinc-300 transition-colors hover:bg-zinc-700 hover:text-white"
+      >
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18" />
+          <line x1="6" y1="6" x2="18" y2="18" />
+        </svg>
+      </button>
+      <p className="mb-3 text-sm font-medium text-zinc-300">{label}</p>
+      <img
+        src={src}
+        alt={label}
+        onClick={(e) => e.stopPropagation()}
+        className="max-h-[82vh] max-w-[92vw] rounded-lg object-contain"
+      />
     </div>
   );
 }
