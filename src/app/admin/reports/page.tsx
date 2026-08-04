@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useVideoThumbnail } from "@/lib/video-thumbnail";
 import type { Report } from "@/types";
 
 type ReportStatus = Report["status"];
@@ -13,6 +14,7 @@ interface ReportRow extends Report {
     id: string;
     title: string | null;
     thumbnail_url: string | null;
+    video_url: string | null;
     mux_playback_id: string | null;
     user_id: string;
     profiles: {
@@ -31,7 +33,7 @@ interface ReportRow extends Report {
 
 type Filter = "all" | ReportStatus;
 
-const FILTERS: Filter[] = ["all", "pending", "reviewed", "dismissed"];
+const FILTERS: Filter[] = ["all", "pending", "needs_info", "reviewed", "dismissed"];
 
 function userLabel(
   u: { username: string | null; display_name: string | null } | null,
@@ -41,12 +43,33 @@ function userLabel(
   return u.display_name ?? u.username ?? fallback;
 }
 
-function thumbSrc(video: ReportRow["video"]) {
-  if (!video) return null;
-  if (video.mux_playback_id) {
-    return `https://image.mux.com/${video.mux_playback_id}/thumbnail.jpg?width=200`;
-  }
-  return video.thumbnail_url;
+function ReportThumb({ video }: { video: NonNullable<ReportRow["video"]> }) {
+  const { t } = useLanguage();
+  const thumb = useVideoThumbnail(video);
+
+  return (
+    <Link
+      href={`/user/${video.user_id}?video_id=${video.id}`}
+      title={t("adminReports.openVideo")}
+      prefetch={false}
+      className="shrink-0"
+    >
+      {thumb ? (
+        /* eslint-disable-next-line @next/next/no-img-element */
+        <img
+          src={thumb}
+          alt=""
+          className="h-16 w-28 rounded-lg border border-zinc-800 object-cover transition-transform hover:scale-105 hover:border-blue-500"
+        />
+      ) : (
+        <div className="flex h-16 w-28 items-center justify-center rounded-lg border border-zinc-800 bg-zinc-950 transition-colors hover:border-blue-500">
+          <span className="text-[10px] text-zinc-600">
+            {t("adminReports.noThumbnail")}
+          </span>
+        </div>
+      )}
+    </Link>
+  );
 }
 
 export default function AdminReportsPage() {
@@ -55,6 +78,8 @@ export default function AdminReportsPage() {
   const [reports, setReports] = useState<ReportRow[]>([]);
   const [filter, setFilter] = useState<Filter>("all");
   const [processing, setProcessing] = useState<string | null>(null);
+  const [measureFor, setMeasureFor] = useState<string | null>(null);
+  const [measureNote, setMeasureNote] = useState("");
 
   const fetchReports = useCallback(async () => {
     const res = await fetch("/api/admin/reports");
@@ -73,17 +98,29 @@ export default function AdminReportsPage() {
 
   const handleAction = async (
     report: ReportRow,
-    action: "resolved" | "dismissed" | "delete_video" | "deactivate_user",
+    action: "resolved" | "dismissed" | "needs_info" | "delete_video" | "deactivate_user",
+    note?: string,
   ) => {
     if (action === "delete_video" && !window.confirm(t("adminReports.deleteVideoConfirm"))) return;
     if (action === "deactivate_user" && !window.confirm(t("adminReports.deactivateUserConfirm"))) return;
+    if (action === "needs_info" && !window.confirm(t("adminReports.requestInfoConfirm"))) return;
+
+    if (action === "resolved") {
+      const cleanNote = note?.trim() ?? "";
+      if (!cleanNote) {
+        alert(t("adminReports.measureRequired"));
+        return;
+      }
+      setMeasureFor(null);
+      setMeasureNote("");
+    }
 
     setProcessing(report.id);
     try {
       const res = await fetch(`/api/admin/reports/${report.id}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action }),
+        body: JSON.stringify({ action, note: note?.trim() ?? "" }),
       });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
@@ -118,6 +155,7 @@ export default function AdminReportsPage() {
     pending: "bg-amber-500/10 text-amber-400 border-amber-500/30",
     reviewed: "bg-emerald-500/10 text-emerald-400 border-emerald-500/30",
     dismissed: "bg-zinc-500/10 text-zinc-400 border-zinc-500/30",
+    needs_info: "bg-blue-500/10 text-blue-400 border-blue-500/30",
   };
 
   return (
@@ -147,7 +185,6 @@ export default function AdminReportsPage() {
           <div className="flex flex-col gap-3">
             {visible.map((report) => {
               const owner = report.video?.profiles ?? null;
-              const thumb = thumbSrc(report.video);
               const ownerDeactivated = owner?.deactivated_at != null;
               return (
                 <div
@@ -155,19 +192,8 @@ export default function AdminReportsPage() {
                   className="overflow-hidden rounded-lg border border-zinc-800 bg-zinc-900/50"
                 >
                   <div className="flex items-start gap-3 p-4">
-                    {thumb && report.video ? (
-                      <Link
-                        href={`/user/${report.video.user_id}?video_id=${report.video.id}`}
-                        title={t("adminReports.openVideo")}
-                        className="shrink-0"
-                      >
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src={thumb}
-                          alt=""
-                          className="h-16 w-28 rounded-lg border border-zinc-800 object-cover transition-transform hover:scale-105 hover:border-blue-500"
-                        />
-                      </Link>
+                    {report.video ? (
+                      <ReportThumb video={report.video} />
                     ) : (
                       <div className="flex h-16 w-28 shrink-0 items-center justify-center rounded-lg border border-zinc-800 bg-zinc-950">
                         <span className="text-[10px] text-zinc-600">
@@ -229,13 +255,27 @@ export default function AdminReportsPage() {
                       )}
                     </div>
 
+                    {report.reporter_reply && (
+                      <div className="mt-3 rounded-lg border border-blue-500/30 bg-blue-500/5 p-3">
+                        <span className="text-[10px] uppercase text-blue-400">
+                          {t("adminReports.reporterReply")}
+                        </span>
+                        <p className="mt-1 text-xs text-zinc-200 break-words">
+                          {report.reporter_reply}
+                        </p>
+                      </div>
+                    )}
+
                     {processing === report.id ? (
                       <p className="mt-4 text-sm text-blue-400">{t("adminReports.processing")}</p>
                     ) : (
                       <div className="mt-4 space-y-2">
                         <div className="flex gap-2">
                           <button
-                            onClick={() => handleAction(report, "resolved")}
+                            onClick={() => {
+                              setMeasureNote("");
+                              setMeasureFor(measureFor === report.id ? null : report.id);
+                            }}
                             disabled={report.status === "reviewed"}
                             className="flex-1 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-emerald-700 disabled:opacity-50"
                           >
@@ -263,6 +303,43 @@ export default function AdminReportsPage() {
                             className="flex-1 rounded-lg border border-red-600/50 px-3 py-1.5 text-xs font-semibold text-red-400 transition-colors hover:bg-red-600/10 disabled:opacity-50"
                           >
                             {t("adminReports.deactivateUser")}
+                          </button>
+                        </div>
+                        <button
+                          onClick={() => handleAction(report, "needs_info")}
+                          disabled={report.status !== "pending"}
+                          className="w-full rounded-lg border border-blue-500/50 px-3 py-1.5 text-xs font-semibold text-blue-400 transition-colors hover:bg-blue-500/10 disabled:opacity-50"
+                        >
+                          {t("adminReports.requestInfo")}
+                        </button>
+                      </div>
+                    )}
+
+                    {measureFor === report.id && (
+                      <div className="mt-3 rounded-lg border border-zinc-700 bg-zinc-950 p-3">
+                        <textarea
+                          value={measureNote}
+                          onChange={(e) => setMeasureNote(e.target.value)}
+                          placeholder={t("adminReports.measurePlaceholder")}
+                          rows={2}
+                          className="w-full resize-none rounded-lg border border-zinc-800 bg-zinc-900 p-2 text-xs text-white outline-none focus:border-blue-500"
+                        />
+                        <div className="mt-2 flex gap-2">
+                          <button
+                            onClick={() => handleAction(report, "resolved", measureNote)}
+                            disabled={processing === report.id}
+                            className="flex-1 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-emerald-700 disabled:opacity-50"
+                          >
+                            {t("adminReports.measureConfirm")}
+                          </button>
+                          <button
+                            onClick={() => {
+                              setMeasureFor(null);
+                              setMeasureNote("");
+                            }}
+                            className="flex-1 rounded-lg bg-zinc-800 px-3 py-1.5 text-xs font-semibold text-zinc-300 transition-colors hover:bg-zinc-700"
+                          >
+                            {t("adminReports.measureCancel")}
                           </button>
                         </div>
                       </div>

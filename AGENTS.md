@@ -18,8 +18,22 @@
 - Overlay: solo el video activo (currentIndex) se monta/reproduce; al scrollear se desmonta el anterior
 - `autoPlay="any"` + `muted` condicional: primer video al abrir overlay muteado, siguientes con volumen
 - Delete: `DELETE /api/videos/[id]` con limpieza de Mux + likes/comments/saved_videos/reports
+- Campana con badge de no leídas en el header (solo logueado) → `/notificaciones` (lista + "Marcar todas como leídas"; badge por polling 30s + focus). `Header.tsx` y `HamburgerMenu.tsx` NO están en `.protected-files`.
+- Moderación: `/admin/reports` con acciones por reporte: resolver (con nota/medida del admin), descartar, eliminar video, desactivar cuenta, solicitar más información. El reportero responde desde `/notificaciones` y el reporte vuelve a `pending`.
+- Miniaturas para videos sin Mux: `src/lib/video-thumbnail.ts` genera frame por canvas (videos Mux usan short-circuit a `image.mux.com`).
 
 ### Archivos creados/modificados recientemente
+- `supabase/migrations/00012_create_notifications.sql` — tabla `notifications` (user_id FK profiles ON DELETE CASCADE, type, data JSONB, read_at) + índice `(user_id, created_at DESC)` + RLS (SELECT/UPDATE solo dueño; INSERT solo service role).
+- `supabase/migrations/00013_add_reporter_reply.sql` — columnas `reporter_reply` y `updated_at` en `reports`. **PENDIENTE de aplicar en Supabase** (la 00012 ya está aplicada).
+- `src/app/api/notifications/route.ts` — GET lista (50) + `unreadCount`. `src/app/api/notifications/read/route.ts` — POST marcar leídas (por ids o todas).
+- `src/app/api/reports/[id]/reply/route.ts` — POST: solo el reportero del reporte; guarda `reporter_reply`, status → `pending`, `updated_at`.
+- `src/hooks/useNotifications.ts` — `useNotifications(enabled)` (polling 30s + focus) y `useMarkNotificationsRead`.
+- `src/app/notificaciones/page.tsx` — lista traducida; tipo `reportNeedsInfo` muestra botón "Responder" (textarea → reply).
+- `src/lib/video-thumbnail.ts` — `getVideoThumbUrl` (Mux → image.mux.com; si no → `thumbnail_url`; si no → null) + `useVideoThumbnail` (captura de frame por canvas, caché Map, concurrencia máx 4, timeout 10s). Mux hace short-circuit.
+- `src/app/api/admin/reports/[id]/route.ts` — acciones `resolved` (requiere nota/medida del admin), `dismissed`, `needs_info`, `delete_video` (marca `reviewed`, fix), `deactivate_user`; inserta notificaciones best-effort (reportero + dueño según caso).
+- `src/components/Header.tsx` — campana con badge (useUnreadCount, no protegido).
+- `src/components/CustomVideoPlayer.tsx`, `MuxVideoPlayer.tsx`, `ProfileVideoCard.tsx`, `VideoFeed.tsx` — prop `poster` / miniaturas por canvas (protegidos; ritual ya cerrado: ver .protected-files).
+- `src/types/index.ts` — `Report.status` ahora `"pending" | "reviewed" | "dismissed" | "needs_info"` + `reporter_reply`/`updated_at`.
 - `supabase/migrations/00008_create_creator_verification.sql` — verificación KYC de creadores (tablas creator_verifications + verification_events, RLS, bucket storage privado `creator-verification`). Nota: en este proyecto `storage.objects.owner_id` es `text`, por eso las políticas usan `owner_id::text = auth.uid()::text`. Incluye política de UPDATE en storage (obligatoria: el wizard re-subida con `upsert:true` sobre un archivo existente hace UPDATE, y sin ella falla con "new row violates RLS") y DELETE ampliada a dueño/admin.
 - `supabase/migrations/00009_add_content_declaration.sql` — columna `content_declaration_at` (declaración de titularidad/autorización sobre el contenido)
 - `src/lib/verification.ts` — constantes, rutas de storage, `logVerificationEvent` (auditoría) y etiquetas de eventos
@@ -37,6 +51,10 @@
 - `src/components/HamburgerMenu.tsx` — handler "Solicitar ser creador" → `/api/verification/start` + navega a `/verificacion`
 
 ### Cambios realizados en esta sesión
+- **Notificaciones in-app de moderación** (`notifications`): tabla + RLS (00012 aplicada), APIs GET/read, hook con polling 30s, página `/notificaciones` y campana con badge en `Header.tsx`. Cada acción del admin notifica al reportero y al dueño según caso (`resolved` con nota del admin → "Revisamos tu reporte: {note}"; `dismissed` → sin infracciones; `delete_video` → video eliminado; `deactivate_user` → cuenta desactivada; `needs_info` → se pide más info).
+- **Estado `needs_info` + respuesta del reportero**: nuevo action en `/api/admin/reports/[id]`, botón "Solicitar más información" (badge/filtro en el panel), y `POST /api/reports/[id]/reply` que guarda `reporter_reply` y vuelve el reporte a `pending`. Fix: `delete_video` ya marca el reporte `reviewed`. Requiere aplicar migración 00013.
+- **Miniaturas para videos sin Mux** (sesión anterior, commiteada junto): `src/lib/video-thumbnail.ts` (canvas) aplicado en admin panel, `ProfileVideoCard`, `CustomVideoPlayer`/`MuxVideoPlayer` (prop `poster`) y `VideoFeed` (solo no-Mux). Fix deep-link E668: `src/app/user/[id]/page.tsx` (eliminado `pushState(null,"")`, guard `deepLinkHandled`).
+- `npx tsc --noEmit` y `npm run build` pasan. Commit/push realizado por orden del usuario (incluye re-proteger los 4 archivos de miniaturas en `.protected-files`).
 - Completada la Fase 6 (Centro Legal): creado `src/lib/legal-content-en.ts` con los **11 documentos** legales traducidos al inglés (Principios, Normas, Creadores, Contenido Prohibido, Términos de Servicio — con capítulos renumerados 34-53 igual que la fuente ES —, Privacidad, Cookies, Derechos de Autor, Moderación, Verificación de Edad, Transparencia/Reportes/Apelaciones). `src/app/terms/page.tsx` selecciona contenido ES si `locale === "es"` y EN en cualquier otro idioma.
 - Verificación: `npx tsc --noEmit` y `npm run build` pasan. 2 commits pusheados a `origin/main` (`3f29d53` interfaz 9 idiomas + `8d32126` centro legal EN). Los 6 archivos protegidos tocados por i18n (layout, search, ProfileVideoOverlay, ReportModal, VideoFeed, VideoMenu) se quitaron temporalmente de `.protected-files` para el commit y se re-agregaron.
 - Depurado el arranque del flujo: la migración 00008 se había aplicado a medias (fallaba en `alter profiles`; el editor SQL de Supabase revierte todo el batch ante un error). Aplicada v2 idempotente con `owner_id::text = auth.uid()::text`.
@@ -56,7 +74,8 @@
 
 ### Problemas abiertos (para próxima sesión)
 - Usuarios que se registran con rol "Creador" quedan en `pending` sin entrada a `/verificacion` (el botón "Solicitar ser creador" solo se muestra a `viewer`). Decidir: ajustar el registro (role viewer + verificar) o hacer navegable el row "Creador — Pendiente" del menú (archivo protegido).
-- **Moderación de reportes (pendiente):** los reportes solo cubren videos (`reports.video_id NOT NULL`) vía "Reportar" en `VideoMenu`; no hay reporte de perfil ni panel admin de moderación. Falta: target de perfil/tipo de reporte, página `admin/reports` (listado `pending`), y acciones de moderación (eliminar video / suspender-desactivar perfil) reutilizando `deactivated_at` y `is_admin()`. Base: `supabase/migrations/00003_create_reports.sql`.
+- **Migración `00013_add_reporter_reply.sql` PENDIENTE de aplicar en Supabase** (la 00012 ya está aplicada). Hasta aplicarla, el flujo "Solicitar más información → responder" devolverá error al guardar `reporter_reply`.
+- Moderación de reportes: ya hay panel completo + notificaciones in-app, pero **solo cubren videos** (`reports.video_id NOT NULL`) vía "Reportar" en `VideoMenu`. Falta: reporte de perfil (target de perfil/tipo de reporte) y, opcionalmente, notificar por email (`src/lib/email.ts`, Resend) además de la notificación in-app.
 
 ### Próximos pasos sugeridos
 1. Agregar `loading.tsx` o `Suspense` boundary para mejorar experiencia de carga lenta

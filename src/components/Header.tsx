@@ -2,15 +2,17 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Plus, List } from "@phosphor-icons/react";
+import { Plus, List, Bell } from "@phosphor-icons/react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useUnreadCount } from "@/hooks/useNotifications";
 import HamburgerMenu from "@/components/HamburgerMenu";
 
 export default function Header() {
   const { user, profile, loading } = useAuth();
   const { t } = useLanguage();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const unread = useUnreadCount(!!user);
 
   return (
     <>
@@ -30,14 +32,28 @@ export default function Header() {
           <Link href="/" className="text-center text-lg font-bold tracking-tight text-white">
             realdump
           </Link>
-          <div className="flex justify-end">
+          <div className="flex items-center justify-end gap-1">
             {!loading && (
-              <button
-                onClick={() => setIsMenuOpen(true)}
-                className="flex h-8 w-8 items-center justify-center rounded-lg text-zinc-400 transition-colors hover:text-white"
-              >
-                <List size={20} />
-              </button>
+              <>
+                <Link
+                  href="/notificaciones"
+                  aria-label={t("notifications.title")}
+                  className="relative flex h-8 w-8 items-center justify-center rounded-lg text-zinc-400 transition-colors hover:text-white"
+                >
+                  <Bell size={20} />
+                  {unread > 0 && (
+                    <span className="absolute -top-0.5 -right-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-blue-500 px-1 text-[10px] font-bold text-white">
+                      {unread > 9 ? "9+" : unread}
+                    </span>
+                  )}
+                </Link>
+                <button
+                  onClick={() => setIsMenuOpen(true)}
+                  className="flex h-8 w-8 items-center justify-center rounded-lg text-zinc-400 transition-colors hover:text-white"
+                >
+                  <List size={20} />
+                </button>
+              </>
             )}
           </div>
         </div>

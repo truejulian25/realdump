@@ -107,7 +107,9 @@ export interface Report {
   reporter_id: string;
   reason: string;
   description: string | null;
-  status: "pending" | "reviewed" | "dismissed";
+  status: "pending" | "reviewed" | "dismissed" | "needs_info";
+  reporter_reply: string | null;
+  updated_at: string | null;
   created_at: string;
 }
 
