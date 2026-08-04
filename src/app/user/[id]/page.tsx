@@ -44,6 +44,7 @@ export default function UserPage() {
   }, [data?.pages]);
 
   const sentinelRef = useRef<HTMLDivElement>(null);
+  const deepLinkHandled = useRef(false);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -94,15 +95,14 @@ export default function UserPage() {
   }, []);
 
   useEffect(() => {
+    if (deepLinkHandled.current) return;
     if (selectedVideo) return;
-    const params = new URLSearchParams(window.location.search);
-    const videoIdParam = params.get("video_id");
+    const videoIdParam = new URLSearchParams(window.location.search).get("video_id");
     if (!videoIdParam) return;
     const found = videos.find((v) => v.id === videoIdParam);
-    if (found) {
-      window.history.pushState(null, "");
-      setSelectedVideo(found);
-    }
+    if (!found) return;
+    deepLinkHandled.current = true;
+    setSelectedVideo(found);
   }, [videos, selectedVideo]);
 
   const handleVideoClick = useCallback((video: Video) => {

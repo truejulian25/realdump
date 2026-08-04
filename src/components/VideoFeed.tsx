@@ -14,6 +14,7 @@ import InteractionBar from "./InteractionBar";
 import FeedSkeleton from "./FeedSkeleton";
 import VideoMenu from "./VideoMenu";
 import ReportModal from "./ReportModal";
+import { useVideoThumbnail } from "@/lib/video-thumbnail";
 
 interface VideoWithProfile extends Video {
   profiles: {
@@ -52,6 +53,7 @@ function VideoCard({
   const { t, locale } = useLanguage();
   const playerContainerRef = useRef<HTMLDivElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
+  const poster = useVideoThumbnail(video);
 
   useEffect(() => {
     const el = cardRef.current;
@@ -85,7 +87,12 @@ function VideoCard({
       >
         {shouldMount ? (
           <>
-            <MuxVideoPlayer playbackId={video.mux_playback_id} src={video.video_url} muted={true} />
+            <MuxVideoPlayer
+              playbackId={video.mux_playback_id}
+              src={video.video_url}
+              muted={true}
+              poster={video.mux_playback_id ? undefined : poster}
+            />
             <VideoControls containerRef={playerContainerRef} variant="feed" />
           </>
         ) : (

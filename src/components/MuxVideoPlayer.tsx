@@ -15,6 +15,7 @@ const MuxPlayer = dynamic(() => import("@mux/mux-player-react"), {
 interface Props {
   playbackId?: string | null;
   src?: string | null;
+  poster?: string | null;
   autoPlay?: boolean;
   fill?: boolean;
   muted?: boolean;
@@ -25,6 +26,7 @@ interface Props {
 export default function MuxVideoPlayer({
   playbackId,
   src,
+  poster,
   autoPlay = true,
   fill = false,
   muted = false,
@@ -35,6 +37,7 @@ export default function MuxVideoPlayer({
     return (
       <MuxPlayer
         playbackId={playbackId}
+        poster={poster ?? undefined}
         autoPlay={autoPlay ? "any" : false}
         muted={muted}
         loop={loop}
@@ -50,7 +53,7 @@ export default function MuxVideoPlayer({
   }
 
   if (src) {
-    return <CustomVideoPlayer src={src} autoPlay={autoPlay} fill={fill} muted={muted} />;
+    return <CustomVideoPlayer src={src} poster={poster} autoPlay={autoPlay} fill={fill} muted={muted} />;
   }
 
   return null;

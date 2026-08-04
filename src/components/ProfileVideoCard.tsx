@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useCallback } from "react";
+import { useVideoThumbnail } from "@/lib/video-thumbnail";
 import type { Video } from "@/types";
 
 interface Props {
@@ -26,9 +27,7 @@ export default function ProfileVideoCard({ video, onClick }: Props) {
     onClick?.(video);
   }, [onClick, video]);
 
-  const thumbnailSrc = video.mux_playback_id
-    ? `https://image.mux.com/${video.mux_playback_id}/thumbnail.jpg?width=300`
-    : undefined;
+  const thumbnailSrc = useVideoThumbnail(video);
 
   return (
     <div

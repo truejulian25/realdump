@@ -8,9 +8,10 @@ interface Props {
   fill?: boolean;
   hideControls?: boolean;
   muted?: boolean;
+  poster?: string | null;
 }
 
-export default function CustomVideoPlayer({ src, autoPlay = true, fill = false, muted = false }: Props) {
+export default function CustomVideoPlayer({ src, autoPlay = true, fill = false, muted = false, poster }: Props) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [aspectRatio, setAspectRatio] = useState<{ w: number; h: number } | null>(null);
@@ -59,6 +60,7 @@ export default function CustomVideoPlayer({ src, autoPlay = true, fill = false, 
         ref={videoRef}
         className={`h-full w-full ${fill ? "object-cover" : "object-contain"}`}
         src={src}
+        poster={poster ?? undefined}
         loop
         playsInline
         muted={muted}
