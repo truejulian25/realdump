@@ -24,7 +24,7 @@
 
 ### Archivos creados/modificados recientemente
 - `supabase/migrations/00012_create_notifications.sql` — tabla `notifications` (user_id FK profiles ON DELETE CASCADE, type, data JSONB, read_at) + índice `(user_id, created_at DESC)` + RLS (SELECT/UPDATE solo dueño; INSERT solo service role).
-- `supabase/migrations/00013_add_reporter_reply.sql` — columnas `reporter_reply` y `updated_at` en `reports`. **PENDIENTE de aplicar en Supabase** (la 00012 ya está aplicada).
+- `supabase/migrations/00013_add_reporter_reply.sql` — columnas `reporter_reply` y `updated_at` en `reports`. **Aplicada** (junto con la 00012).
 - `src/app/api/notifications/route.ts` — GET lista (50) + `unreadCount`. `src/app/api/notifications/read/route.ts` — POST marcar leídas (por ids o todas).
 - `src/app/api/reports/[id]/reply/route.ts` — POST: solo el reportero del reporte; guarda `reporter_reply`, status → `pending`, `updated_at`.
 - `src/hooks/useNotifications.ts` — `useNotifications(enabled)` (polling 30s + focus) y `useMarkNotificationsRead`.
@@ -51,8 +51,15 @@
 - `src/components/HamburgerMenu.tsx` — handler "Solicitar ser creador" → `/api/verification/start` + navega a `/verificacion`
 
 ### Cambios realizados en esta sesión
+- **Reporte de perfil desde el modal de video**: en `ReportModal.tsx` (protegido) bajo los motivos de video aparece separador + botón "Reportar perfil completo" (usa `videoOwnerId` vía fetch de `videos.user_id`; NO se tocaron `VideoFeed`/`ProfileVideoOverlay`). Es **toggle**: al pulsarlo queda marcado (azul, `aria-pressed`, `report.profileSelected`) y cambia a modo perfil (título, motivos, pregunta); pulsarlo de nuevo vuelve a video. Fix previo: al cambiar de modo se conserva la descripción escrita (ya no se borra). En modo perfil el listado de motivos **permanece visible pero es opcional**: el botón "Enviar" se habilita solo con descripción no vacía. API `src/app/api/report/route.ts` acepta `video_id` **o** `profile_id` (400 si ambos/ninguno) con listas de motivos según target; `reason` obligatorio solo para video, para perfil si viene vacío se asigna `"Otro"` automáticamente. **Requiere aplicar migración 00014. Aplicada en esta sesión.**
+- **Migración `supabase/migrations/00014_profile_reports.sql`**: `video_id` nullable + `reported_user_id` FK a profiles + CHECK `(video_id IS NOT NULL OR reported_user_id IS NOT NULL)`. **Aplicada en esta sesión** (SQL editor).
+- **Admin con reportes de perfil**: `GET /api/admin/reports` agrega join `reported:profiles!reports_reported_user_id_fkey`; el panel (`admin/reports/page.tsx`) muestra avatar/nombre del perfil reportado, badge "Reporte de perfil", enlace al perfil, deshabilita "Eliminar video" (solo videos) y "Desactivar cuenta" apunta a `reported_user_id` (POST admin). `src/types/index.ts`: `Report.video_id` ahora `string | null` + `reported_user_id`.
+- **i18n (9 idiomas)**: claves `report.or/profileButton/profileSelected/profileTitle/profileQuestion/profileReasons[]` y `adminReports.openProfile/profileReported/profileType`.
+- `npx tsc --noEmit` y `npm run build` pasan. Ritual aplicado en el commit: `ReportModal.tsx` se sacó temporal de `.protected-files` y se re-agregó.
+- **Entrada a verificación desde el menú**: el row "Creador — Pendiente" de `HamburgerMenu.tsx` ahora navega a `/verificacion` (`href` añadido, `hasArrow={false}` intacto, cero cambio visual). Cierra el pendiente de usuarios `pending` sin acceso; el perfil ya tenía el enlace "Continuar con mi verificación".
+- **Migración 00013 aplicada en Supabase** por el usuario (SQL editor): `reports.reporter_reply` y `updated_at` activos; el flujo "Solicitar más información → respuesta" queda operativo.
 - **Notificaciones in-app de moderación** (`notifications`): tabla + RLS (00012 aplicada), APIs GET/read, hook con polling 30s, página `/notificaciones` y campana con badge en `Header.tsx`. Cada acción del admin notifica al reportero y al dueño según caso (`resolved` con nota del admin → "Revisamos tu reporte: {note}"; `dismissed` → sin infracciones; `delete_video` → video eliminado; `deactivate_user` → cuenta desactivada; `needs_info` → se pide más info).
-- **Estado `needs_info` + respuesta del reportero**: nuevo action en `/api/admin/reports/[id]`, botón "Solicitar más información" (badge/filtro en el panel), y `POST /api/reports/[id]/reply` que guarda `reporter_reply` y vuelve el reporte a `pending`. Fix: `delete_video` ya marca el reporte `reviewed`. Requiere aplicar migración 00013.
+- **Estado `needs_info` + respuesta del reportero**: nuevo action en `/api/admin/reports/[id]`, botón "Solicitar más información" (badge/filtro en el panel), y `POST /api/reports/[id]/reply` que guarda `reporter_reply` y vuelve el reporte a `pending`. Fix: `delete_video` ya marca el reporte `reviewed`. Requiere aplicar migración 00013. **Aplicada en esta sesión**.
 - **Miniaturas para videos sin Mux** (sesión anterior, commiteada junto): `src/lib/video-thumbnail.ts` (canvas) aplicado en admin panel, `ProfileVideoCard`, `CustomVideoPlayer`/`MuxVideoPlayer` (prop `poster`) y `VideoFeed` (solo no-Mux). Fix deep-link E668: `src/app/user/[id]/page.tsx` (eliminado `pushState(null,"")`, guard `deepLinkHandled`).
 - `npx tsc --noEmit` y `npm run build` pasan. Commit/push realizado por orden del usuario (incluye re-proteger los 4 archivos de miniaturas en `.protected-files`).
 - Completada la Fase 6 (Centro Legal): creado `src/lib/legal-content-en.ts` con los **11 documentos** legales traducidos al inglés (Principios, Normas, Creadores, Contenido Prohibido, Términos de Servicio — con capítulos renumerados 34-53 igual que la fuente ES —, Privacidad, Cookies, Derechos de Autor, Moderación, Verificación de Edad, Transparencia/Reportes/Apelaciones). `src/app/terms/page.tsx` selecciona contenido ES si `locale === "es"` y EN en cualquier otro idioma.
@@ -73,9 +80,7 @@
 - Fuera de alcance (futuro): emails del servidor y errores de APIs en español; traducción de contenido del usuario (API paga); RTL/árabe.
 
 ### Problemas abiertos (para próxima sesión)
-- Usuarios que se registran con rol "Creador" quedan en `pending` sin entrada a `/verificacion` (el botón "Solicitar ser creador" solo se muestra a `viewer`). Decidir: ajustar el registro (role viewer + verificar) o hacer navegable el row "Creador — Pendiente" del menú (archivo protegido).
-- **Migración `00013_add_reporter_reply.sql` PENDIENTE de aplicar en Supabase** (la 00012 ya está aplicada). Hasta aplicarla, el flujo "Solicitar más información → responder" devolverá error al guardar `reporter_reply`.
-- Moderación de reportes: ya hay panel completo + notificaciones in-app, pero **solo cubren videos** (`reports.video_id NOT NULL`) vía "Reportar" en `VideoMenu`. Falta: reporte de perfil (target de perfil/tipo de reporte) y, opcionalmente, notificar por email (`src/lib/email.ts`, Resend) además de la notificación in-app.
+- Notificar por email (`src/lib/email.ts`, Resend) además de la notificación in-app (opcional pendiente).
 
 ### Próximos pasos sugeridos
 1. Agregar `loading.tsx` o `Suspense` boundary para mejorar experiencia de carga lenta

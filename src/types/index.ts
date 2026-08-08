@@ -103,7 +103,8 @@ export interface Follow {
 
 export interface Report {
   id: string;
-  video_id: string;
+  video_id: string | null;
+  reported_user_id: string | null;
   reporter_id: string;
   reason: string;
   description: string | null;

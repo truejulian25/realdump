@@ -55,7 +55,7 @@ export async function POST(
 
   const { data: report } = await admin
     .from("reports")
-    .select("id, video_id, reporter_id")
+    .select("id, video_id, reported_user_id, reporter_id")
     .eq("id", id)
     .single();
 
@@ -104,17 +104,19 @@ export async function POST(
     return NextResponse.json({ success: true });
   }
 
-  const { data: video } = await admin
-    .from("videos")
-    .select("id, user_id, mux_asset_id, title")
-    .eq("id", report.video_id)
-    .single();
-
-  if (!video) {
-    return NextResponse.json({ error: "Video no encontrado" }, { status: 404 });
-  }
+  const { data: video } = report.video_id
+    ? await admin
+        .from("videos")
+        .select("id, user_id, mux_asset_id, title")
+        .eq("id", report.video_id)
+        .single()
+    : { data: null as null };
 
   if (action === "delete_video") {
+    if (!video) {
+      return NextResponse.json({ error: "Video no encontrado" }, { status: 404 });
+    }
+
     const result = await deleteVideo(video.id, video.mux_asset_id);
     if (!result.ok) {
       return NextResponse.json({ error: result.error }, { status: 500 });
@@ -141,10 +143,16 @@ export async function POST(
     return NextResponse.json({ success: true });
   }
 
+  const targetUserId = report.video_id ? video?.user_id : report.reported_user_id;
+
+  if (!targetUserId) {
+    return NextResponse.json({ error: "Reporte sin usuario objetivo" }, { status: 400 });
+  }
+
   const { error: deactivateError } = await admin
     .from("profiles")
     .update({ deactivated_at: now })
-    .eq("id", video.user_id);
+    .eq("id", targetUserId);
 
   if (deactivateError) {
     return NextResponse.json({ error: "Error al desactivar la cuenta" }, { status: 500 });
@@ -152,11 +160,11 @@ export async function POST(
 
   await insertNotification(admin, report.reporter_id, "reportAccountSuspended", {
     reportId: id,
-    videoId: video.id,
+    videoId: report.video_id ?? undefined,
   });
-  await insertNotification(admin, video.user_id, "accountSuspended", {
+  await insertNotification(admin, targetUserId, "accountSuspended", {
     reportId: id,
-    videoId: video.id,
+    videoId: report.video_id ?? undefined,
   });
 
   await admin.from("reports").update({ status: "reviewed", updated_at: now }).eq("id", id);

@@ -24,6 +24,12 @@ interface ReportRow extends Report {
       deactivated_at: string | null;
     } | null;
   } | null;
+  reported: {
+    username: string | null;
+    display_name: string | null;
+    avatar_url: string | null;
+    deactivated_at: string | null;
+  } | null;
   reporter: {
     username: string | null;
     display_name: string | null;
@@ -184,15 +190,32 @@ export default function AdminReportsPage() {
         ) : (
           <div className="flex flex-col gap-3">
             {visible.map((report) => {
-              const owner = report.video?.profiles ?? null;
+              const isProfileReport = !!report.reported_user_id && !report.video;
+              const owner = isProfileReport ? report.reported : (report.video?.profiles ?? null);
               const ownerDeactivated = owner?.deactivated_at != null;
+              const ownerName =
+                owner?.display_name ?? owner?.username ?? t("admin.userFallback");
               return (
                 <div
                   key={report.id}
                   className="overflow-hidden rounded-lg border border-zinc-800 bg-zinc-900/50"
                 >
                   <div className="flex items-start gap-3 p-4">
-                    {report.video ? (
+                    {isProfileReport ? (
+                      <Link
+                        href={`/user/${report.reported_user_id}`}
+                        title={t("adminReports.openProfile")}
+                        prefetch={false}
+                        className="shrink-0"
+                      >
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={owner?.avatar_url ?? `https://ui-avatars.com/api/?name=${encodeURIComponent(ownerName ?? "")}&background=6366f1&color=fff&size=96`}
+                          alt=""
+                          className="h-16 w-16 rounded-full border border-zinc-800 object-cover transition-transform hover:scale-105 hover:border-blue-500"
+                        />
+                      </Link>
+                    ) : report.video ? (
                       <ReportThumb video={report.video} />
                     ) : (
                       <div className="flex h-16 w-28 shrink-0 items-center justify-center rounded-lg border border-zinc-800 bg-zinc-950">
@@ -205,7 +228,9 @@ export default function AdminReportsPage() {
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center justify-between gap-2">
                         <p className="truncate text-sm font-medium text-white">
-                          {report.video?.title || t("adminReports.videoFallback")}
+                          {isProfileReport
+                            ? t("adminReports.profileReported") + " " + ownerName
+                            : report.video?.title || t("adminReports.videoFallback")}
                         </p>
                         <span
                           className={`shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-medium ${statusBadge[report.status]}`}
@@ -219,6 +244,11 @@ export default function AdminReportsPage() {
                           @{owner?.username ?? t("admin.userFallback")}
                         </span>
                       </p>
+                      {isProfileReport && (
+                        <p className="mt-1 inline-flex items-center gap-1 rounded-full border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[10px] font-medium text-amber-400">
+                          {t("adminReports.profileType")}
+                        </p>
+                      )}
                       <p className="mt-1 flex items-center gap-1.5 text-xs text-zinc-500">
                         {t("adminReports.reporterLabel")}
                         {report.reporter?.avatar_url && (

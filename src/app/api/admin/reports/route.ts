@@ -27,6 +27,7 @@ export async function GET() {
     .select(`
       *,
       video:videos(id, title, thumbnail_url, video_url, mux_playback_id, user_id, profiles(username, display_name, avatar_url, deactivated_at)),
+      reported:profiles!reports_reported_user_id_fkey(username, display_name, avatar_url, deactivated_at),
       reporter:profiles!reports_reporter_id_fkey(username, display_name, avatar_url)
     `)
     .order("created_at", { ascending: false });

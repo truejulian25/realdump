@@ -283,6 +283,7 @@ function MainMenu({ onSelect, onClose }: {
           <MenuRow
             icon={<span className="text-amber-400"><IconClock /></span>}
             label={t("hamburgerMenu.creatorPending")}
+            href="/verificacion"
             hasArrow={false}
           />
         )}

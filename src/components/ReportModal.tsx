@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
+import { createClient } from "@/lib/supabase/client";
 
 interface Props {
   open: boolean;
@@ -14,18 +15,48 @@ interface Props {
 export default function ReportModal({ open, onClose, videoId }: Props) {
   const { t } = useLanguage();
   const { user } = useAuth();
-  const reasons = t<string[]>("report.reasons");
+  const supabase = useMemo(() => createClient(), []);
+  const [mode, setMode] = useState<"video" | "profile">("video");
+  const [videoOwnerId, setVideoOwnerId] = useState<string | null>(null);
+  const reasons = t<string[]>(mode === "video" ? "report.reasons" : "report.profileReasons");
   const [selectedReason, setSelectedReason] = useState("");
   const [description, setDescription] = useState("");
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  useEffect(() => {
+    if (!open || !videoId) return;
+    let cancelled = false;
+    setMode("video");
+    setSelectedReason("");
+    setDescription("");
+    setSent(false);
+    setError(null);
+    setVideoOwnerId(null);
+    supabase
+      .from("videos")
+      .select("user_id")
+      .eq("id", videoId)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (!cancelled) setVideoOwnerId(data?.user_id ?? null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [open, videoId, supabase]);
+
+  useEffect(() => {
+    setSelectedReason("");
+    setError(null);
+  }, [mode]);
+
   if (!open) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedReason || !description.trim()) return;
+    if ((mode === "video" && !selectedReason) || !description.trim()) return;
 
     setSending(true);
     setError(null);
@@ -34,11 +65,19 @@ export default function ReportModal({ open, onClose, videoId }: Props) {
       const res = await fetch("/api/report", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          video_id: videoId,
-          reason: selectedReason,
-          description: description.trim(),
-        }),
+        body: JSON.stringify(
+          mode === "video"
+            ? {
+                video_id: videoId,
+                reason: selectedReason,
+                description: description.trim(),
+              }
+            : {
+                profile_id: videoOwnerId,
+                reason: selectedReason,
+                description: description.trim(),
+              },
+        ),
       });
 
       if (!res.ok) {
@@ -47,8 +86,8 @@ export default function ReportModal({ open, onClose, videoId }: Props) {
       }
 
       setSent(true);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : t("common.unknownError"));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t("common.unknownError"));
     } finally {
       setSending(false);
     }
@@ -115,7 +154,9 @@ export default function ReportModal({ open, onClose, videoId }: Props) {
         ) : (
           <>
             <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-lg font-bold text-white">{t("report.title")}</h2>
+              <h2 className="text-lg font-bold text-white">
+                {t(mode === "video" ? "report.title" : "report.profileTitle")}
+              </h2>
               <button onClick={onClose} className="text-zinc-400 hover:text-white">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <line x1="18" y1="6" x2="6" y2="18" />
@@ -125,7 +166,9 @@ export default function ReportModal({ open, onClose, videoId }: Props) {
             </div>
 
             <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-              <p className="text-sm text-zinc-400">{t("report.question")}</p>
+              <p className="text-sm text-zinc-400">
+                {t(mode === "video" ? "report.question" : "report.profileQuestion")}
+              </p>
 
               <div className="flex flex-col gap-2">
                 {reasons.map((reason) => (
@@ -150,6 +193,32 @@ export default function ReportModal({ open, onClose, videoId }: Props) {
                 ))}
               </div>
 
+              {videoOwnerId && (
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-center gap-2">
+                    <span className="h-px flex-1 bg-zinc-700" />
+                    <span className="text-[10px] uppercase tracking-wide text-zinc-500">
+                      {t("report.or")}
+                    </span>
+                    <span className="h-px flex-1 bg-zinc-700" />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setMode(mode === "video" ? "profile" : "video")}
+                    aria-pressed={mode === "profile"}
+                    className={`w-full rounded-lg border py-2.5 text-sm font-semibold transition-colors ${
+                      mode === "profile"
+                        ? "border-blue-500 bg-blue-500/10 text-white"
+                        : "border-zinc-600 text-zinc-300 hover:border-zinc-400 hover:text-white"
+                    }`}
+                  >
+                    {mode === "profile"
+                      ? t("report.profileSelected")
+                      : t("report.profileButton")}
+                  </button>
+                </div>
+              )}
+
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
@@ -163,7 +232,11 @@ export default function ReportModal({ open, onClose, videoId }: Props) {
 
               <button
                 type="submit"
-                disabled={!selectedReason || !description.trim() || sending}
+                disabled={
+                  (mode === "video" && !selectedReason) ||
+                  !description.trim() ||
+                  sending
+                }
                 className="w-full rounded-lg bg-red-600 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-red-700 disabled:opacity-50"
               >
                 {sending ? t("report.sending") : t("report.send")}
