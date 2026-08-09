@@ -169,6 +169,8 @@ const ja: Translations = {
     requestCreator: "クリエイターになることを申請",
     requestSent: "リクエストを送信しました",
     sending: "送信中...",
+    tabsVideos: "動画",
+    tabsTagged: "タグ付け",
   },
   profileEdit: {
     title: "プロフィールを編集",
@@ -266,6 +268,17 @@ const ja: Translations = {
     saveChanges: "変更を保存",
     updatedSuccess: "動画を更新しました！",
     saveError: "保存エラー",
+  },
+  videoTags: {
+    collaboratorsLabel: "コラボレーター（@ユーザー名）",
+    collaboratorsHint: "コラボレーターがタグを承認すると、そのプロフィールに表示されます。",
+    noResults: "クリエイターが見つかりません",
+    remove: "削除",
+    noTagged: "タグ付けされた動画はありません",
+    approve: "承認",
+    reject: "拒否",
+    tagError: "コラボレーターの保存中にエラーが発生しました",
+    tagResponseError: "タグを処理できませんでした。もう一度お試しください。",
   },
   videoMenu: {
     moreOptions: "その他のオプション",
@@ -566,6 +579,9 @@ const ja: Translations = {
     replySubmit: "回答を送信",
     replySent: "回答を送信しました。通報を再確認します。",
     replyError: "回答を送信できませんでした。もう一度お試しください。",
+    videoTag: "{tagger}さんが動画「{title}」であなたをコラボレーターとしてタグ付けしました",
+    videoTagAccepted: "{name}さんが「{title}」のコラボレーションタグを承認しました",
+    videoTagRejected: "{name}さんが「{title}」のコラボレーションタグを拒否しました",
   },
 };
 

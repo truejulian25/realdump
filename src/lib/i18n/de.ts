@@ -169,6 +169,8 @@ const de: Translations = {
     requestCreator: "Creator werden",
     requestSent: "Anfrage gesendet",
     sending: "Wird gesendet...",
+    tabsVideos: "Videos",
+    tabsTagged: "Markiert",
   },
   profileEdit: {
     title: "Profil bearbeiten",
@@ -266,6 +268,17 @@ const de: Translations = {
     saveChanges: "Änderungen speichern",
     updatedSuccess: "Video aktualisiert!",
     saveError: "Fehler beim Speichern",
+  },
+  videoTags: {
+    collaboratorsLabel: "Mitwirkende (@benutzer)",
+    collaboratorsHint: "Mitwirkende müssen die Markierung bestätigen, damit sie in ihrem Profil erscheint.",
+    noResults: "Keine Creator gefunden",
+    remove: "Entfernen",
+    noTagged: "Keine markierten Videos",
+    approve: "Bestätigen",
+    reject: "Ablehnen",
+    tagError: "Fehler beim Speichern der Mitwirkenden",
+    tagResponseError: "Die Markierung konnte nicht verarbeitet werden. Versuche es erneut.",
   },
   videoMenu: {
     moreOptions: "Weitere Optionen",
@@ -566,6 +579,9 @@ const de: Translations = {
     replySubmit: "Antwort senden",
     replySent: "Antwort gesendet. Wir werden deine Meldung erneut prüfen.",
     replyError: "Antwort konnte nicht gesendet werden. Versuche es erneut.",
+    videoTag: "{tagger} hat dich in ihrem Video «{title}» als Mitwirkenden markiert",
+    videoTagAccepted: "{name} hat deine Mitwirkenden-Markierung in «{title}» bestätigt",
+    videoTagRejected: "{name} hat deine Mitwirkenden-Markierung in «{title}» abgelehnt",
   },
 };
 

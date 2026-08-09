@@ -8,7 +8,7 @@ import ProfileVideoOverlay from "@/components/ProfileVideoOverlay";
 import ProfileGridSkeleton from "@/components/ProfileGridSkeleton";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useProfileVideos } from "@/hooks/useVideos";
+import { useProfileVideos, useTaggedVideos } from "@/hooks/useVideos";
 import { useFollowerCount, useFollowingCount } from "@/hooks/useFollow";
 import { createClient } from "@/lib/supabase/client";
 import type { Video } from "@/types";
@@ -21,11 +21,16 @@ export default function ProfilePage() {
   const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
   const [requestSent, setRequestSent] = useState(false);
   const [requestLoading, setRequestLoading] = useState(false);
+  const [tab, setTab] = useState<"videos" | "tagged">("videos");
 
   const {
     data: videos = [],
     isLoading: videosLoading,
   } = useProfileVideos(user?.id);
+  const {
+    data: taggedVideos = [],
+    isLoading: taggedLoading,
+  } = useTaggedVideos(user?.id);
   const followerCount = useFollowerCount(profile?.id);
   const followingCount = useFollowingCount(profile?.id);
 
@@ -196,13 +201,50 @@ export default function ProfilePage() {
 
       {isCreator && (
         <>
-          {videosLoading ? (
+          <div className="flex border-b border-zinc-800">
+            <button
+              type="button"
+              onClick={() => setTab("videos")}
+              className={`flex-1 py-2.5 text-sm font-semibold transition-colors ${
+                tab === "videos"
+                  ? "border-b-2 border-blue-500 text-white"
+                  : "text-zinc-500"
+              }`}
+            >
+              {t("profile.tabsVideos")}
+            </button>
+            <button
+              type="button"
+              onClick={() => setTab("tagged")}
+              className={`flex-1 py-2.5 text-sm font-semibold transition-colors ${
+                tab === "tagged"
+                  ? "border-b-2 border-blue-500 text-white"
+                  : "text-zinc-500"
+              }`}
+            >
+              {t("profile.tabsTagged")}
+            </button>
+          </div>
+
+          {tab === "videos" ? (
+            videosLoading ? (
+              <ProfileGridSkeleton />
+            ) : videos.length === 0 ? (
+              <p className="py-8 text-center text-zinc-500">{t("profile.noVideosYet")}</p>
+            ) : (
+              <div className="grid grid-cols-3 gap-0.5 p-0.5">
+                {videos.map((video) => (
+                  <ProfileVideoCard key={video.id} video={video} onClick={handleVideoClick} />
+                ))}
+              </div>
+            )
+          ) : taggedLoading ? (
             <ProfileGridSkeleton />
-          ) : videos.length === 0 ? (
-            <p className="py-8 text-center text-zinc-500">{t("profile.noVideosYet")}</p>
+          ) : taggedVideos.length === 0 ? (
+            <p className="py-8 text-center text-zinc-500">{t("videoTags.noTagged")}</p>
           ) : (
             <div className="grid grid-cols-3 gap-0.5 p-0.5">
-              {videos.map((video) => (
+              {taggedVideos.map((video) => (
                 <ProfileVideoCard key={video.id} video={video} onClick={handleVideoClick} />
               ))}
             </div>
@@ -212,7 +254,7 @@ export default function ProfilePage() {
 
       <ProfileVideoOverlay
         video={selectedVideo}
-        allVideos={videos}
+        allVideos={tab === "tagged" ? taggedVideos : videos}
         open={!!selectedVideo}
         onClose={handleCloseOverlay}
       />

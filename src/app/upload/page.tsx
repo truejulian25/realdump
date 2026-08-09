@@ -6,6 +6,7 @@ import { useRef, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { createClient } from "@/lib/supabase/client";
+import CollaboratorInput, { type Collaborator } from "@/components/CollaboratorInput";
 
 const POLL_INTERVAL = 2000;
 const MAX_POLLS = 60;
@@ -26,6 +27,7 @@ export default function UploadPage() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [hashtags, setHashtags] = useState("");
+  const [collaborators, setCollaborators] = useState<Collaborator[]>([]);
   const [uploading, setUploading] = useState(false);
   const [uploadStatus, setUploadStatus] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
@@ -124,18 +126,42 @@ export default function UploadPage() {
         .split(/\s+/)
         .filter((tag) => tag.length > 0);
 
-      const { error: insertError } = await supabase.from("videos").insert({
-        user_id: user.id,
-        title: title || null,
-        description: description || null,
-        video_url: "",
-        hashtags: hashtagList.length > 0 ? hashtagList : null,
-        mux_playback_id: playbackId,
-        mux_asset_id: assetId,
-      });
+      const { data: inserted, error: insertError } = await supabase
+        .from("videos")
+        .insert({
+          user_id: user.id,
+          title: title || null,
+          description: description || null,
+          video_url: "",
+          hashtags: hashtagList.length > 0 ? hashtagList : null,
+          mux_playback_id: playbackId,
+          mux_asset_id: assetId,
+        })
+        .select("id")
+        .single();
 
       if (insertError) {
         throw new Error(t("upload.saveError") + ": " + insertError.message);
+      }
+
+      if (!inserted?.id) {
+        throw new Error(t("upload.saveError"));
+      }
+
+      // 6. Etiquetar colaboradores (opcional)
+      if (collaborators.length > 0) {
+        const tagResp = await fetch("/api/video-tags/batch", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            videoId: inserted.id,
+            userIds: collaborators.map((c) => c.id),
+          }),
+        });
+        if (!tagResp.ok) {
+          const err = await tagResp.json().catch(() => ({}));
+          throw new Error(err.error || t("videoTags.tagError"));
+        }
       }
 
       setSuccess(true);
@@ -255,6 +281,19 @@ export default function UploadPage() {
           placeholder={t("common.hashtagsPlaceholder")}
           className="w-full bg-transparent px-0 py-2 text-sm text-white placeholder-zinc-500 outline-none caret-blue-500"
         />
+
+        <div className="mt-2">
+          <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
+            {t("videoTags.collaboratorsLabel")}
+          </label>
+          <CollaboratorInput
+            selected={collaborators}
+            onChange={setCollaborators}
+            excludeId={user.id}
+            disabled={uploading}
+          />
+          <p className="mt-1 text-xs text-zinc-500">{t("videoTags.collaboratorsHint")}</p>
+        </div>
 
         {uploadStatus && !error && !success && (
           <div className="flex items-center gap-2 text-sm text-blue-400">

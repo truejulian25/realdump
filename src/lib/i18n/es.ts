@@ -167,6 +167,8 @@ const es = {
     requestCreator: "Solicitar ser creador",
     requestSent: "Solicitud enviada",
     sending: "Enviando...",
+    tabsVideos: "Videos",
+    tabsTagged: "Etiquetados",
   },
   profileEdit: {
     title: "Editar perfil",
@@ -264,6 +266,17 @@ const es = {
     saveChanges: "Guardar cambios",
     updatedSuccess: "¡Video actualizado!",
     saveError: "Error al guardar",
+  },
+  videoTags: {
+    collaboratorsLabel: "Colaboradores (@usuario)",
+    collaboratorsHint: "Los colaboradores deben aprobar la etiqueta para aparecer en su perfil.",
+    noResults: "No se encontraron creadores",
+    remove: "Quitar",
+    noTagged: "Sin videos etiquetados",
+    approve: "Aprobar",
+    reject: "Rechazar",
+    tagError: "Error al guardar los colaboradores",
+    tagResponseError: "No se pudo procesar la etiqueta. Intenta de nuevo.",
   },
   videoMenu: {
     moreOptions: "Más opciones",
@@ -564,6 +577,9 @@ const es = {
     replySubmit: "Enviar respuesta",
     replySent: "Respuesta enviada. Volveremos a revisar tu reporte.",
     replyError: "No se pudo enviar la respuesta. Intenta de nuevo.",
+    videoTag: "{tagger} te etiquetó como colaborador en su video «{title}»",
+    videoTagAccepted: "{name} aceptó tu etiqueta de colaboración en «{title}»",
+    videoTagRejected: "{name} rechazó tu etiqueta de colaboración en «{title}»",
   },
 };
 

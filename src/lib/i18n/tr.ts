@@ -169,6 +169,8 @@ const tr: Translations = {
     requestCreator: "İçerik üreticisi olmayı talep et",
     requestSent: "Talep gönderildi",
     sending: "Gönderiliyor...",
+    tabsVideos: "Videolar",
+    tabsTagged: "Etiketlenen",
   },
   profileEdit: {
     title: "Profili düzenle",
@@ -266,6 +268,17 @@ const tr: Translations = {
     saveChanges: "Değişiklikleri kaydet",
     updatedSuccess: "Video güncellendi!",
     saveError: "Kaydetme hatası",
+  },
+  videoTags: {
+    collaboratorsLabel: "İş birlikçiler (@kullanıcı)",
+    collaboratorsHint: "İş birlikçiler, etiketin profillerinde görünmesi için etiketi onaylamalıdır.",
+    noResults: "İçerik üretici bulunamadı",
+    remove: "Kaldır",
+    noTagged: "Etiketlenmiş video yok",
+    approve: "Onayla",
+    reject: "Reddet",
+    tagError: "İş birlikçiler kaydedilirken hata oluştu",
+    tagResponseError: "Etiket işlenemedi. Tekrar deneyin.",
   },
   videoMenu: {
     moreOptions: "Diğer seçenekler",
@@ -566,6 +579,9 @@ const tr: Translations = {
     replySubmit: "Yanıtı gönder",
     replySent: "Yanıt gönderildi. Şikayetinizi yeniden inceleyeceğiz.",
     replyError: "Yanıt gönderilemedi. Tekrar deneyin.",
+    videoTag: "{tagger}, «{title}» videosunda seni iş birlikçi olarak etiketledi",
+    videoTagAccepted: "{name}, «{title}» videosundaki iş birliği etiketini onayladı",
+    videoTagRejected: "{name}, «{title}» videosundaki iş birliği etiketini reddetti",
   },
 };
 

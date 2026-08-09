@@ -65,6 +65,36 @@ export function useProfileVideos(userId: string | undefined) {
   });
 }
 
+// ─── Tagged videos (approved collaborations) ───
+
+export function useTaggedVideos(profileId: string | undefined) {
+  const supabase = useMemo(() => createClient(), []);
+
+  return useQuery<Video[]>({
+    queryKey: ["videos", "tagged", profileId],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("video_tags")
+        .select("videos(*)")
+        .eq("user_id", profileId!)
+        .eq("status", "approved")
+        .order("created_at", { ascending: false });
+
+      if (!data) return [];
+
+      const seen = new Set<string>();
+      const result: Video[] = [];
+      for (const row of data as unknown as { videos: Video | null }[]) {
+        if (!row.videos || seen.has(row.videos.id)) continue;
+        seen.add(row.videos.id);
+        result.push(row.videos);
+      }
+      return result;
+    },
+    enabled: !!profileId,
+  });
+}
+
 // ─── Saved videos ───
 
 export function useSavedVideos(userId: string | undefined) {

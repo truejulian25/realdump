@@ -169,6 +169,8 @@ const pt: Translations = {
     requestCreator: "Solicitar ser criador",
     requestSent: "Solicitação enviada",
     sending: "Enviando...",
+    tabsVideos: "Vídeos",
+    tabsTagged: "Marcados",
   },
   profileEdit: {
     title: "Editar perfil",
@@ -266,6 +268,17 @@ const pt: Translations = {
     saveChanges: "Salvar alterações",
     updatedSuccess: "Vídeo atualizado!",
     saveError: "Erro ao salvar",
+  },
+  videoTags: {
+    collaboratorsLabel: "Colaboradores (@usuário)",
+    collaboratorsHint: "Os colaboradores devem aprovar a etiqueta para aparecerem no perfil deles.",
+    noResults: "Nenhum criador encontrado",
+    remove: "Remover",
+    noTagged: "Nenhum vídeo marcado",
+    approve: "Aprovar",
+    reject: "Recusar",
+    tagError: "Erro ao salvar os colaboradores",
+    tagResponseError: "Não foi possível processar a etiqueta. Tente novamente.",
   },
   videoMenu: {
     moreOptions: "Mais opções",
@@ -566,6 +579,9 @@ const pt: Translations = {
     replySubmit: "Enviar resposta",
     replySent: "Resposta enviada. Analisaremos sua denúncia novamente.",
     replyError: "Não foi possível enviar a resposta. Tente novamente.",
+    videoTag: "{tagger} te marcou como colaborador no vídeo «{title}»",
+    videoTagAccepted: "{name} aceitou sua etiqueta de colaboração em «{title}»",
+    videoTagRejected: "{name} recusou sua etiqueta de colaboração em «{title}»",
   },
 };
 

@@ -87,6 +87,17 @@ export interface Comment {
   created_at: string;
 }
 
+export type VideoTagStatus = "pending" | "approved" | "rejected";
+
+export interface VideoTag {
+  id: string;
+  video_id: string;
+  user_id: string;
+  status: VideoTagStatus;
+  created_at: string;
+  responded_at: string | null;
+}
+
 export interface SavedVideo {
   id: string;
   user_id: string;

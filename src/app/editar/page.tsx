@@ -7,6 +7,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { createClient } from "@/lib/supabase/client";
 import type { Video } from "@/types";
+import CollaboratorInput, { type Collaborator } from "@/components/CollaboratorInput";
 
 export default function EditarPage() {
   const { user, loading: authLoading } = useAuth();
@@ -18,6 +19,8 @@ export default function EditarPage() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [hashtags, setHashtags] = useState("");
+  const [collaborators, setCollaborators] = useState<Collaborator[]>([]);
+  const [collaboratorsLoaded, setCollaboratorsLoaded] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -57,6 +60,22 @@ export default function EditarPage() {
       setTitle(data.title ?? "");
       setDescription(data.description ?? "");
       setHashtags((data.hashtags ?? []).join(" "));
+
+      const { data: tagsData } = await supabase
+        .from("video_tags")
+        .select("profiles(id, username, display_name, avatar_url)")
+        .eq("video_id", data.id);
+      const prefilled: Collaborator[] = [];
+      for (const row of (tagsData ?? []) as unknown as {
+        profiles: Collaborator | Collaborator[] | null;
+      }[]) {
+        const profiles = row.profiles;
+        if (!profiles) continue;
+        if (Array.isArray(profiles)) prefilled.push(...profiles);
+        else prefilled.push(profiles);
+      }
+      setCollaborators(prefilled);
+      setCollaboratorsLoaded(true);
       setLoading(false);
     };
 
@@ -86,6 +105,22 @@ export default function EditarPage() {
 
     if (updateError) {
       setError(t("editar.saveError") + ": " + updateError.message);
+      setSaving(false);
+      return;
+    }
+
+    const tagResp = await fetch("/api/video-tags/batch", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        videoId: video.id,
+        userIds: collaborators.map((c) => c.id),
+      }),
+    });
+
+    if (!tagResp.ok) {
+      const err = await tagResp.json().catch(() => ({}));
+      setError(err.error || t("editar.saveError"));
       setSaving(false);
       return;
     }
@@ -162,6 +197,17 @@ export default function EditarPage() {
             placeholder={t("common.hashtagsPlaceholder")}
             className="w-full bg-transparent px-0 py-2 text-sm text-white placeholder-zinc-500 outline-none caret-blue-500"
           />
+
+          <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
+            {t("videoTags.collaboratorsLabel")}
+          </label>
+          <CollaboratorInput
+            selected={collaborators}
+            onChange={setCollaborators}
+            excludeId={user?.id}
+            disabled={saving || !collaboratorsLoaded}
+          />
+          <p className="text-xs text-zinc-500">{t("videoTags.collaboratorsHint")}</p>
 
           {error && <p className="text-sm text-red-400">{error}</p>}
           {success && <p className="text-sm text-green-400">{t("editar.updatedSuccess")}</p>}

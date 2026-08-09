@@ -169,6 +169,8 @@ const fr: Translations = {
     requestCreator: "Demander à devenir créateur",
     requestSent: "Demande envoyée",
     sending: "Envoi...",
+    tabsVideos: "Vidéos",
+    tabsTagged: "Étiqueté",
   },
   profileEdit: {
     title: "Modifier le profil",
@@ -266,6 +268,17 @@ const fr: Translations = {
     saveChanges: "Enregistrer les modifications",
     updatedSuccess: "Vidéo mise à jour !",
     saveError: "Erreur lors de l'enregistrement",
+  },
+  videoTags: {
+    collaboratorsLabel: "Collaborateurs (@utilisateur)",
+    collaboratorsHint: "Les collaborateurs doivent approuver l'étiquette pour qu'elle apparaisse sur leur profil.",
+    noResults: "Aucun créateur trouvé",
+    remove: "Retirer",
+    noTagged: "Aucune vidéo étiquetée",
+    approve: "Approuver",
+    reject: "Refuser",
+    tagError: "Erreur lors de l'enregistrement des collaborateurs",
+    tagResponseError: "Impossible de traiter l'étiquette. Réessayez.",
   },
   videoMenu: {
     moreOptions: "Plus d'options",
@@ -566,6 +579,9 @@ const fr: Translations = {
     replySubmit: "Envoyer la réponse",
     replySent: "Réponse envoyée. Nous examinerons à nouveau votre signalement.",
     replyError: "Impossible d'envoyer la réponse. Réessayez.",
+    videoTag: "{tagger} vous a étiqueté comme collaborateur dans sa vidéo «{title}»",
+    videoTagAccepted: "{name} a accepté votre étiquette de collaboration sur «{title}»",
+    videoTagRejected: "{name} a refusé votre étiquette de collaboration sur «{title}»",
   },
 };
 

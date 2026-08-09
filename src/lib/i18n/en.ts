@@ -169,6 +169,8 @@ const en: Translations = {
     requestCreator: "Request to become a creator",
     requestSent: "Request sent",
     sending: "Sending...",
+    tabsVideos: "Videos",
+    tabsTagged: "Tagged",
   },
   profileEdit: {
     title: "Edit profile",
@@ -266,6 +268,17 @@ const en: Translations = {
     saveChanges: "Save changes",
     updatedSuccess: "Video updated!",
     saveError: "Error saving",
+  },
+  videoTags: {
+    collaboratorsLabel: "Collaborators (@username)",
+    collaboratorsHint: "Collaborators must approve the tag to appear on their profile.",
+    noResults: "No creators found",
+    remove: "Remove",
+    noTagged: "No tagged videos",
+    approve: "Approve",
+    reject: "Reject",
+    tagError: "Error saving collaborators",
+    tagResponseError: "Couldn't process the tag. Try again.",
   },
   videoMenu: {
     moreOptions: "More options",
@@ -566,6 +579,9 @@ const en: Translations = {
     replySubmit: "Send reply",
     replySent: "Reply sent. We will review your report again.",
     replyError: "Could not send the reply. Try again.",
+    videoTag: "{tagger} tagged you as a collaborator in their video «{title}»",
+    videoTagAccepted: "{name} accepted your collaboration tag on «{title}»",
+    videoTagRejected: "{name} declined your collaboration tag on «{title}»",
   },
 };
 

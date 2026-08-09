@@ -169,6 +169,8 @@ const ko: Translations = {
     requestCreator: "크리에이터 되기 신청",
     requestSent: "요청 전송됨",
     sending: "전송 중...",
+    tabsVideos: "동영상",
+    tabsTagged: "태그된",
   },
   profileEdit: {
     title: "프로필 편집",
@@ -266,6 +268,17 @@ const ko: Translations = {
     saveChanges: "변경사항 저장",
     updatedSuccess: "동영상이 업데이트되었습니다!",
     saveError: "저장 오류",
+  },
+  videoTags: {
+    collaboratorsLabel: "공동 작업자 (@사용자명)",
+    collaboratorsHint: "공동 작업자가 태그를 승인해야 프로필에 표시됩니다.",
+    noResults: "크리에이터를 찾을 수 없습니다",
+    remove: "제거",
+    noTagged: "태그된 동영상이 없습니다",
+    approve: "승인",
+    reject: "거부",
+    tagError: "공동 작업자 저장 중 오류가 발생했습니다",
+    tagResponseError: "태그를 처리할 수 없습니다. 다시 시도하세요.",
   },
   videoMenu: {
     moreOptions: "더 많은 옵션",
@@ -566,6 +579,9 @@ const ko: Translations = {
     replySubmit: "답변 보내기",
     replySent: "답변이 전송되었습니다. 신고를 다시 검토하겠습니다.",
     replyError: "답변을 보낼 수 없습니다. 다시 시도하세요.",
+    videoTag: "{tagger}님이 «{title}» 동영상에서 회원님을 공동 작업자로 태그했습니다",
+    videoTagAccepted: "{name}님이 «{title}»의 공동 작업 태그를 승인했습니다",
+    videoTagRejected: "{name}님이 «{title}»의 공동 작업 태그를 거부했습니다",
   },
 };
 

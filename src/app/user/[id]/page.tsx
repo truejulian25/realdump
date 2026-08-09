@@ -10,7 +10,7 @@ import { Heart } from "@phosphor-icons/react";
 import ProfileVideoCard from "@/components/ProfileVideoCard";
 import ProfileVideoOverlay from "@/components/ProfileVideoOverlay";
 import ProfileGridSkeleton from "@/components/ProfileGridSkeleton";
-import { usePublicacionesVideos } from "@/hooks/useVideos";
+import { usePublicacionesVideos, useTaggedVideos } from "@/hooks/useVideos";
 import { useFollowToggle, useFollowerCount, useFollowingCount } from "@/hooks/useFollow";
 
 export default function UserPage() {
@@ -21,6 +21,7 @@ export default function UserPage() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [profileLoading, setProfileLoading] = useState(true);
   const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
+  const [tab, setTab] = useState<"videos" | "tagged">("videos");
   const { isFollowing, toggling, toggle } = useFollowToggle(profile?.id);
   const followerCount = useFollowerCount(profile?.id);
   const followingCount = useFollowingCount(profile?.id);
@@ -42,6 +43,11 @@ export default function UserPage() {
       return true;
     });
   }, [data?.pages]);
+
+  const {
+    data: taggedVideos = [],
+    isLoading: taggedLoading,
+  } = useTaggedVideos(profile?.id);
 
   const sentinelRef = useRef<HTMLDivElement>(null);
   const deepLinkHandled = useRef(false);
@@ -234,7 +240,42 @@ export default function UserPage() {
         </div>
       </div>
 
-      {videosLoading ? (
+      {profile.role === "creator" && (
+        <div className="flex border-b border-zinc-800">
+          <button
+            type="button"
+            onClick={() => setTab("videos")}
+            className={`flex-1 py-2.5 text-sm font-semibold transition-colors ${
+              tab === "videos" ? "border-b-2 border-blue-500 text-white" : "text-zinc-500"
+            }`}
+          >
+            {t("profile.tabsVideos")}
+          </button>
+          <button
+            type="button"
+            onClick={() => setTab("tagged")}
+            className={`flex-1 py-2.5 text-sm font-semibold transition-colors ${
+              tab === "tagged" ? "border-b-2 border-blue-500 text-white" : "text-zinc-500"
+            }`}
+          >
+            {t("profile.tabsTagged")}
+          </button>
+        </div>
+      )}
+
+      {tab === "tagged" ? (
+        taggedLoading ? (
+          <ProfileGridSkeleton />
+        ) : taggedVideos.length === 0 ? (
+          <p className="py-8 text-center text-zinc-500">{t("videoTags.noTagged")}</p>
+        ) : (
+          <div className="grid grid-cols-3 gap-0.5 p-0.5">
+            {taggedVideos.map((video) => (
+              <ProfileVideoCard key={video.id} video={video} onClick={handleVideoClick} />
+            ))}
+          </div>
+        )
+      ) : videosLoading ? (
         <ProfileGridSkeleton />
       ) : videos.length === 0 ? (
         <p className="py-8 text-center text-zinc-500">{t("user.noVideos")}</p>
@@ -246,11 +287,11 @@ export default function UserPage() {
         </div>
       )}
 
-      {hasNextPage && (
+      {tab === "videos" && hasNextPage && (
         <div ref={sentinelRef} className="h-10" />
       )}
 
-      {isFetchingNextPage && (
+      {tab === "videos" && isFetchingNextPage && (
         <div className="flex justify-center py-4">
           <div className="h-5 w-5 animate-spin rounded-full border-2 border-zinc-600 border-t-white" />
         </div>
@@ -258,10 +299,10 @@ export default function UserPage() {
 
       <ProfileVideoOverlay
         video={selectedVideo}
-        allVideos={videos}
+        allVideos={tab === "tagged" ? taggedVideos : videos}
         open={!!selectedVideo}
         onClose={handleCloseOverlay}
-        onLoadMore={hasNextPage ? fetchNextPage : undefined}
+        onLoadMore={tab === "videos" && hasNextPage ? fetchNextPage : undefined}
       />
     </div>
   );

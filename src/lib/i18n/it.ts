@@ -169,6 +169,8 @@ const it: Translations = {
     requestCreator: "Richiedi di diventare creatore",
     requestSent: "Richiesta inviata",
     sending: "Invio...",
+    tabsVideos: "Video",
+    tabsTagged: "Etichettati",
   },
   profileEdit: {
     title: "Modifica profilo",
@@ -266,6 +268,17 @@ const it: Translations = {
     saveChanges: "Salva modifiche",
     updatedSuccess: "Video aggiornato!",
     saveError: "Errore nel salvataggio",
+  },
+  videoTags: {
+    collaboratorsLabel: "Collaboratori (@utente)",
+    collaboratorsHint: "I collaboratori devono approvare l'etichetta per comparire nel loro profilo.",
+    noResults: "Nessun creatore trovato",
+    remove: "Rimuovi",
+    noTagged: "Nessun video etichettato",
+    approve: "Approva",
+    reject: "Rifiuta",
+    tagError: "Errore nel salvare i collaboratori",
+    tagResponseError: "Impossibile elaborare l'etichetta. Riprova.",
   },
   videoMenu: {
     moreOptions: "Altre opzioni",
@@ -566,6 +579,9 @@ const it: Translations = {
     replySubmit: "Invia risposta",
     replySent: "Risposta inviata. Riesamineremo la tua segnalazione.",
     replyError: "Impossibile inviare la risposta. Riprova.",
+    videoTag: "{tagger} ti ha etichettato come collaboratore nel suo video «{title}»",
+    videoTagAccepted: "{name} ha accettato la tua etichetta di collaborazione su «{title}»",
+    videoTagRejected: "{name} ha rifiutato la tua etichetta di collaborazione su «{title}»",
   },
 };
 

@@ -19,6 +19,9 @@ const MESSAGE_KEY_BY_TYPE: Record<string, string> = {
   reportNeedsInfo: "notifications.reportNeedsInfo",
   videoRemoved: "notifications.videoRemoved",
   accountSuspended: "notifications.accountSuspended",
+  videoTag: "notifications.videoTag",
+  videoTagAccepted: "notifications.videoTagAccepted",
+  videoTagRejected: "notifications.videoTagRejected",
 };
 
 function formatDate(iso: string) {
@@ -42,6 +45,10 @@ export default function NotificationsPage() {
   const [sending, setSending] = useState(false);
   const [sentFor, setSentFor] = useState<string | null>(null);
   const [replyError, setReplyError] = useState<string | null>(null);
+
+  const [respondingTag, setRespondingTag] = useState<string | null>(null);
+  const [respondedTags, setRespondedTags] = useState<Set<string>>(new Set());
+  const [tagActionError, setTagActionError] = useState<string | null>(null);
 
   const { data, isLoading } = useNotifications();
   const markRead = useMarkNotificationsRead();
@@ -89,6 +96,30 @@ export default function NotificationsPage() {
       markRead([n.id]);
     } finally {
       setSending(false);
+    }
+  };
+
+  const handleTagResponse = async (n: AppNotification, action: "approved" | "rejected") => {
+    const videoTagId = String(n.data.videoTagId ?? "");
+    if (!videoTagId) return;
+
+    setRespondingTag(n.id);
+    setTagActionError(null);
+    try {
+      const res = await fetch(`/api/video-tags/${videoTagId}/respond`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        setTagActionError(err.error || t("videoTags.tagResponseError"));
+        return;
+      }
+      setRespondedTags((prev) => new Set(prev).add(n.id));
+      markRead([n.id]);
+    } finally {
+      setRespondingTag(null);
     }
   };
 
@@ -147,14 +178,27 @@ export default function NotificationsPage() {
               const message =
                 messageKey && n.type === "videoRemoved"
                   ? t(messageKey, { title: String(n.data.title ?? "") })
-                  : messageKey && n.type === "reportReviewed"
-                    ? t(messageKey, { note: String(n.data.note ?? "") })
-                    : messageKey
-                      ? t(messageKey)
-                      : n.type;
+                  : messageKey && n.type === "videoTag"
+                    ? t(messageKey, {
+                        tagger: String(n.data.tagger ?? ""),
+                        title: String(n.data.videoTitle ?? ""),
+                      })
+                    : messageKey &&
+                        (n.type === "videoTagAccepted" || n.type === "videoTagRejected")
+                      ? t(messageKey, {
+                          name: String(n.data.name ?? ""),
+                          title: String(n.data.videoTitle ?? ""),
+                        })
+                      : messageKey && n.type === "reportReviewed"
+                        ? t(messageKey, { note: String(n.data.note ?? "") })
+                        : messageKey
+                          ? t(messageKey)
+                          : n.type;
               const unread = !n.read_at;
               const reportId = String(n.data.reportId ?? "");
               const canReply = n.type === "reportNeedsInfo" && !!reportId;
+              const canRespondTag =
+                n.type === "videoTag" && !!n.data.videoTagId && !respondedTags.has(n.id);
 
               return (
                 <div
@@ -183,6 +227,30 @@ export default function NotificationsPage() {
                       </div>
                     </div>
                   </button>
+
+                  {canRespondTag && (
+                    <div className="border-t border-zinc-800 p-3">
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => handleTagResponse(n, "approved")}
+                          disabled={respondingTag === n.id}
+                          className="flex-1 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
+                        >
+                          {t("videoTags.approve")}
+                        </button>
+                        <button
+                          onClick={() => handleTagResponse(n, "rejected")}
+                          disabled={respondingTag === n.id}
+                          className="flex-1 rounded-lg bg-zinc-800 px-3 py-1.5 text-xs font-semibold text-zinc-300 transition-colors hover:bg-zinc-700 disabled:opacity-50"
+                        >
+                          {t("videoTags.reject")}
+                        </button>
+                      </div>
+                      {tagActionError && (
+                        <p className="mt-1 text-xs text-red-400">{tagActionError}</p>
+                      )}
+                    </div>
+                  )}
 
                   {canReply && (
                     <div className="border-t border-zinc-800 p-3">
