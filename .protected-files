@@ -2,10 +2,16 @@
 # El pre-commit hook rechazará cualquier commit que toque estos archivos.
 # Para modificarlos, saca el archivo de esta lista, commitea, y vuelve a agregarlo.
 
+src/components/CustomVideoPlayer.tsx
+src/components/FeedSkeleton.tsx
 src/components/InteractionBar.tsx
+src/components/MuxVideoPlayer.tsx
+src/components/ProfileVideoCard.tsx
+src/components/ProfileVideoOverlay.tsx
 src/components/VideoControls.tsx
 src/components/VideoMenu.tsx
 src/components/ReportModal.tsx
+src/components/VideoFeed.tsx
 src/app/globals.css
 src/app/layout.tsx
 src/app/search/page.tsx
