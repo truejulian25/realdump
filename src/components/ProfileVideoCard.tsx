@@ -31,7 +31,7 @@ export default function ProfileVideoCard({ video, onClick }: Props) {
 
   return (
     <div
-      className="group relative aspect-square cursor-pointer overflow-hidden rounded-lg bg-black"
+      className="group relative aspect-square cursor-pointer overflow-hidden rounded-lg bg-app-bg"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       onClick={handleClick}
