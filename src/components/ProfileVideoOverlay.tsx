@@ -141,7 +141,7 @@ function VideoSlide({ video, index, currentIndex, selectedIndex, hasScrolled, pr
         <>
           <div
             ref={videoContainerRef}
-            className="relative flex h-full w-full items-center justify-center overflow-hidden rounded-lg bg-app-bg cursor-pointer"
+            className="relative flex h-full w-full items-center justify-center overflow-hidden rounded-lg bg-black cursor-pointer"
             style={{ maxHeight: "calc(100dvh - 9rem)" }}
           >
             {showPlayer && paused && (
@@ -231,7 +231,7 @@ function VideoSlide({ video, index, currentIndex, selectedIndex, hasScrolled, pr
           </div>
         </>
       ) : (
-        <div className="h-full w-full bg-app-bg" />
+        <div className="h-full w-full bg-black" />
       )}
     </div>
   );
@@ -401,7 +401,7 @@ export default function ProfileVideoOverlay({ video, allVideos, open, onClose, o
 
   return (
     <div
-      className="fixed inset-0 z-[100] bg-app-bg"
+      className="fixed inset-0 z-[100] bg-black"
       style={{
         opacity: visible ? 1 : 0,
         transform: visible

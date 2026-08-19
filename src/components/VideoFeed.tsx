@@ -82,7 +82,7 @@ function VideoCard({
       />
       <div
         ref={playerContainerRef}
-        className="relative mt-3 w-full overflow-hidden rounded-lg bg-app-bg"
+        className="relative mt-3 w-full overflow-hidden rounded-lg bg-black"
         style={{ maxHeight: "calc(100dvh - 9rem)" }}
       >
         {shouldMount ? (
@@ -96,7 +96,7 @@ function VideoCard({
             <VideoControls containerRef={playerContainerRef} variant="feed" />
           </>
         ) : (
-          <div className="aspect-[9/16] w-full bg-app-bg" />
+          <div className="aspect-[9/16] w-full bg-black" />
         )}
         <div className="absolute right-2 top-2 z-30">
           <VideoMenu
