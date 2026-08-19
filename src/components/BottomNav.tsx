@@ -18,7 +18,7 @@ export default function BottomNav() {
   ];
 
   return (
-    <nav className="fixed bottom-0 z-50 flex w-full items-center justify-center border-t border-zinc-800 bg-black/80 px-4 py-2 backdrop-blur-sm">
+    <nav className="fixed bottom-0 z-50 flex w-full items-center justify-center border-t border-zinc-200 bg-app-bg/80 px-4 py-2 backdrop-blur-sm">
       <div className="flex w-full max-w-sm items-center justify-between">
         {navItems.map(({ href, label, icon: Icon }) => (
           <Link
@@ -26,8 +26,8 @@ export default function BottomNav() {
             href={href}
             className={`flex flex-col items-center gap-0.5 px-4 py-1 text-xs transition-colors ${
               pathname === href
-                ? "text-white"
-                : "text-zinc-500 hover:text-zinc-300"
+                ? "text-zinc-900"
+                : "text-zinc-500 hover:text-zinc-700"
             }`}
           >
             {href === "/profile" ? (

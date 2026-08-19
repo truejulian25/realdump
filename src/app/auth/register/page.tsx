@@ -43,12 +43,12 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-black px-4">
+    <div className="flex min-h-screen items-center justify-center bg-app-bg px-4">
       <form
         onSubmit={handleRegister}
         className="flex w-full max-w-sm flex-col gap-4"
       >
-        <h1 className="text-center text-xl font-bold text-white">{t("auth.register.title")}</h1>
+        <h1 className="text-center text-xl font-bold text-zinc-900">{t("auth.register.title")}</h1>
 
         <input
           type="email"
@@ -56,7 +56,7 @@ export default function RegisterPage() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
-          className="w-full bg-transparent px-0 py-2 text-sm text-white placeholder-zinc-500 outline-none caret-blue-500 border-b border-zinc-800"
+          className="w-full bg-transparent px-0 py-2 text-sm text-zinc-900 placeholder-zinc-400 outline-none caret-blue-500 border-b border-zinc-300"
         />
 
         <input
@@ -66,19 +66,19 @@ export default function RegisterPage() {
           onChange={(e) => setPassword(e.target.value)}
           required
           minLength={6}
-          className="w-full bg-transparent px-0 py-2 text-sm text-white placeholder-zinc-500 outline-none caret-blue-500 border-b border-zinc-800"
+          className="w-full bg-transparent px-0 py-2 text-sm text-zinc-900 placeholder-zinc-400 outline-none caret-blue-500 border-b border-zinc-300"
         />
 
         <div className="flex flex-col gap-2">
-          <p className="text-sm text-zinc-400">{t("auth.register.accountType")}</p>
+          <p className="text-sm text-zinc-600">{t("auth.register.accountType")}</p>
           <div className="flex gap-3">
             <button
               type="button"
               onClick={() => setRole("viewer")}
               className={`flex-1 rounded-lg border px-4 py-2.5 text-sm transition-colors ${
                 role === "viewer"
-                  ? "border-blue-500 bg-blue-500/10 text-blue-400"
-                  : "border-zinc-800 text-zinc-400 hover:border-zinc-600"
+                  ? "border-blue-500 bg-blue-500/10 text-blue-600"
+                  : "border-zinc-300 text-zinc-600 hover:border-zinc-500"
               }`}
             >
               <div className="font-medium">{t("auth.register.viewer")}</div>
@@ -89,8 +89,8 @@ export default function RegisterPage() {
               onClick={() => setRole("creator")}
               className={`flex-1 rounded-lg border px-4 py-2.5 text-sm transition-colors ${
                 role === "creator"
-                  ? "border-blue-500 bg-blue-500/10 text-blue-400"
-                  : "border-zinc-800 text-zinc-400 hover:border-zinc-600"
+                  ? "border-blue-500 bg-blue-500/10 text-blue-600"
+                  : "border-zinc-300 text-zinc-600 hover:border-zinc-500"
               }`}
             >
               <div className="font-medium">{t("auth.register.creator")}</div>
@@ -104,7 +104,7 @@ export default function RegisterPage() {
           )}
         </div>
 
-        {error && <p className="text-sm text-red-400">{error}</p>}
+        {error && <p className="text-sm text-red-600">{error}</p>}
 
         <button
           type="submit"
@@ -114,9 +114,9 @@ export default function RegisterPage() {
           {loading ? t("auth.register.creating") : t("auth.register.title")}
         </button>
 
-        <p className="text-sm text-zinc-400">
+        <p className="text-sm text-zinc-600">
           {t("auth.register.alreadyHaveAccount")}{" "}
-          <Link href="/auth/login" className="text-blue-400 hover:underline">
+          <Link href="/auth/login" className="text-blue-600 hover:underline">
             {t("auth.register.loginLink")}
           </Link>
         </p>

@@ -109,12 +109,12 @@ function VideoCard({
       </div>
 
       <div className="mt-3 flex flex-col gap-1.5 px-3">
-        <InteractionBar videoId={video.id} />
+        <InteractionBar videoId={video.id} variant="feed" />
         {video.description && (
-          <p className="text-sm leading-relaxed text-zinc-300">{video.description}</p>
+          <p className="text-sm leading-relaxed text-zinc-600">{video.description}</p>
         )}
         {video.hashtags && video.hashtags.length > 0 && (
-          <p className="text-sm text-blue-400">
+          <p className="text-sm text-blue-600">
             {video.hashtags.map((h) => h.startsWith("#") ? h : `#${h}`).join(" ")}
           </p>
         )}
@@ -187,9 +187,26 @@ export default function VideoFeed() {
     return () => observer.disconnect();
   }, [items, activeIndex]);
 
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+    let lastTop = container.scrollTop;
+    const onScroll = () => {
+      const top = container.scrollTop;
+      window.dispatchEvent(
+        new CustomEvent("realdump:scroll-header", {
+          detail: { deltaY: top - lastTop, scrollY: top },
+        }),
+      );
+      lastTop = top;
+    };
+    container.addEventListener("scroll", onScroll, { passive: true });
+    return () => container.removeEventListener("scroll", onScroll);
+  }, [items.length]);
+
   if (isLoading) {
     return (
-      <div className="flex h-screen items-start justify-center bg-black pt-14">
+      <div className="flex h-screen items-start justify-center bg-app-bg pt-14">
         <FeedSkeleton />
       </div>
     );
@@ -197,16 +214,16 @@ export default function VideoFeed() {
 
   if (isError) {
     return (
-      <div className="flex h-screen items-center justify-center bg-black pt-14 pb-20">
-        <p className="text-red-400">{t("feed.errorLoading")}</p>
+      <div className="flex h-screen items-center justify-center bg-app-bg pt-14 pb-20">
+        <p className="text-red-600">{t("feed.errorLoading")}</p>
       </div>
     );
   }
 
   if (items.length === 0) {
     return (
-      <div className="flex h-screen items-center justify-center bg-black pt-14 pb-20">
-        <p className="text-zinc-400">{t("feed.noVideosYet")}</p>
+      <div className="flex h-screen items-center justify-center bg-app-bg pt-14 pb-20">
+        <p className="text-zinc-600">{t("feed.noVideosYet")}</p>
       </div>
     );
   }
@@ -216,9 +233,9 @@ export default function VideoFeed() {
   return (
     <div
       ref={containerRef}
-      className="scroll-container h-screen w-full overflow-y-auto overflow-x-hidden bg-black pt-14 pb-20"
+      className="scroll-container h-screen w-full overflow-y-auto overflow-x-hidden bg-app-bg pt-14 pb-20"
     >
-      <div className="mx-auto w-full max-w-md border-x border-zinc-800">
+      <div className="mx-auto w-full max-w-md border-x border-zinc-200">
         {items.map((video, idx) => (
           <VideoCard
             key={`${video.id}-${idx}`}

@@ -115,11 +115,11 @@ function ReactivateContent() {
 export default function ReactivatePage() {
   const { t } = useLanguage();
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-black px-4">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-app-bg px-4">
       <Suspense fallback={
     <div className="w-full max-w-sm text-center">
-          <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-2 border-white/20 border-t-blue-500" />
-          <h1 className="text-lg font-bold text-white">{t("auth.reactivate.loadingTitle")}</h1>
+          <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-2 border-zinc-300 border-t-blue-500" />
+          <h1 className="text-lg font-bold text-zinc-900">{t("auth.reactivate.loadingTitle")}</h1>
         </div>
       }>
         <ReactivateContent />

@@ -76,24 +76,24 @@ export default function StatsPage() {
   if (loading || !user) return null;
 
   const statCards = [
-    { label: t("stats.videos"), value: stats.videos, color: "text-blue-400" },
-    { label: t("stats.likesReceived"), value: stats.likes, color: "text-rose-400" },
-    { label: t("stats.comments"), value: stats.comments, color: "text-emerald-400" },
-    { label: t("stats.timesSaved"), value: stats.saved, color: "text-amber-400" },
-    { label: t("stats.profileViews"), value: stats.profileViews, color: "text-violet-400" },
-    { label: t("stats.videoViews"), value: stats.videoViews, color: "text-cyan-400" },
+    { label: t("stats.videos"), value: stats.videos, color: "text-blue-600" },
+    { label: t("stats.likesReceived"), value: stats.likes, color: "text-rose-600" },
+    { label: t("stats.comments"), value: stats.comments, color: "text-emerald-600" },
+    { label: t("stats.timesSaved"), value: stats.saved, color: "text-amber-600" },
+    { label: t("stats.profileViews"), value: stats.profileViews, color: "text-violet-600" },
+    { label: t("stats.videoViews"), value: stats.videoViews, color: "text-cyan-600" },
   ];
 
   return (
-    <div className="flex min-h-screen flex-col bg-black pt-14 pb-20">
+    <div className="flex min-h-screen flex-col bg-app-bg pt-14 pb-20">
       <div className="mx-auto w-full max-w-sm px-4 py-6">
         <div className="mb-6 flex items-center gap-3">
-          <Link href="/profile" className="text-zinc-400 transition-colors hover:text-white">
+          <Link href="/profile" className="text-zinc-500 transition-colors hover:text-zinc-900">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" />
             </svg>
           </Link>
-          <h1 className="text-lg font-bold text-white">{t("stats.title")}</h1>
+          <h1 className="text-lg font-bold text-zinc-900">{t("stats.title")}</h1>
         </div>
 
         {fetching ? (

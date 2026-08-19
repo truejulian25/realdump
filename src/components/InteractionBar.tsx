@@ -8,9 +8,10 @@ import ShareSheet from "./ShareSheet";
 
 interface Props {
   videoId: string;
+  variant?: "overlay" | "feed";
 }
 
-export default function InteractionBar({ videoId }: Props) {
+export default function InteractionBar({ videoId, variant = "overlay" }: Props) {
   const { user } = useAuth();
   const supabase = useMemo(() => createClient(), []);
   const [liked, setLiked] = useState(false);
@@ -132,6 +133,11 @@ export default function InteractionBar({ videoId }: Props) {
     setCommentCount(count);
   }, []);
 
+  const isFeed = variant === "feed";
+  const hoverBg = isFeed ? "hover:bg-zinc-200" : "hover:bg-zinc-800";
+  const iconColor = isFeed ? "text-zinc-600" : "text-zinc-400";
+  const accentColor = isFeed ? "text-red-600" : "text-red-400";
+
   return (
     <>
       <div className="flex items-center">
@@ -139,7 +145,7 @@ export default function InteractionBar({ videoId }: Props) {
           <div className="flex items-center gap-1">
             <button
               onClick={handleLike}
-              className={`flex h-10 w-10 items-center justify-center rounded-full transition-colors ${liked ? "bg-red-500/10" : "hover:bg-zinc-800"}`}
+              className={`flex h-10 w-10 items-center justify-center rounded-full transition-colors ${liked ? "bg-red-500/10" : hoverBg}`}
             >
               <svg
                 width="20"
@@ -150,18 +156,18 @@ export default function InteractionBar({ videoId }: Props) {
                 strokeWidth="1.5"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                className={liked ? "text-red-400" : "text-zinc-400"}
+                className={liked ? accentColor : iconColor}
               >
                 <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
               </svg>
             </button>
-            <span className={`text-sm ${liked ? "text-red-400" : "text-zinc-500"}`}>{likeCount}</span>
+            <span className={`text-sm ${liked ? accentColor : "text-zinc-500"}`}>{likeCount}</span>
           </div>
 
           <div className="flex items-center gap-1">
             <button
               onClick={() => setShowComments(true)}
-              className="flex h-10 w-10 items-center justify-center rounded-full text-zinc-400 transition-colors hover:bg-zinc-800"
+              className={`flex h-10 w-10 items-center justify-center rounded-full ${iconColor} transition-colors ${hoverBg}`}
             >
               <svg
                 width="20"
@@ -181,7 +187,7 @@ export default function InteractionBar({ videoId }: Props) {
 
           <button
             onClick={handleShare}
-            className="flex h-10 w-10 items-center justify-center rounded-full text-zinc-400 transition-colors hover:bg-zinc-800"
+            className={`flex h-10 w-10 items-center justify-center rounded-full ${iconColor} transition-colors ${hoverBg}`}
           >
             <svg
               width="20"
@@ -200,7 +206,7 @@ export default function InteractionBar({ videoId }: Props) {
 
           <button
             onClick={handleSave}
-            className={`flex h-10 w-10 items-center justify-center rounded-full transition-colors ${saved ? "bg-white/10" : "hover:bg-zinc-800"}`}
+            className={`flex h-10 w-10 items-center justify-center rounded-full transition-colors ${saved ? (isFeed ? "bg-zinc-900/10" : "bg-white/10") : hoverBg}`}
           >
             <svg
               width="20"
@@ -211,7 +217,7 @@ export default function InteractionBar({ videoId }: Props) {
               strokeWidth="1.5"
               strokeLinecap="round"
               strokeLinejoin="round"
-              className={saved ? "text-white" : "text-zinc-400"}
+              className={saved ? (isFeed ? "text-zinc-600" : "text-white") : iconColor}
             >
               <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
             </svg>

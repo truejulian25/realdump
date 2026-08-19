@@ -125,16 +125,16 @@ export default function NotificationsPage() {
 
   if (authLoading || isLoading) {
     return (
-      <div className="flex min-h-screen flex-col bg-black pt-14 pb-20">
+      <div className="flex min-h-screen flex-col bg-app-bg pt-14 pb-20">
         <div className="mx-auto w-full max-w-sm px-4 py-6">
           <div className="mb-6 flex items-center gap-3">
-            <div className="h-4 w-4 rounded bg-zinc-800 animate-pulse" />
-            <div className="h-5 w-32 rounded bg-zinc-800 animate-pulse" />
+            <div className="h-4 w-4 rounded bg-zinc-200 animate-pulse" />
+            <div className="h-5 w-32 rounded bg-zinc-200 animate-pulse" />
           </div>
           <div className="space-y-3">
-            <div className="h-16 rounded-xl bg-zinc-900 animate-pulse" />
-            <div className="h-16 rounded-xl bg-zinc-900 animate-pulse" />
-            <div className="h-16 rounded-xl bg-zinc-900 animate-pulse" />
+            <div className="h-16 rounded-xl bg-zinc-200 animate-pulse" />
+            <div className="h-16 rounded-xl bg-zinc-200 animate-pulse" />
+            <div className="h-16 rounded-xl bg-zinc-200 animate-pulse" />
           </div>
         </div>
       </div>
@@ -142,19 +142,19 @@ export default function NotificationsPage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-black pt-14 pb-20">
+    <div className="flex min-h-screen flex-col bg-app-bg pt-14 pb-20">
       <div className="mx-auto w-full max-w-sm px-4 py-6">
         <div className="mb-6 flex items-center gap-3">
-          <Link href="/" className="text-zinc-400 transition-colors hover:text-white">
+          <Link href="/" className="text-zinc-500 transition-colors hover:text-zinc-900">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" />
             </svg>
           </Link>
-          <h1 className="text-lg font-bold text-white">{t("notifications.title")}</h1>
+          <h1 className="text-lg font-bold text-zinc-900">{t("notifications.title")}</h1>
           {unreadCount > 0 && (
             <button
               onClick={handleMarkAllRead}
-              className="ml-auto rounded-lg border border-zinc-700 px-3 py-1 text-xs text-zinc-300 transition-colors hover:bg-zinc-900"
+              className="ml-auto rounded-lg border border-zinc-300 px-3 py-1 text-xs text-zinc-600 transition-colors hover:bg-zinc-200"
             >
               {t("notifications.markAllRead")}
             </button>
@@ -163,13 +163,13 @@ export default function NotificationsPage() {
 
         {notifications.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center">
-            <div className="mb-3 rounded-full bg-zinc-800 p-4 text-zinc-500">
+            <div className="mb-3 rounded-full bg-zinc-200 p-4 text-zinc-600">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
                 <path d="M13.73 21a2 2 0 0 1-3.46 0" />
               </svg>
             </div>
-            <p className="text-sm text-zinc-400">{t("notifications.empty")}</p>
+            <p className="text-sm text-zinc-600">{t("notifications.empty")}</p>
           </div>
         ) : (
           <div className="space-y-3">

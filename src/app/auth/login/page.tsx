@@ -84,34 +84,34 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-black px-4">
+    <div className="flex min-h-screen items-center justify-center bg-app-bg px-4">
       <div className="w-full max-w-sm">
         {accountStatus === "deleted" ? (
           <div className="text-center">
-            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-500/20 text-red-400">
+            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-500/20 text-red-600">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
             </div>
-            <h2 className="text-lg font-bold text-white">{t("auth.login.accountDeleted")}</h2>
-            <p className="mt-2 text-sm text-zinc-400">{t("auth.login.accountDeletedDesc")}</p>
+            <h2 className="text-lg font-bold text-zinc-900">{t("auth.login.accountDeleted")}</h2>
+            <p className="mt-2 text-sm text-zinc-600">{t("auth.login.accountDeletedDesc")}</p>
           </div>
         ) : accountStatus === "deactivated" ? (
           <div className="text-center">
-            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-amber-500/20 text-amber-400">
+            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-amber-500/20 text-amber-600">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" /></svg>
             </div>
-            <h2 className="text-lg font-bold text-white">{t("auth.login.accountDeactivated")}</h2>
-            <p className="mt-2 text-sm text-zinc-400">{t("auth.login.accountDeactivatedDesc")}</p>
+            <h2 className="text-lg font-bold text-zinc-900">{t("auth.login.accountDeactivated")}</h2>
+            <p className="mt-2 text-sm text-zinc-600">{t("auth.login.accountDeactivatedDesc")}</p>
             <button
               onClick={handleResend}
               disabled={resending}
-              className="mt-4 text-sm text-blue-400 transition-colors hover:text-blue-300 disabled:opacity-50"
+              className="mt-4 text-sm text-blue-600 transition-colors hover:text-blue-500 disabled:opacity-50"
             >
               {resending ? t("auth.login.resending") : t("auth.login.resend")}
             </button>
           </div>
         ) : (
           <form onSubmit={handleLogin} className="flex flex-col gap-4">
-            <h1 className="text-center text-xl font-bold text-white">{t("auth.login.title")}</h1>
+            <h1 className="text-center text-xl font-bold text-zinc-900">{t("auth.login.title")}</h1>
 
             <input
               type="email"
@@ -119,7 +119,7 @@ export default function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full bg-transparent px-0 py-2 text-sm text-white placeholder-zinc-500 outline-none caret-blue-500 border-b border-zinc-800"
+              className="w-full bg-transparent px-0 py-2 text-sm text-zinc-900 placeholder-zinc-400 outline-none caret-blue-500 border-b border-zinc-300"
             />
 
             <input
@@ -128,10 +128,10 @@ export default function LoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full bg-transparent px-0 py-2 text-sm text-white placeholder-zinc-500 outline-none caret-blue-500 border-b border-zinc-800"
+              className="w-full bg-transparent px-0 py-2 text-sm text-zinc-900 placeholder-zinc-400 outline-none caret-blue-500 border-b border-zinc-300"
             />
 
-            {error && <p className="text-sm text-red-400">{error}</p>}
+            {error && <p className="text-sm text-red-600">{error}</p>}
 
             <button
               type="submit"
@@ -141,9 +141,9 @@ export default function LoginPage() {
               {loading ? t("auth.login.entering") : t("auth.login.enter")}
             </button>
 
-            <p className="text-sm text-zinc-400">
+            <p className="text-sm text-zinc-600">
               {t("auth.login.noAccount")}{" "}
-              <Link href="/auth/register" className="text-blue-400 hover:underline">
+              <Link href="/auth/register" className="text-blue-600 hover:underline">
                 {t("auth.login.registerLink")}
               </Link>
             </p>

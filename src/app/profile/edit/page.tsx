@@ -104,28 +104,28 @@ export default function EditProfilePage() {
 
   if (authLoading || !profile) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-black pt-14">
-        <p className="text-zinc-400">{t("profile.loading")}</p>
+      <div className="flex min-h-screen items-center justify-center bg-app-bg pt-14">
+        <p className="text-zinc-600">{t("profile.loading")}</p>
       </div>
     );
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center bg-black pt-14 pb-20">
+    <div className="flex min-h-screen flex-col items-center bg-app-bg pt-14 pb-20">
       <div className="mx-auto w-full max-w-sm px-4 py-6">
         <div className="mb-6 flex items-center gap-3">
-          <Link href="/profile" className="text-zinc-400 transition-colors hover:text-white">
+          <Link href="/profile" className="text-zinc-500 transition-colors hover:text-zinc-900">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" />
             </svg>
           </Link>
-          <h1 className="text-lg font-bold text-white">{t("profileEdit.title")}</h1>
+          <h1 className="text-lg font-bold text-zinc-900">{t("profileEdit.title")}</h1>
         </div>
       <form onSubmit={handleSave} className="flex w-full max-w-sm flex-col gap-3">
 
         {/* Avatar */}
         <div className="flex flex-col items-center gap-2">
-          <div className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-full bg-zinc-800">
+          <div className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-full bg-zinc-200">
             <img
               src={avatarPreview ?? profile.avatar_url ?? `https://ui-avatars.com/api/?name=${profile.display_name ?? profile.username ?? "user"}&background=6366f1&color=fff&size=80`}
               alt={t("profileEdit.avatarAlt")}
@@ -135,7 +135,7 @@ export default function EditProfilePage() {
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            className="text-xs text-blue-400 hover:text-blue-300"
+            className="text-xs text-blue-600 hover:text-blue-500"
           >
             {t("profileEdit.changeAvatar")}
           </button>
@@ -150,31 +150,31 @@ export default function EditProfilePage() {
 
         {/* Display name */}
         <div className="flex flex-col gap-1">
-          <label className="text-xs text-zinc-400">{t("profileEdit.displayName")}</label>
+          <label className="text-xs text-zinc-600">{t("profileEdit.displayName")}</label>
           <input
             type="text"
             value={displayName}
             onChange={(e) => setDisplayName(e.target.value)}
             placeholder={t("profileEdit.displayNamePlaceholder")}
-            className="w-full bg-transparent px-0 py-2 text-sm text-white placeholder-zinc-500 outline-none caret-blue-500"
+            className="w-full bg-transparent px-0 py-2 text-sm text-zinc-900 placeholder-zinc-400 outline-none caret-blue-500"
           />
         </div>
 
         {/* Username */}
         <div className="flex flex-col gap-1">
-          <label className="text-xs text-zinc-400">{t("profileEdit.username")}</label>
+          <label className="text-xs text-zinc-600">{t("profileEdit.username")}</label>
           <input
             type="text"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             placeholder={t("profileEdit.usernamePlaceholder")}
-            className="w-full bg-transparent px-0 py-2 text-sm text-white placeholder-zinc-500 outline-none caret-blue-500"
+            className="w-full bg-transparent px-0 py-2 text-sm text-zinc-900 placeholder-zinc-400 outline-none caret-blue-500"
           />
         </div>
 
         {/* Bio */}
         <div className="flex flex-col gap-1">
-          <label className="text-xs text-zinc-400">{t("profileEdit.bio")}</label>
+          <label className="text-xs text-zinc-600">{t("profileEdit.bio")}</label>
           <textarea
             value={bio}
             onChange={(e) => setBio(e.target.value)}
@@ -186,30 +186,30 @@ export default function EditProfilePage() {
 
         {/* Website */}
         <div className="flex flex-col gap-1">
-          <label className="text-xs text-zinc-400">{t("profileEdit.website")}</label>
+          <label className="text-xs text-zinc-600">{t("profileEdit.website")}</label>
           <input
             type="url"
             value={website}
             onChange={(e) => setWebsite(e.target.value)}
             placeholder={t("profileEdit.websitePlaceholder")}
-            className="w-full bg-transparent px-0 py-2 text-sm text-white placeholder-zinc-500 outline-none caret-blue-500"
+            className="w-full bg-transparent px-0 py-2 text-sm text-zinc-900 placeholder-zinc-400 outline-none caret-blue-500"
           />
         </div>
 
         {/* PayPal / Donation */}
         <div className="flex flex-col gap-1">
-          <label className="text-xs text-zinc-400">{t("profileEdit.paypalLabel")}</label>
+          <label className="text-xs text-zinc-600">{t("profileEdit.paypalLabel")}</label>
           <input
             type="text"
             value={paypalUrl}
             onChange={(e) => setPaypalUrl(e.target.value)}
             placeholder={t("profileEdit.paypalPlaceholder")}
-            className="w-full bg-transparent px-0 py-2 text-sm text-white placeholder-zinc-500 outline-none caret-blue-500"
+            className="w-full bg-transparent px-0 py-2 text-sm text-zinc-900 placeholder-zinc-400 outline-none caret-blue-500"
           />
         </div>
 
-        {error && <p className="text-sm text-red-400">{error}</p>}
-        {success && <p className="text-sm text-green-400">{t("profileEdit.saved")}</p>}
+        {error && <p className="text-sm text-red-600">{error}</p>}
+        {success && <p className="text-sm text-emerald-600">{t("profileEdit.saved")}</p>}
 
         <button
           type="submit"

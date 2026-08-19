@@ -98,8 +98,8 @@ export default function ProfilePage() {
 
   if (loading || !profile) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-black pt-14">
-        <p className="text-zinc-400">{t("profile.loading")}</p>
+      <div className="flex min-h-screen items-center justify-center bg-app-bg pt-14">
+        <p className="text-zinc-600">{t("profile.loading")}</p>
       </div>
     );
   }
@@ -111,8 +111,8 @@ export default function ProfilePage() {
   const isPending = profile.role === "pending";
 
   return (
-    <div className="flex min-h-screen flex-col bg-black pt-14 pb-20">
-      <div className="flex flex-col items-center gap-2 border-b border-zinc-800 bg-black px-4 py-6">
+    <div className="flex min-h-screen flex-col bg-app-bg pt-14 pb-20">
+      <div className="flex flex-col items-center gap-2 border-b border-zinc-200 bg-app-bg px-4 py-6">
         <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-full bg-zinc-800">
           <img
             src={avatarSrc}
@@ -121,7 +121,7 @@ export default function ProfilePage() {
           />
         </div>
 
-        <h1 className="text-lg font-black text-white">{profile.display_name ?? t("profile.noName")}</h1>
+        <h1 className="text-lg font-black text-zinc-900">{profile.display_name ?? t("profile.noName")}</h1>
 
         <p className="text-sm text-zinc-500">@{profile.username}</p>
 
@@ -129,7 +129,7 @@ export default function ProfilePage() {
           <p className="text-sm text-zinc-500 whitespace-pre-wrap">{profile.bio ?? t("profile.noBio")}</p>
           <Link
             href="/profile/edit"
-            className="text-zinc-400 transition-colors hover:text-white"
+            className="text-zinc-500 transition-colors hover:text-zinc-900"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
@@ -143,7 +143,7 @@ export default function ProfilePage() {
             href={profile.website}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-1 text-sm text-blue-400 hover:text-blue-300 hover:underline"
+            className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-500 hover:underline"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="12" cy="12" r="10" />
@@ -156,15 +156,15 @@ export default function ProfilePage() {
 
         <div className="flex items-center gap-8 text-center">
           <div>
-            <p className="text-lg font-bold text-white">{isCreator ? videos.length : "—"}</p>
+            <p className="text-lg font-bold text-zinc-900">{isCreator ? videos.length : "—"}</p>
             <p className="text-sm text-zinc-500">{t("profile.videos")}</p>
           </div>
           <div>
-            <p className="text-lg font-bold text-white">{followerCount}</p>
+            <p className="text-lg font-bold text-zinc-900">{followerCount}</p>
             <p className="text-sm text-zinc-500">{t("profile.followers")}</p>
           </div>
           <div>
-            <p className="text-lg font-bold text-white">{followingCount}</p>
+            <p className="text-lg font-bold text-zinc-900">{followingCount}</p>
             <p className="text-sm text-zinc-500">{t("profile.following")}</p>
           </div>
         </div>
@@ -172,7 +172,7 @@ export default function ProfilePage() {
 
       {isPending && (
         <div className="flex flex-col items-center gap-3 py-12 px-4 text-center">
-          <p className="text-sm text-zinc-400">
+          <p className="text-sm text-zinc-600">
             {t("profile.requestPending")}
           </p>
           <Link
@@ -186,7 +186,7 @@ export default function ProfilePage() {
 
       {!isCreator && !isPending && (
         <div className="flex flex-col items-center gap-3 py-12 px-4 text-center">
-          <p className="text-sm text-zinc-400">
+          <p className="text-sm text-zinc-600">
             {t("profile.notCreatorYet")}
           </p>
           <button
@@ -201,13 +201,13 @@ export default function ProfilePage() {
 
       {isCreator && (
         <>
-          <div className="flex border-b border-zinc-800">
+          <div className="flex border-b border-zinc-200">
             <button
               type="button"
               onClick={() => setTab("videos")}
               className={`flex-1 py-2.5 text-sm font-semibold transition-colors ${
                 tab === "videos"
-                  ? "border-b-2 border-blue-500 text-white"
+                  ? "border-b-2 border-blue-500 text-zinc-900"
                   : "text-zinc-500"
               }`}
             >
@@ -218,7 +218,7 @@ export default function ProfilePage() {
               onClick={() => setTab("tagged")}
               className={`flex-1 py-2.5 text-sm font-semibold transition-colors ${
                 tab === "tagged"
-                  ? "border-b-2 border-blue-500 text-white"
+                  ? "border-b-2 border-blue-500 text-zinc-900"
                   : "text-zinc-500"
               }`}
             >

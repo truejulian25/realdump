@@ -143,16 +143,16 @@ export default function AdminReportsPage() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-black pt-14">
-        <p className="text-zinc-400">{t("common.loading")}</p>
+      <div className="flex min-h-screen items-center justify-center bg-app-bg pt-14">
+        <p className="text-zinc-600">{t("common.loading")}</p>
       </div>
     );
   }
 
   if (!profile?.is_admin) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-black pt-14">
-        <p className="text-zinc-500">{t("admin.noAccess")}</p>
+      <div className="flex min-h-screen items-center justify-center bg-app-bg pt-14">
+        <p className="text-zinc-600">{t("admin.noAccess")}</p>
       </div>
     );
   }
@@ -165,9 +165,9 @@ export default function AdminReportsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-black pt-14 pb-20">
+    <div className="min-h-screen bg-app-bg pt-14 pb-20">
       <div className="mx-auto max-w-lg px-4 py-6">
-        <h1 className="text-lg font-bold text-white mb-6">{t("adminReports.title")}</h1>
+        <h1 className="text-lg font-bold text-zinc-900 mb-6">{t("adminReports.title")}</h1>
 
         <div className="mb-4 flex gap-2 overflow-x-auto">
           {FILTERS.map((f) => (
@@ -177,7 +177,7 @@ export default function AdminReportsPage() {
               className={`shrink-0 rounded-full px-3 py-1 text-xs font-medium transition-colors ${
                 filter === f
                   ? "bg-blue-600 text-white"
-                  : "bg-zinc-900 text-zinc-400 hover:bg-zinc-800"
+                  : "bg-zinc-200 text-zinc-600 hover:bg-zinc-300"
               }`}
             >
               {t(`adminReports.filter${f[0].toUpperCase()}${f.slice(1)}`)}

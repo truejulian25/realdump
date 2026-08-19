@@ -87,7 +87,7 @@ export default function CollaboratorInput({
 
   return (
     <div className="relative">
-      <div className="flex items-center border-b border-zinc-800 focus-within:border-blue-500">
+      <div className="flex items-center border-b border-zinc-200 focus-within:border-blue-500">
         <span className="text-sm text-zinc-500 select-none">@</span>
         <input
           type="text"
@@ -95,10 +95,10 @@ export default function CollaboratorInput({
           onChange={(e) => setQuery(e.target.value)}
           placeholder="usuario"
           disabled={disabled}
-          className="w-full flex-1 bg-transparent px-1 py-2 text-sm text-white placeholder-zinc-600 outline-none caret-blue-500 disabled:opacity-50"
+          className="w-full flex-1 bg-transparent px-1 py-2 text-sm text-zinc-900 placeholder-zinc-400 outline-none caret-blue-500 disabled:opacity-50"
         />
         {searching && (
-          <div className="h-3 w-3 animate-spin rounded-full border-2 border-zinc-600 border-t-white" />
+          <div className="h-3 w-3 animate-spin rounded-full border-2 border-zinc-300 border-t-zinc-600" />
         )}
       </div>
 

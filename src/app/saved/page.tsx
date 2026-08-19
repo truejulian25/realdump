@@ -58,11 +58,11 @@ export default function SavedPage() {
 
   if (authLoading || isLoading) {
     return (
-      <div className="flex min-h-screen flex-col bg-black pt-14 pb-20">
+      <div className="flex min-h-screen flex-col bg-app-bg pt-14 pb-20">
         <div className="mx-auto w-full max-w-sm px-4 py-6">
           <div className="mb-6 flex items-center gap-3">
-            <div className="h-4 w-4 rounded bg-zinc-800 animate-pulse" />
-            <div className="h-5 w-24 rounded bg-zinc-800 animate-pulse" />
+            <div className="h-4 w-4 rounded bg-zinc-200 animate-pulse" />
+            <div className="h-5 w-24 rounded bg-zinc-200 animate-pulse" />
           </div>
           <ProfileGridSkeleton />
         </div>
@@ -71,25 +71,25 @@ export default function SavedPage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-black pt-14 pb-20">
+    <div className="flex min-h-screen flex-col bg-app-bg pt-14 pb-20">
       <div className="mx-auto w-full max-w-sm px-4 py-6">
         <div className="mb-6 flex items-center gap-3">
-          <Link href="/profile" className="text-zinc-400 transition-colors hover:text-white">
+          <Link href="/profile" className="text-zinc-500 transition-colors hover:text-zinc-900">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" />
             </svg>
           </Link>
-          <h1 className="text-lg font-bold text-white">{t("saved.title")}</h1>
+          <h1 className="text-lg font-bold text-zinc-900">{t("saved.title")}</h1>
         </div>
 
         {items.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center">
-            <div className="mb-3 rounded-full bg-zinc-800 p-4 text-zinc-500">
+            <div className="mb-3 rounded-full bg-zinc-200 p-4 text-zinc-600">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
               </svg>
             </div>
-            <p className="text-sm text-zinc-400">{t("saved.emptyTitle")}</p>
+            <p className="text-sm text-zinc-600">{t("saved.emptyTitle")}</p>
             <p className="mt-1 text-xs text-zinc-600">{t("saved.emptyDesc")}</p>
           </div>
         ) : (
@@ -109,7 +109,7 @@ export default function SavedPage() {
 
             {isFetchingNextPage && (
               <div className="flex justify-center py-4">
-                <div className="h-5 w-5 animate-spin rounded-full border-2 border-zinc-600 border-t-white" />
+                <div className="h-5 w-5 animate-spin rounded-full border-2 border-zinc-300 border-t-zinc-600" />
               </div>
             )}
           </>

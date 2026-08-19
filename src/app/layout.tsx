@@ -37,9 +37,9 @@ export default async function RootLayout({
   return (
     <html
       lang={detectedLocale}
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased bg-black`}
+      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased bg-app-bg`}
     >
-      <body className="min-h-full overflow-x-hidden bg-black text-white">
+      <body className="min-h-full overflow-x-hidden bg-app-bg text-zinc-900">
         <AuthProvider>
           <LanguageProvider initialCountry={country}>
             <QueryProvider>

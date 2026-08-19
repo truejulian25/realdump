@@ -14,7 +14,7 @@ function SectionContent({ content }: { content: string }) {
         const trimmed = p.trim();
         if (!trimmed) return null;
         return (
-          <p key={i} className="text-xs text-zinc-400 leading-relaxed">
+          <p key={i} className="text-xs text-zinc-600 leading-relaxed">
             {trimmed.split("\n").map((line, j) => (
               <span key={j}>
                 {j > 0 && <br />}
@@ -52,11 +52,11 @@ export default function TermsPage() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-black pt-14 pb-20">
+    <div className="flex min-h-screen flex-col bg-app-bg pt-14 pb-20">
       <div className="mx-auto w-full max-w-sm px-4 py-6">
         <Link
           href="/profile"
-          className="mb-4 flex items-center gap-2 text-sm text-zinc-400 transition-colors hover:text-white"
+          className="mb-4 flex items-center gap-2 text-sm text-zinc-500 transition-colors hover:text-zinc-900"
         >
           <svg
             width="16"
@@ -74,7 +74,7 @@ export default function TermsPage() {
           {t("terms.backToProfile")}
         </Link>
 
-        <h1 className="mb-2 text-xl font-bold text-white">{t("terms.title")}</h1>
+        <h1 className="mb-2 text-xl font-bold text-zinc-900">{t("terms.title")}</h1>
         <p className="mb-6 text-xs text-zinc-500">
           {t("terms.updated")}
         </p>
@@ -104,13 +104,13 @@ export default function TermsPage() {
               <section
                 key={s.id}
                 id={`section-${s.id}`}
-                className="overflow-hidden rounded-lg border border-zinc-800"
+                className="overflow-hidden rounded-lg border border-zinc-200"
               >
                 <button
                   onClick={() => toggle(s.id)}
-                  className="flex w-full items-center justify-between px-4 py-3 text-left transition-colors hover:bg-zinc-900"
+                  className="flex w-full items-center justify-between px-4 py-3 text-left transition-colors hover:bg-zinc-100"
                 >
-                  <span className="text-sm font-medium text-zinc-200">
+                  <span className="text-sm font-medium text-zinc-800">
                     {s.title}
                   </span>
                   <svg
@@ -128,7 +128,7 @@ export default function TermsPage() {
                   </svg>
                 </button>
                 {isOpen && (
-                  <div className="border-t border-zinc-800 px-4 py-4">
+                  <div className="border-t border-zinc-200 px-4 py-4">
                     <SectionContent content={s.content} />
                   </div>
                 )}

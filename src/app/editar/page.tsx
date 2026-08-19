@@ -131,17 +131,17 @@ export default function EditarPage() {
 
   if (authLoading || loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-black pt-14">
-        <p className="text-zinc-400">{t("common.loading")}</p>
+      <div className="flex min-h-screen items-center justify-center bg-app-bg pt-14">
+        <p className="text-zinc-600">{t("common.loading")}</p>
       </div>
     );
   }
 
   if (notFound) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-black pt-14 pb-20 px-4">
-        <p className="text-zinc-400">{t("editar.notFound")}</p>
-        <Link href="/profile" className="mt-4 text-sm text-blue-500 hover:underline">
+      <div className="flex min-h-screen flex-col items-center justify-center bg-app-bg pt-14 pb-20 px-4">
+        <p className="text-zinc-600">{t("editar.notFound")}</p>
+        <Link href="/profile" className="mt-4 text-sm text-blue-600 hover:underline">
           {t("editar.backToProfile")}
         </Link>
       </div>
@@ -149,19 +149,19 @@ export default function EditarPage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center bg-black pt-14 pb-20">
+    <div className="flex min-h-screen flex-col items-center bg-app-bg pt-14 pb-20">
       <div className="mx-auto w-full max-w-sm px-4 py-6">
         <div className="mb-6 flex items-center gap-3">
-          <Link href="/profile" className="text-zinc-400 transition-colors hover:text-white">
+          <Link href="/profile" className="text-zinc-500 transition-colors hover:text-zinc-900">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" />
             </svg>
           </Link>
-          <h1 className="text-lg font-bold text-white">{t("editar.title")}</h1>
+          <h1 className="text-lg font-bold text-zinc-900">{t("editar.title")}</h1>
         </div>
 
         {video?.mux_playback_id && (
-          <div className="mb-4 overflow-hidden rounded-lg bg-zinc-900">
+          <div className="mb-4 overflow-hidden rounded-lg bg-zinc-200">
             <img
               src={`https://image.mux.com/${video.mux_playback_id}/thumbnail.jpg?width=400`}
               alt=""
@@ -171,34 +171,34 @@ export default function EditarPage() {
         )}
 
         <form onSubmit={handleSave} className="flex w-full max-w-sm flex-col gap-3">
-          <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">{t("common.titleLabel")}</label>
+          <label className="text-xs font-semibold text-zinc-600 uppercase tracking-wider">{t("common.titleLabel")}</label>
           <input
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder={t("common.titleLabel")}
-            className="w-full bg-transparent px-0 py-2 text-sm text-white placeholder-zinc-500 outline-none caret-blue-500"
+            className="w-full bg-transparent px-0 py-2 text-sm text-zinc-900 placeholder-zinc-400 outline-none caret-blue-500"
           />
 
-          <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">{t("common.descriptionLabel")}</label>
+          <label className="text-xs font-semibold text-zinc-600 uppercase tracking-wider">{t("common.descriptionLabel")}</label>
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             placeholder={t("common.descriptionLabel")}
             rows={3}
-            className="w-full resize-none bg-transparent px-0 py-2 text-sm text-white placeholder-zinc-500 outline-none caret-blue-500"
+            className="w-full resize-none bg-transparent px-0 py-2 text-sm text-zinc-900 placeholder-zinc-400 outline-none caret-blue-500"
           />
 
-          <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">{t("common.hashtagsLabel")}</label>
+          <label className="text-xs font-semibold text-zinc-600 uppercase tracking-wider">{t("common.hashtagsLabel")}</label>
           <input
             type="text"
             value={hashtags}
             onChange={(e) => setHashtags(e.target.value)}
             placeholder={t("common.hashtagsPlaceholder")}
-            className="w-full bg-transparent px-0 py-2 text-sm text-white placeholder-zinc-500 outline-none caret-blue-500"
+            className="w-full bg-transparent px-0 py-2 text-sm text-zinc-900 placeholder-zinc-400 outline-none caret-blue-500"
           />
 
-          <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
+          <label className="text-xs font-semibold text-zinc-600 uppercase tracking-wider">
             {t("videoTags.collaboratorsLabel")}
           </label>
           <CollaboratorInput
@@ -209,8 +209,8 @@ export default function EditarPage() {
           />
           <p className="text-xs text-zinc-500">{t("videoTags.collaboratorsHint")}</p>
 
-          {error && <p className="text-sm text-red-400">{error}</p>}
-          {success && <p className="text-sm text-green-400">{t("editar.updatedSuccess")}</p>}
+          {error && <p className="text-sm text-red-600">{error}</p>}
+          {success && <p className="text-sm text-emerald-600">{t("editar.updatedSuccess")}</p>}
 
           <button
             type="submit"

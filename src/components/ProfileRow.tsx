@@ -23,7 +23,7 @@ export default function ProfileRow({ username, avatarUrl, header, userId }: Prop
   const profileLink = userId ? `/user/${userId}` : undefined;
 
   const avatar = (
-    <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full border border-zinc-600 bg-zinc-800">
+    <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full border border-zinc-300 bg-zinc-200">
       <img
         src={avatarSrc}
         alt={username}
@@ -32,7 +32,7 @@ export default function ProfileRow({ username, avatarUrl, header, userId }: Prop
     </div>
   );
 
-  const name = <p className="text-sm font-semibold text-white">{username}</p>;
+  const name = <p className="text-sm font-semibold text-zinc-900">{username}</p>;
 
   const profileContent = profileLink ? (
     <Link href={profileLink} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
@@ -56,7 +56,7 @@ export default function ProfileRow({ username, avatarUrl, header, userId }: Prop
             disabled={toggling}
             className={`rounded-lg border px-3 py-1 text-xs font-medium transition-colors disabled:opacity-50 ${
               isFollowing
-                ? "border-zinc-600 text-zinc-400"
+                ? "border-zinc-300 text-zinc-600"
                 : "border-blue-500 text-blue-500"
             }`}
           >
@@ -91,7 +91,7 @@ export default function ProfileRow({ username, avatarUrl, header, userId }: Prop
             disabled={toggling}
             className={`rounded-lg border px-3 py-1 text-xs font-medium transition-colors disabled:opacity-50 ${
               isFollowing
-                ? "border-zinc-600 text-zinc-400"
+                ? "border-zinc-300 text-zinc-600"
                 : "border-blue-500 text-blue-500"
             }`}
           >

@@ -129,27 +129,27 @@ export default function AdminCreatorsPage() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-black pt-14">
-        <p className="text-zinc-400">{t("common.loading")}</p>
+      <div className="flex min-h-screen items-center justify-center bg-app-bg pt-14">
+        <p className="text-zinc-600">{t("common.loading")}</p>
       </div>
     );
   }
 
   if (!profile?.is_admin) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-black pt-14">
-        <p className="text-zinc-500">{t("admin.noAccess")}</p>
+      <div className="flex min-h-screen items-center justify-center bg-app-bg pt-14">
+        <p className="text-zinc-600">{t("admin.noAccess")}</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-black pt-14 pb-20">
+    <div className="min-h-screen bg-app-bg pt-14 pb-20">
       <div className="mx-auto max-w-lg px-4 py-6">
-        <h1 className="text-lg font-bold text-white mb-6">{t("admin.title")}</h1>
+        <h1 className="text-lg font-bold text-zinc-900 mb-6">{t("admin.title")}</h1>
 
         {requests.length === 0 ? (
-          <p className="text-sm text-zinc-500">{t("admin.noPending")}</p>
+          <p className="text-sm text-zinc-600">{t("admin.noPending")}</p>
         ) : (
           <div className="flex flex-col gap-3">
             {requests.map((req) => (

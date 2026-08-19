@@ -274,8 +274,8 @@ export default function VerificacionPage() {
 
   if (authLoading || loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-black pt-14">
-        <p className="text-zinc-400">{t("common.loading")}</p>
+      <div className="flex min-h-screen items-center justify-center bg-app-bg pt-14">
+        <p className="text-zinc-600">{t("common.loading")}</p>
       </div>
     );
   }
@@ -286,11 +286,11 @@ export default function VerificacionPage() {
   }
 
   const pageFrame = (children: React.ReactNode) => (
-    <div className="flex min-h-screen flex-col bg-black pt-14 pb-20">
+    <div className="flex min-h-screen flex-col bg-app-bg pt-14 pb-20">
       <div className="mx-auto w-full max-w-sm px-4 py-6">
         <Link
           href="/profile"
-          className="mb-4 flex items-center gap-2 text-sm text-zinc-400 transition-colors hover:text-white"
+          className="mb-4 flex items-center gap-2 text-sm text-zinc-500 transition-colors hover:text-zinc-900"
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <line x1="19" y1="12" x2="5" y2="12" />
@@ -310,7 +310,7 @@ export default function VerificacionPage() {
   if (!status) {
     return pageFrame(
       <>
-        <h1 className="mb-2 text-xl font-bold text-white">{t("verificacion.noRequestTitle")}</h1>
+        <h1 className="mb-2 text-xl font-bold text-zinc-900">{t("verificacion.noRequestTitle")}</h1>
         <p className="mb-6 text-xs text-zinc-500">
           {t("verificacion.noRequestDesc")}
         </p>
@@ -327,7 +327,7 @@ export default function VerificacionPage() {
         <p className="mt-4 text-xs text-zinc-500">
           {t("verificacion.needDoc")}
         </p>
-        {error && <p className="mt-3 text-sm text-red-400">{error}</p>}
+        {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
         <button
           onClick={handleStart}
           disabled={busy}
@@ -343,7 +343,7 @@ export default function VerificacionPage() {
   if (status === "denied") {
     return pageFrame(
       <>
-        <h1 className="mb-2 text-xl font-bold text-white">{t("verificacion.deniedTitle")}</h1>
+        <h1 className="mb-2 text-xl font-bold text-zinc-900">{t("verificacion.deniedTitle")}</h1>
         <div className="rounded-lg border border-red-800 bg-red-500/10 p-4">
           <p className="text-sm font-medium text-red-400">{t("verificacion.deniedDesc")}</p>
           {verification?.denial_reason && (
@@ -353,7 +353,7 @@ export default function VerificacionPage() {
         <p className="mt-4 text-xs text-zinc-500">
           {t("verificacion.deniedNote")}
         </p>
-        {error && <p className="mt-3 text-sm text-red-400">{error}</p>}
+        {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
         <button
           onClick={handleReapply}
           disabled={busy}
@@ -369,7 +369,7 @@ export default function VerificacionPage() {
   if (status === "submitted" || status === "in_review") {
     return pageFrame(
       <>
-        <h1 className="mb-2 text-xl font-bold text-white">{t("verificacion.inReviewTitle")}</h1>
+        <h1 className="mb-2 text-xl font-bold text-zinc-900">{t("verificacion.inReviewTitle")}</h1>
         <div className="rounded-lg border border-amber-800 bg-amber-500/10 p-4">
           <p className="text-sm font-medium text-amber-400">
             {t("verificacion.inReviewDesc")}
@@ -390,7 +390,7 @@ export default function VerificacionPage() {
   if (status === "approved") {
     return pageFrame(
       <>
-        <h1 className="mb-2 text-xl font-bold text-white">{t("verificacion.approvedTitle")}</h1>
+        <h1 className="mb-2 text-xl font-bold text-zinc-900">{t("verificacion.approvedTitle")}</h1>
         <div className="rounded-lg border border-emerald-800 bg-emerald-500/10 p-4">
           <p className="text-sm font-medium text-emerald-400">
             {t("verificacion.approvedDesc")}
@@ -402,13 +402,13 @@ export default function VerificacionPage() {
           )}
         </div>
         {isCreator ? (
-          <p className="mt-4 text-sm text-zinc-400">{t("verificacion.alreadyCreator")}</p>
+          <p className="mt-4 text-sm text-zinc-600">{t("verificacion.alreadyCreator")}</p>
         ) : (
           <>
             <p className="mt-4 text-xs text-zinc-500">
               {t("verificacion.approvalActive")}
             </p>
-            {error && <p className="mt-3 text-sm text-red-400">{error}</p>}
+            {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
             <button
               onClick={handleActivate}
               disabled={busy}
@@ -427,11 +427,11 @@ export default function VerificacionPage() {
   return pageFrame(
     <>
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-lg font-bold text-white">{t("verificacion.wizardTitle")}</h1>
+        <h1 className="text-lg font-bold text-zinc-900">{t("verificacion.wizardTitle")}</h1>
         <span className="text-xs text-zinc-500">{t("verificacion.stepOf", { current: String(meta.n) })}</span>
       </div>
 
-      <div className="mb-6 h-1 w-full overflow-hidden rounded-full bg-zinc-800">
+      <div className="mb-6 h-1 w-full overflow-hidden rounded-full bg-zinc-200">
         <div
           className="h-full bg-blue-500 transition-all duration-300"
           style={{ width: `${((step + 1) / 8) * 100}%` }}
@@ -439,14 +439,14 @@ export default function VerificacionPage() {
       </div>
 
       <div className="mb-6">
-        <h2 className="text-base font-semibold text-white">{t(`verificacion.${meta.titleKey}`)}</h2>
-        <p className="mt-1 text-xs text-zinc-400">{t(`verificacion.${meta.descKey}`)}</p>
+        <h2 className="text-base font-semibold text-zinc-900">{t(`verificacion.${meta.titleKey}`)}</h2>
+        <p className="mt-1 text-xs text-zinc-600">{t(`verificacion.${meta.descKey}`)}</p>
       </div>
 
       {step === 0 && (
         <div className="space-y-4">
           <div className="space-y-2">
-            <p className="text-xs font-medium text-zinc-300">{t("verificacion.documentTypeLabel")}</p>
+            <p className="text-xs font-medium text-zinc-700">{t("verificacion.documentTypeLabel")}</p>
             <div className="flex flex-col gap-2">
               {DOCUMENT_TYPES.map((dt) => (
                 <button
@@ -455,8 +455,8 @@ export default function VerificacionPage() {
                   onClick={() => selectDocumentType(dt.value)}
                   className={`rounded-lg border px-4 py-2.5 text-sm transition-colors ${
                     documentType === dt.value
-                      ? "border-blue-500 bg-blue-500/10 text-blue-400"
-                      : "border-zinc-800 text-zinc-400 hover:border-zinc-600"
+                      ? "border-blue-500 bg-blue-500/10 text-blue-600"
+                      : "border-zinc-300 text-zinc-600 hover:border-zinc-500"
                   }`}
                 >
                   {documentTypeLabel(t, dt.value)}
@@ -465,7 +465,7 @@ export default function VerificacionPage() {
             </div>
           </div>
           <div>
-            <p className="mb-2 text-xs font-medium text-zinc-300">{t("verificacion.documentPhotoLabel")}</p>
+            <p className="mb-2 text-xs font-medium text-zinc-700">{t("verificacion.documentPhotoLabel")}</p>
             <PhotoField
               label={t("verificacion.takeDocumentPhoto")}
               preview={previews.document}
@@ -480,13 +480,13 @@ export default function VerificacionPage() {
       {step === 1 && (
         <div className="space-y-4">
           <div>
-            <label className="mb-1 block text-sm font-medium text-zinc-300">{t("verificacion.dobLabel")}</label>
+            <label className="mb-1 block text-sm font-medium text-zinc-700">{t("verificacion.dobLabel")}</label>
             <input
               type="date"
               value={declaredDob}
               onChange={(e) => setDeclaredDob(e.target.value)}
               max={new Date().toISOString().slice(0, 10)}
-              className="w-full rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm text-white outline-none focus:border-blue-500"
+              className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 outline-none focus:border-blue-500"
             />
           </div>
           <p className="text-xs text-zinc-500">
@@ -550,7 +550,7 @@ export default function VerificacionPage() {
             </span>
           </button>
 
-          <div className="border-t border-zinc-800" />
+          <div className="border-t border-zinc-200" />
 
           <div>
             <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-zinc-500">
@@ -642,20 +642,20 @@ export default function VerificacionPage() {
             {t("verificacion.submitNote")}
           </p>
           {(!consentChecked || !declarationChecked) && (
-            <p className="text-xs text-amber-400">
+            <p className="text-xs text-amber-600">
               {t("verificacion.mustAcceptNote")}
             </p>
           )}
         </div>
       )}
 
-      {error && <p className="mt-3 text-sm text-red-400">{error}</p>}
+      {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
 
       <div className="mt-8 flex items-center justify-between gap-3">
         <button
           onClick={() => setStep((s) => Math.max(s - 1, 0))}
           disabled={step === 0 || busy}
-          className="rounded-lg border border-zinc-800 px-4 py-1.5 text-sm text-zinc-300 transition-colors hover:border-zinc-600 disabled:opacity-50"
+          className="rounded-lg border border-zinc-300 px-4 py-1.5 text-sm text-zinc-600 transition-colors hover:border-zinc-500 disabled:opacity-50"
         >
           {t("verificacion.back")}
         </button>
@@ -736,7 +736,7 @@ function AuditTimeline({ events }: { events: VerificationEvent[] }) {
         <li key={ev.id} className="flex items-start gap-3">
           <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-blue-500" />
           <div className="min-w-0">
-            <p className="text-xs font-medium text-zinc-200">
+            <p className="text-xs font-medium text-zinc-800">
               {t(`verificacion.events.${ev.event}`)}
             </p>
             <p className="text-[11px] text-zinc-500">

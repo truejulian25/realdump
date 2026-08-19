@@ -177,8 +177,8 @@ export default function UploadPage() {
 
   if (authLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-black pt-14">
-        <p className="text-zinc-400">{t("common.loading")}</p>
+      <div className="flex min-h-screen items-center justify-center bg-app-bg pt-14">
+        <p className="text-zinc-600">{t("common.loading")}</p>
       </div>
     );
   }
@@ -190,10 +190,10 @@ export default function UploadPage() {
 
   if (profile?.role !== "creator") {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-black pt-14 pb-20 px-4">
+      <div className="flex min-h-screen flex-col items-center justify-center bg-app-bg pt-14 pb-20 px-4">
         <div className="flex flex-col items-center gap-4 text-center max-w-sm">
-          <h1 className="text-lg font-bold text-white">{t("upload.title")}</h1>
-          <p className="text-sm text-zinc-400">
+          <h1 className="text-lg font-bold text-zinc-900">{t("upload.title")}</h1>
+          <p className="text-sm text-zinc-600">
             {t("upload.onlyCreatorDesc")}
           </p>
           <button
@@ -208,21 +208,21 @@ export default function UploadPage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center bg-black pt-14 pb-20">
+    <div className="flex min-h-screen flex-col items-center bg-app-bg pt-14 pb-20">
       <div className="mx-auto w-full max-w-sm px-4 py-6">
         <div className="mb-6 flex items-center gap-3">
-          <Link href="/profile" className="text-zinc-400 transition-colors hover:text-white">
+          <Link href="/profile" className="text-zinc-500 transition-colors hover:text-zinc-900">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" />
             </svg>
           </Link>
-          <h1 className="text-lg font-bold text-white">{t("upload.title")}</h1>
+          <h1 className="text-lg font-bold text-zinc-900">{t("upload.title")}</h1>
         </div>
       <form onSubmit={handleSubmit} className="flex w-full max-w-sm flex-col gap-3">
 
         <div
           onClick={() => fileInputRef.current?.click()}
-          className="flex h-96 w-full cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-zinc-600 bg-zinc-900 transition-colors hover:border-blue-500 overflow-hidden"
+          className="flex h-96 w-full cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-zinc-300 bg-zinc-200 transition-colors hover:border-blue-500 overflow-hidden"
         >
           {videoPreview ? (
             <video
@@ -231,7 +231,7 @@ export default function UploadPage() {
               controls
             />
           ) : (
-            <div className="flex flex-col items-center gap-2 text-zinc-400">
+            <div className="flex flex-col items-center gap-2 text-zinc-600">
               <svg
                 width="48"
                 height="48"
@@ -263,7 +263,7 @@ export default function UploadPage() {
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder={t("common.titleLabel")}
-          className="w-full bg-transparent px-0 py-2 text-sm text-white placeholder-zinc-500 outline-none caret-blue-500"
+          className="w-full bg-transparent px-0 py-2 text-sm text-zinc-900 placeholder-zinc-400 outline-none caret-blue-500"
         />
  
         <textarea
@@ -271,7 +271,7 @@ export default function UploadPage() {
           onChange={(e) => setDescription(e.target.value)}
           placeholder={t("common.descriptionLabel")}
           rows={2}
-          className="w-full resize-none bg-transparent px-0 py-2 text-sm text-white placeholder-zinc-500 outline-none caret-blue-500"
+          className="w-full resize-none bg-transparent px-0 py-2 text-sm text-zinc-900 placeholder-zinc-400 outline-none caret-blue-500"
         />
  
         <input
@@ -279,11 +279,11 @@ export default function UploadPage() {
           value={hashtags}
           onChange={(e) => setHashtags(e.target.value)}
           placeholder={t("common.hashtagsPlaceholder")}
-          className="w-full bg-transparent px-0 py-2 text-sm text-white placeholder-zinc-500 outline-none caret-blue-500"
+          className="w-full bg-transparent px-0 py-2 text-sm text-zinc-900 placeholder-zinc-400 outline-none caret-blue-500"
         />
 
         <div className="mt-2">
-          <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
+          <label className="text-xs font-semibold text-zinc-600 uppercase tracking-wider">
             {t("videoTags.collaboratorsLabel")}
           </label>
           <CollaboratorInput
@@ -296,14 +296,14 @@ export default function UploadPage() {
         </div>
 
         {uploadStatus && !error && !success && (
-          <div className="flex items-center gap-2 text-sm text-blue-400">
-            <div className="h-3 w-3 animate-spin rounded-full border-2 border-blue-400 border-t-transparent" />
+          <div className="flex items-center gap-2 text-sm text-blue-600">
+            <div className="h-3 w-3 animate-spin rounded-full border-2 border-blue-600 border-t-transparent" />
             {uploadStatus}
           </div>
         )}
 
-        {error && <p className="text-sm text-red-400">{error}</p>}
-        {success && <p className="text-sm text-green-400">{t("upload.success")}</p>}
+        {error && <p className="text-sm text-red-600">{error}</p>}
+        {success && <p className="text-sm text-emerald-600">{t("upload.success")}</p>}
 
         <button
           type="submit"

@@ -295,8 +295,8 @@ export default function SearchPage() {
   const currentVideos = hasActiveSearch ? videos : allVideos;
 
   return (
-    <div className="flex min-h-screen flex-col bg-black pt-14 pb-20">
-      <div className="sticky top-14 z-10 border-b border-zinc-800 bg-black px-4 py-3">
+    <div className="flex min-h-screen flex-col bg-app-bg pt-14 pb-20">
+      <div className="sticky top-[var(--header-offset,3.5rem)] z-10 border-b border-zinc-200 bg-app-bg px-4 py-3 transition-[top] duration-300">
         <div className="relative mx-auto flex w-full max-w-sm items-center">
           <svg
             width="18"
@@ -317,12 +317,12 @@ export default function SearchPage() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder={t("search.placeholder")}
-            className="w-full bg-transparent py-2.5 pl-10 pr-10 text-sm text-white placeholder-zinc-500 outline-none caret-blue-500"
+            className="w-full bg-transparent py-2.5 pl-10 pr-10 text-sm text-zinc-900 placeholder-zinc-400 outline-none caret-blue-500"
           />
           {query && (
             <button
               onClick={() => setQuery("")}
-              className="absolute right-3 text-zinc-500 hover:text-white"
+              className="absolute right-3 text-zinc-500 hover:text-zinc-900"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="18" y1="6" x2="6" y2="18" />
@@ -336,13 +336,13 @@ export default function SearchPage() {
       <div className="flex-1 px-4 py-4">
         {loading && hasActiveSearch ? (
           <div className="flex items-center justify-center py-20">
-            <p className="text-zinc-400">{t("search.searching")}</p>
+            <p className="text-zinc-600">{t("search.searching")}</p>
           </div>
         ) : !hasActiveSearch ? (
           <div className="py-4">
             {!recsLoading && recommendedVideos.length > 0 && (
               <div className="mb-6">
-                <h2 className="mb-3 text-sm font-semibold text-zinc-400 uppercase tracking-wider">
+                <h2 className="mb-3 text-sm font-semibold text-zinc-600 uppercase tracking-wider">
                   {t("search.recommended")}
                 </h2>
                 <div className="grid grid-cols-3 gap-0.5">
@@ -362,13 +362,13 @@ export default function SearchPage() {
                 {allHasMore && <div ref={sentinelRef} />}
                 {allLoading && (
                   <div className="flex justify-center py-6">
-                    <div className="h-6 w-6 animate-spin rounded-full border-2 border-zinc-600 border-t-white" />
+                    <div className="h-6 w-6 animate-spin rounded-full border-2 border-zinc-300 border-t-zinc-600" />
                   </div>
                 )}
               </>
             ) : recsLoading ? (
               <div className="flex items-center justify-center py-20">
-                <p className="text-zinc-400">{t("common.loading")}</p>
+                <p className="text-zinc-600">{t("common.loading")}</p>
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center gap-3 py-20 text-zinc-500">
@@ -388,7 +388,7 @@ export default function SearchPage() {
 
             {profiles.length > 0 && (
               <div className="mb-6">
-                <h2 className="mb-3 text-sm font-semibold text-zinc-400 uppercase tracking-wider">
+                <h2 className="mb-3 text-sm font-semibold text-zinc-600 uppercase tracking-wider">
                   {t("search.profiles")}
                 </h2>
                 <div className="flex flex-col gap-2">
@@ -396,9 +396,9 @@ export default function SearchPage() {
                     <Link
                       key={p.id}
                       href={`/user/${p.id}`}
-                      className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-zinc-900"
+                      className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-zinc-200/60"
                     >
-                      <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-zinc-700">
+                      <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-zinc-200">
                         <img
                           src={
                             p.avatar_url ??
@@ -409,7 +409,7 @@ export default function SearchPage() {
                         />
                       </div>
                       <div className="flex flex-col">
-                        <span className="text-sm font-semibold text-white">
+                        <span className="text-sm font-semibold text-zinc-900">
                           {p.display_name ?? t("profile.noName")}
                         </span>
                         <span className="text-xs text-zinc-500">@{p.username}</span>
@@ -423,7 +423,7 @@ export default function SearchPage() {
             {videos.length > 0 && (
               <div>
                 {profiles.length > 0 && (
-                  <h2 className="mb-3 text-sm font-semibold text-zinc-400 uppercase tracking-wider">
+                  <h2 className="mb-3 text-sm font-semibold text-zinc-600 uppercase tracking-wider">
                     {t("search.videosLabel")}
                   </h2>
                 )}
