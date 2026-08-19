@@ -18,22 +18,22 @@ export default function BottomNav() {
   ];
 
   return (
-    <nav className="fixed bottom-0 z-50 flex w-full items-center justify-center border-t border-zinc-200 bg-app-bg/80 px-4 py-2 backdrop-blur-sm">
-      <div className="flex w-full max-w-sm items-center justify-between">
+    <nav className="fixed inset-x-0 bottom-0 z-50 flex items-end justify-center px-4 pb-3">
+      <div className="flex w-full max-w-sm items-center justify-between rounded-[25px] bg-[#F2F2F2] px-5 py-1.5 shadow-sm">
         {navItems.map(({ href, label, icon: Icon }) => (
           <Link
             key={href}
             href={href}
-            className={`flex flex-col items-center gap-0.5 px-4 py-1 text-xs transition-colors ${
+            className={`flex flex-col items-center gap-0.5 px-3 py-0.5 text-xs transition-colors ${
               pathname === href
                 ? "text-zinc-900"
                 : "text-zinc-500 hover:text-zinc-700"
             }`}
           >
             {href === "/profile" ? (
-              <Icon size={24} profile={profile} />
+              <Icon size={20} profile={profile} />
             ) : (
-              <Icon size={24} />
+              <Icon size={20} />
             )}
             {label}
           </Link>
@@ -49,7 +49,7 @@ function ProfileIcon({ profile }: { profile?: { avatar_url?: string | null; disp
     ?? `https://ui-avatars.com/api/?name=${profile?.display_name ?? "user"}&background=6366f1&color=fff&size=24`;
 
   return (
-    <div className="h-6 w-6 overflow-hidden rounded-full border border-zinc-500 bg-zinc-700">
+    <div className="h-5 w-5 overflow-hidden rounded-full border border-zinc-500 bg-zinc-700">
       <img
         src={src}
         alt={t("bottomNav.profile")}
