@@ -7,7 +7,7 @@ export default function FeedSkeleton() {
             <div className="h-8 w-8 rounded-full bg-zinc-200 animate-pulse" />
             <div className="h-3 w-24 rounded bg-zinc-200 animate-pulse" />
           </div>
-          <div className="aspect-[9/16] w-full rounded-lg bg-zinc-200 animate-pulse" />
+          <div className="aspect-[9/16] w-full rounded-[15px] bg-zinc-200 animate-pulse" />
           <div className="mt-3 flex gap-3">
             <div className="h-4 w-12 rounded bg-zinc-200 animate-pulse" />
             <div className="h-4 w-12 rounded bg-zinc-200 animate-pulse" />

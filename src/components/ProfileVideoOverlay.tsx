@@ -141,7 +141,7 @@ function VideoSlide({ video, index, currentIndex, selectedIndex, hasScrolled, pr
         <>
           <div
             ref={videoContainerRef}
-            className="relative flex h-full w-full items-center justify-center overflow-hidden rounded-lg bg-black cursor-pointer"
+            className="relative flex h-full w-full items-center justify-center overflow-hidden rounded-[15px] bg-black cursor-pointer"
             style={{ maxHeight: "calc(100dvh - 9rem)" }}
           >
             {showPlayer && paused && (

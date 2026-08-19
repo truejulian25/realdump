@@ -49,7 +49,7 @@ export default function CustomVideoPlayer({ src, autoPlay = true, fill = false, 
   return (
     <div
       ref={containerRef}
-      className={`group relative w-full overflow-hidden ${fill ? "h-full bg-black" : "rounded-lg bg-black"}`}
+      className={`group relative w-full overflow-hidden ${fill ? "h-full bg-black" : "rounded-[15px] bg-black"}`}
       style={fill ? undefined : { aspectRatio: aspectRatio ? `${aspectRatio.w}/${aspectRatio.h}` : "9/16" }}
     >
       {!fill && !aspectRatio && (

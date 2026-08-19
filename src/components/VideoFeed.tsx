@@ -82,7 +82,7 @@ function VideoCard({
       />
       <div
         ref={playerContainerRef}
-        className="relative mt-3 w-full overflow-hidden rounded-lg bg-black"
+        className="relative mt-3 w-full overflow-hidden rounded-[15px] bg-black"
         style={{ maxHeight: "calc(100dvh - 9rem)" }}
       >
         {shouldMount ? (
