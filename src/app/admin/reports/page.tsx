@@ -176,7 +176,7 @@ export default function AdminReportsPage() {
               onClick={() => setFilter(f)}
               className={`shrink-0 rounded-full px-3 py-1 text-xs font-medium transition-colors ${
                 filter === f
-                  ? "bg-blue-600 text-white"
+                  ? "bg-[#0f6b68] text-white"
                   : "bg-zinc-200 text-zinc-600 hover:bg-zinc-300"
               }`}
             >
@@ -314,7 +314,7 @@ export default function AdminReportsPage() {
                           <button
                             onClick={() => handleAction(report, "dismissed")}
                             disabled={report.status === "dismissed"}
-                            className="flex-1 rounded-lg bg-zinc-700 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-zinc-600 disabled:opacity-50"
+                            className="flex-1 rounded-lg bg-[#0f6b68] px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-[#0b5451] disabled:opacity-50"
                           >
                             {t("adminReports.dismiss")}
                           </button>
@@ -338,7 +338,7 @@ export default function AdminReportsPage() {
                         <button
                           onClick={() => handleAction(report, "needs_info")}
                           disabled={report.status !== "pending"}
-                          className="w-full rounded-lg border border-blue-500/50 px-3 py-1.5 text-xs font-semibold text-blue-400 transition-colors hover:bg-blue-500/10 disabled:opacity-50"
+                          className="w-full rounded-lg border border-[#0f6b68]/50 px-3 py-1.5 text-xs font-semibold text-[#0f6b68] transition-colors hover:bg-[#0f6b68]/10 disabled:opacity-50"
                         >
                           {t("adminReports.requestInfo")}
                         </button>
@@ -367,7 +367,7 @@ export default function AdminReportsPage() {
                               setMeasureFor(null);
                               setMeasureNote("");
                             }}
-                            className="flex-1 rounded-lg bg-zinc-800 px-3 py-1.5 text-xs font-semibold text-zinc-300 transition-colors hover:bg-zinc-700"
+                            className="flex-1 rounded-lg bg-[#0f6b68] px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-[#0b5451]"
                           >
                             {t("adminReports.measureCancel")}
                           </button>

@@ -84,7 +84,7 @@ function ReactivateContent() {
           <button
             type="submit"
             disabled={!manualToken.trim()}
-            className="rounded-lg bg-blue-600 px-5 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
+            className="rounded-lg bg-[#0f6b68] px-5 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-[#0b5451] disabled:opacity-50"
           >
             {t("auth.reactivate.reactivateBtn")}
           </button>
@@ -94,7 +94,7 @@ function ReactivateContent() {
       {status === "success" && (
         <Link
           href="/auth/login"
-          className="mt-6 inline-block rounded-lg bg-blue-600 px-5 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700"
+          className="mt-6 inline-block rounded-lg bg-[#0f6b68] px-5 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-[#0b5451]"
         >
           {t("auth.reactivate.signIn")}
         </Link>
@@ -103,7 +103,7 @@ function ReactivateContent() {
       {(status === "error" || status === "idle") && (
         <Link
           href="/auth/login"
-          className="mt-6 inline-block rounded-lg bg-zinc-800 px-5 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-zinc-700"
+          className="mt-6 inline-block rounded-lg bg-[#0f6b68] px-5 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-[#0b5451]"
         >
           {t("auth.reactivate.backToLogin")}
         </Link>

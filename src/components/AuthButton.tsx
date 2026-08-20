@@ -30,7 +30,7 @@ export default function AuthButton({ email, avatarUrl }: { email: string | null;
       </div>
       <button
         onClick={handleLogout}
-        className="rounded bg-zinc-800 px-3 py-1 text-sm text-white hover:bg-zinc-700"
+        className="rounded bg-[#0f6b68] px-3 py-1 text-sm text-white hover:bg-[#0b5451]"
       >
         {t("hamburgerMenu.logout")}
       </button>

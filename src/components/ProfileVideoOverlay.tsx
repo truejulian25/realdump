@@ -208,8 +208,8 @@ function VideoSlide({ video, index, currentIndex, selectedIndex, hasScrolled, pr
                       disabled={toggling}
                       className={`rounded-lg border px-4 py-2 text-xs font-medium transition-colors disabled:opacity-50 min-h-11 ${
                         isFollowing
-                          ? "border-zinc-600 text-zinc-400"
-                          : "border-blue-500 text-blue-500 hover:bg-blue-500/10"
+                          ? "border-[#0f6b68] text-[#0f6b68]"
+                          : "border-[#0f6b68] text-[#0f6b68] hover:bg-[#0f6b68]/10"
                       }`}
                     >
                       {isFollowing ? t("common.following") : t("common.follow")}

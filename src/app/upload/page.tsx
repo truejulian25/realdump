@@ -198,7 +198,7 @@ export default function UploadPage() {
           </p>
           <button
             onClick={() => router.push("/profile")}
-            className="rounded-lg bg-blue-600 px-5 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700"
+            className="rounded-lg bg-[#0f6b68] px-5 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-[#0b5451]"
           >
             {t("upload.goToProfile")}
           </button>
@@ -308,7 +308,7 @@ export default function UploadPage() {
         <button
           type="submit"
           disabled={uploading || !videoFile}
-          className="self-start rounded-lg bg-blue-600 px-5 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
+          className="self-start rounded-lg bg-[#0f6b68] px-5 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-[#0b5451] disabled:opacity-50"
         >
           {uploading ? t("upload.uploading") : t("upload.title")}
         </button>

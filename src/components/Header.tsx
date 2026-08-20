@@ -82,7 +82,7 @@ export default function Header() {
                 >
                   <Bell size={20} />
                   {unread > 0 && (
-                    <span className="absolute -top-0.5 -right-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-blue-500 px-1 text-[10px] font-bold text-white">
+                    <span className="absolute -top-0.5 -right-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#0f6b68] px-1 text-[10px] font-bold text-white">
                       {unread > 9 ? "9+" : unread}
                     </span>
                   )}
@@ -113,7 +113,7 @@ export default function Header() {
                 </Link>
                 <Link
                   href="/auth/register"
-                  className="rounded-lg border border-blue-500 px-3 py-1 text-sm text-blue-500 transition-colors hover:bg-blue-500/10"
+                  className="rounded-lg border border-[#0f6b68] px-3 py-1 text-sm text-[#0f6b68] transition-colors hover:bg-[#0f6b68]/10"
                 >
                   {t("header.register")}
                 </Link>

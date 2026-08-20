@@ -237,7 +237,7 @@ export default function NotificationsPage() {
                         <button
                           onClick={() => handleTagResponse(n, "rejected")}
                           disabled={respondingTag === n.id}
-                          className="flex-1 rounded-lg bg-zinc-800 px-3 py-1.5 text-xs font-semibold text-zinc-300 transition-colors hover:bg-zinc-700 disabled:opacity-50"
+                          className="flex-1 rounded-lg bg-[#0f6b68] px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-[#0b5451] disabled:opacity-50"
                         >
                           {t("videoTags.reject")}
                         </button>
@@ -275,7 +275,7 @@ export default function NotificationsPage() {
                                 setReplyText("");
                                 setReplyError(null);
                               }}
-                              className="flex-1 rounded-lg bg-zinc-800 px-3 py-1.5 text-xs font-semibold text-zinc-300 transition-colors hover:bg-zinc-700"
+                              className="flex-1 rounded-lg bg-[#0f6b68] px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-[#0b5451]"
                             >
                               {t("adminReports.measureCancel")}
                             </button>

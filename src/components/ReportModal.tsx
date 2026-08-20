@@ -116,21 +116,21 @@ export default function ReportModal({ open, onClose, videoId }: Props) {
               <Link
                 href="/auth/register"
                 onClick={onClose}
-                className="w-full rounded-lg bg-blue-600 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700"
+                className="w-full rounded-lg bg-[#0f6b68] py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#0b5451]"
               >
                 {t("report.guestRegister")}
               </Link>
               <Link
                 href="/auth/login"
                 onClick={onClose}
-                className="w-full rounded-lg border border-zinc-600 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-zinc-800"
+                className="w-full rounded-lg bg-[#0f6b68] py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#0b5451]"
               >
                 {t("report.guestLogin")}
               </Link>
             </div>
             <button
               onClick={onClose}
-              className="mt-1 rounded-lg bg-zinc-800 px-5 py-2 text-sm text-white transition-colors hover:bg-zinc-700"
+              className="mt-1 rounded-lg bg-[#0f6b68] px-5 py-2 text-sm text-white transition-colors hover:bg-[#0b5451]"
             >
               {t("report.close")}
             </button>
@@ -146,7 +146,7 @@ export default function ReportModal({ open, onClose, videoId }: Props) {
             <p className="text-sm text-zinc-400">{t("report.sentDesc")}</p>
             <button
               onClick={onClose}
-              className="mt-2 rounded-lg bg-zinc-800 px-5 py-2 text-sm text-white transition-colors hover:bg-zinc-700"
+              className="mt-2 rounded-lg bg-[#0f6b68] px-5 py-2 text-sm text-white transition-colors hover:bg-[#0b5451]"
             >
               {t("report.close")}
             </button>
@@ -176,7 +176,7 @@ export default function ReportModal({ open, onClose, videoId }: Props) {
                     key={reason}
                     className={`flex cursor-pointer items-center gap-3 rounded-lg border p-3 text-sm transition-colors ${
                       selectedReason === reason
-                        ? "border-blue-500 bg-blue-500/10 text-white"
+                        ? "border-[#0f6b68] bg-[#0f6b68]/10 text-white"
                         : "border-zinc-700 text-zinc-300 hover:border-zinc-500"
                     }`}
                   >
@@ -186,7 +186,7 @@ export default function ReportModal({ open, onClose, videoId }: Props) {
                       value={reason}
                       checked={selectedReason === reason}
                       onChange={(e) => setSelectedReason(e.target.value)}
-                      className="accent-blue-500"
+                      className="accent-[#0f6b68]"
                     />
                     {reason}
                   </label>
@@ -208,7 +208,7 @@ export default function ReportModal({ open, onClose, videoId }: Props) {
                     aria-pressed={mode === "profile"}
                     className={`w-full rounded-lg border py-2.5 text-sm font-semibold transition-colors ${
                       mode === "profile"
-                        ? "border-blue-500 bg-blue-500/10 text-white"
+                        ? "border-[#0f6b68] bg-[#0f6b68]/10 text-white"
                         : "border-zinc-600 text-zinc-300 hover:border-zinc-400 hover:text-white"
                     }`}
                   >

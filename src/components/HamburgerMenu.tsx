@@ -251,7 +251,7 @@ function MainMenu({ onSelect, onClose }: {
                 <div className="mt-3 flex gap-2">
                   <button
                     onClick={() => setShowRevokeConfirm(false)}
-                    className="flex-1 rounded bg-zinc-800 py-1.5 text-xs text-white transition-colors hover:bg-zinc-700"
+                    className="flex-1 rounded bg-[#0f6b68] py-1.5 text-xs text-white transition-colors hover:bg-[#0b5451]"
                   >
                     {t("hamburgerMenu.cancel")}
                   </button>
@@ -336,7 +336,7 @@ function LanguageView({ onBack }: { onBack: () => void }) {
       <div className="flex-1 px-4 py-4">
         <button
           onClick={resetToAuto}
-          className={`flex w-full items-center gap-3 px-4 py-3 text-left transition-colors ${mode === "auto" ? "bg-blue-500/10" : "hover:bg-zinc-800"}`}
+          className={`flex w-full items-center gap-3 px-4 py-3 text-left transition-colors ${mode === "auto" ? "bg-[#0f6b68]/10" : "hover:bg-zinc-800"}`}
         >
           <div className="flex-1">
             <p className="text-sm font-medium text-white">{t("hamburgerMenu.autoLanguage")}</p>
@@ -351,7 +351,7 @@ function LanguageView({ onBack }: { onBack: () => void }) {
           <button
             key={lang.code}
             onClick={() => setLocale(lang.code)}
-            className={`flex w-full items-center gap-3 px-4 py-3 text-left transition-colors ${mode === "manual" && locale === lang.code ? "bg-blue-500/10" : "hover:bg-zinc-800"}`}
+            className={`flex w-full items-center gap-3 px-4 py-3 text-left transition-colors ${mode === "manual" && locale === lang.code ? "bg-[#0f6b68]/10" : "hover:bg-zinc-800"}`}
           >
             <div className="flex-1">
               <p className="text-sm font-medium text-white">{lang.nativeName}</p>
@@ -414,7 +414,7 @@ function ChangePasswordView({ onBack }: { onBack: () => void }) {
           <span className="rounded-full bg-emerald-500/20 p-3 text-emerald-400"><IconCheck /></span>
           <p className="text-sm font-medium text-white">{t("hamburgerMenu.passwordUpdated")}</p>
           <p className="text-xs text-zinc-500">{t("hamburgerMenu.passwordUpdatedDesc")}</p>
-          <button onClick={onBack} className="mt-2 rounded-lg bg-zinc-800 px-4 py-1.5 text-sm text-white transition-colors hover:bg-zinc-700">
+          <button onClick={onBack} className="mt-2 rounded-lg bg-[#0f6b68] px-4 py-1.5 text-sm text-white transition-colors hover:bg-[#0b5451]">
             {t("hamburgerMenu.backToMenu")}
           </button>
         </div>
@@ -467,7 +467,7 @@ function ChangePasswordView({ onBack }: { onBack: () => void }) {
         <button
           type="submit"
           disabled={loading}
-          className="self-start rounded-lg bg-blue-600 px-5 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
+          className="self-start rounded-lg bg-[#0f6b68] px-5 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-[#0b5451] disabled:opacity-50"
         >
           {loading ? t("hamburgerMenu.updating") : t("hamburgerMenu.changePasswordBtn")}
         </button>
@@ -743,7 +743,7 @@ function FiltersView({ onBack }: { onBack: () => void }) {
           <label className="mb-1 block text-sm font-medium text-zinc-300">{t("hamburgerMenu.hideOffensiveLabel")}</label>
           <button
             onClick={() => setHideOffensive(!hideOffensive)}
-            className={`relative h-6 w-11 rounded-full transition-colors ${hideOffensive ? "bg-blue-600" : "bg-zinc-700"}`}
+            className={`relative h-6 w-11 rounded-full transition-colors ${hideOffensive ? "bg-[#0f6b68]" : "bg-zinc-700"}`}
           >
             <span className={`absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white transition-transform ${hideOffensive ? "translate-x-5" : ""}`} />
           </button>
@@ -762,7 +762,7 @@ function FiltersView({ onBack }: { onBack: () => void }) {
 
         <button
           onClick={handleSave}
-          className="self-start rounded-lg bg-blue-600 px-5 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700"
+          className="self-start rounded-lg bg-[#0f6b68] px-5 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-[#0b5451]"
         >
           {saved ? t("hamburgerMenu.savedConfirm") : t("hamburgerMenu.savePreferences")}
         </button>

@@ -69,7 +69,7 @@ export default function FiltersPage() {
           <label className="mb-1 block text-sm font-medium text-zinc-700">{t("filters.hideOffensiveLabel")}</label>
           <button
             onClick={() => setHideOffensive(!hideOffensive)}
-            className={`relative h-6 w-11 rounded-full transition-colors ${hideOffensive ? "bg-blue-600" : "bg-zinc-300"}`}
+            className={`relative h-6 w-11 rounded-full transition-colors ${hideOffensive ? "bg-[#0f6b68]" : "bg-zinc-300"}`}
           >
             <span className={`absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white transition-transform ${hideOffensive ? "translate-x-5" : ""}`} />
           </button>
@@ -77,7 +77,7 @@ export default function FiltersPage() {
 
         <button
           onClick={handleSave}
-          className="self-start rounded-lg bg-blue-600 px-5 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700"
+          className="self-start rounded-lg bg-[#0f6b68] px-5 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-[#0b5451]"
         >
           {saved ? t("filters.saved") : t("filters.savePreferences")}
         </button>

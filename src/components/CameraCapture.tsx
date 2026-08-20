@@ -110,7 +110,7 @@ export default function CameraCapture({
           type="button"
           onClick={startCamera}
           disabled={disabled}
-          className="rounded-lg bg-blue-600 px-4 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
+          className="rounded-lg bg-[#0f6b68] px-4 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-[#0b5451] disabled:opacity-50"
         >
           {t("camera.retry")}
         </button>
@@ -132,7 +132,7 @@ export default function CameraCapture({
         type="button"
         onClick={capture}
         disabled={disabled || status !== "ready"}
-        className="mt-3 w-full rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
+        className="mt-3 w-full rounded-lg bg-[#0f6b68] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#0b5451] disabled:opacity-50"
       >
         {t("camera.takePhoto")}
       </button>

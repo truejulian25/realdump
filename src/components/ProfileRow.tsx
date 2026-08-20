@@ -56,8 +56,8 @@ export default function ProfileRow({ username, avatarUrl, header, userId }: Prop
             disabled={toggling}
             className={`rounded-lg border px-3 py-1 text-xs font-medium transition-colors disabled:opacity-50 ${
               isFollowing
-                ? "border-zinc-300 text-zinc-600"
-                : "border-blue-500 text-blue-500"
+                ? "border-[#0f6b68] text-[#0f6b68]"
+                : "border-[#0f6b68] text-[#0f6b68]"
             }`}
           >
             {isFollowing ? t("common.following") : t("common.follow")}
@@ -91,8 +91,8 @@ export default function ProfileRow({ username, avatarUrl, header, userId }: Prop
             disabled={toggling}
             className={`rounded-lg border px-3 py-1 text-xs font-medium transition-colors disabled:opacity-50 ${
               isFollowing
-                ? "border-zinc-300 text-zinc-600"
-                : "border-blue-500 text-blue-500"
+                ? "border-[#0f6b68] text-[#0f6b68]"
+                : "border-[#0f6b68] text-[#0f6b68]"
             }`}
           >
             {isFollowing ? t("common.following") : t("common.follow")}

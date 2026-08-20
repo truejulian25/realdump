@@ -77,7 +77,7 @@ export default function RegisterPage() {
               onClick={() => setRole("viewer")}
               className={`flex-1 rounded-lg border px-4 py-2.5 text-sm transition-colors ${
                 role === "viewer"
-                  ? "border-blue-500 bg-blue-500/10 text-blue-600"
+                  ? "border-[#0f6b68] bg-[#0f6b68]/10 text-[#0f6b68]"
                   : "border-zinc-300 text-zinc-600 hover:border-zinc-500"
               }`}
             >
@@ -89,7 +89,7 @@ export default function RegisterPage() {
               onClick={() => setRole("creator")}
               className={`flex-1 rounded-lg border px-4 py-2.5 text-sm transition-colors ${
                 role === "creator"
-                  ? "border-blue-500 bg-blue-500/10 text-blue-600"
+                  ? "border-[#0f6b68] bg-[#0f6b68]/10 text-[#0f6b68]"
                   : "border-zinc-300 text-zinc-600 hover:border-zinc-500"
               }`}
             >
@@ -109,7 +109,7 @@ export default function RegisterPage() {
         <button
           type="submit"
           disabled={loading}
-          className="self-start rounded-lg bg-blue-600 px-5 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
+          className="self-start rounded-lg bg-[#0f6b68] px-5 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-[#0b5451] disabled:opacity-50"
         >
           {loading ? t("auth.register.creating") : t("auth.register.title")}
         </button>

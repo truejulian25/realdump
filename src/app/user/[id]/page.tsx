@@ -203,8 +203,8 @@ export default function UserPage() {
               disabled={toggling}
               className={`rounded-lg border px-4 py-1.5 text-sm font-medium transition-colors disabled:opacity-50 ${
                 isFollowing
-                  ? "border-zinc-300 text-zinc-600"
-                  : "border-blue-500 text-blue-500 hover:bg-blue-500/10"
+                  ? "border-[#0f6b68] text-[#0f6b68]"
+                  : "border-[#0f6b68] text-[#0f6b68] hover:bg-[#0f6b68]/10"
               }`}
             >
               {isFollowing ? t("common.following") : t("common.follow")}
@@ -215,7 +215,7 @@ export default function UserPage() {
                 href={paypalHref}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-1.5 rounded-lg border border-blue-500 px-4 py-1.5 text-sm font-medium text-blue-500 transition-colors hover:bg-blue-500/10"
+                className="flex items-center gap-1.5 rounded-lg border border-[#0f6b68] px-4 py-1.5 text-sm font-medium text-[#0f6b68] transition-colors hover:bg-[#0f6b68]/10"
               >
                 <Heart size={16} weight="fill" />
                 {t("user.donate")}

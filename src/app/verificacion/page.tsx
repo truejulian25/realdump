@@ -331,7 +331,7 @@ export default function VerificacionPage() {
         <button
           onClick={handleStart}
           disabled={busy}
-          className="mt-6 rounded-lg bg-blue-600 px-5 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
+          className="mt-6 rounded-lg bg-[#0f6b68] px-5 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-[#0b5451] disabled:opacity-50"
         >
           {busy ? t("verificacion.starting") : t("verificacion.startBtn")}
         </button>
@@ -357,7 +357,7 @@ export default function VerificacionPage() {
         <button
           onClick={handleReapply}
           disabled={busy}
-          className="mt-6 rounded-lg bg-blue-600 px-5 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
+          className="mt-6 rounded-lg bg-[#0f6b68] px-5 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-[#0b5451] disabled:opacity-50"
         >
           {busy ? t("verificacion.processing") : t("verificacion.retryBtn")}
         </button>
@@ -412,7 +412,7 @@ export default function VerificacionPage() {
             <button
               onClick={handleActivate}
               disabled={busy}
-              className="mt-6 rounded-lg bg-blue-600 px-5 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
+              className="mt-6 rounded-lg bg-[#0f6b68] px-5 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-[#0b5451] disabled:opacity-50"
             >
               {busy ? t("verificacion.activating") : t("verificacion.activateBtn")}
             </button>
@@ -455,7 +455,7 @@ export default function VerificacionPage() {
                   onClick={() => selectDocumentType(dt.value)}
                   className={`rounded-lg border px-4 py-2.5 text-sm transition-colors ${
                     documentType === dt.value
-                      ? "border-blue-500 bg-blue-500/10 text-blue-600"
+                      ? "border-[#0f6b68] bg-[#0f6b68]/10 text-[#0f6b68]"
                       : "border-zinc-300 text-zinc-600 hover:border-zinc-500"
                   }`}
                 >
@@ -533,7 +533,7 @@ export default function VerificacionPage() {
           >
             <span
               className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded border transition-colors ${
-                consentChecked ? "border-blue-500 bg-blue-500/10" : "border-zinc-600"
+                consentChecked ? "border-[#0f6b68] bg-[#0f6b68]/10" : "border-zinc-600"
               }`}
             >
               {consentChecked && (
@@ -573,7 +573,7 @@ export default function VerificacionPage() {
             >
               <span
                 className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded border transition-colors ${
-                  declarationChecked ? "border-blue-500 bg-blue-500/10" : "border-zinc-600"
+                  declarationChecked ? "border-[#0f6b68] bg-[#0f6b68]/10" : "border-zinc-600"
                 }`}
               >
                 {declarationChecked && (
@@ -662,7 +662,7 @@ export default function VerificacionPage() {
         <button
           onClick={nextStep}
           disabled={!canNext() || busy}
-          className="rounded-lg bg-blue-600 px-5 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
+          className="rounded-lg bg-[#0f6b68] px-5 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-[#0b5451] disabled:opacity-50"
         >
           {busy
             ? t("verificacion.processing")

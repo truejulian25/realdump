@@ -240,7 +240,7 @@ export default function CommentsDrawer({ videoId, open, onClose, onCountChange }
             <button
               onClick={handleSubmit}
               disabled={!content.trim() || sending}
-              className="text-sm font-semibold text-blue-500 hover:text-blue-400 disabled:opacity-40 transition-colors"
+              className="text-sm font-semibold text-[#0f6b68] hover:text-[#0b5451] disabled:opacity-40 transition-colors"
             >
               {sending ? "..." : t("comments.send")}
             </button>

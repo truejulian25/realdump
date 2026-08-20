@@ -104,7 +104,7 @@ export default function LoginPage() {
             <button
               onClick={handleResend}
               disabled={resending}
-              className="mt-4 text-sm text-blue-600 transition-colors hover:text-blue-500 disabled:opacity-50"
+              className="mt-4 text-sm text-[#0f6b68] transition-colors hover:text-[#0b5451] disabled:opacity-50"
             >
               {resending ? t("auth.login.resending") : t("auth.login.resend")}
             </button>
@@ -136,7 +136,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="self-start rounded-lg bg-blue-600 px-5 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
+              className="self-start rounded-lg bg-[#0f6b68] px-5 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-[#0b5451] disabled:opacity-50"
             >
               {loading ? t("auth.login.entering") : t("auth.login.enter")}
             </button>

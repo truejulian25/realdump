@@ -177,7 +177,7 @@ export default function ProfilePage() {
           </p>
           <Link
             href="/verificacion"
-            className="rounded-lg bg-blue-600 px-5 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700"
+            className="rounded-lg bg-[#0f6b68] px-5 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-[#0b5451]"
           >
             {t("profile.continueVerification")}
           </Link>
@@ -192,7 +192,7 @@ export default function ProfilePage() {
           <button
             onClick={handleRequestCreator}
             disabled={requestLoading || requestSent}
-            className="rounded-lg bg-blue-600 px-5 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
+            className="rounded-lg bg-[#0f6b68] px-5 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-[#0b5451] disabled:opacity-50"
           >
             {requestLoading ? t("profile.sending") : requestSent ? t("profile.requestSent") : t("profile.requestCreator")}
           </button>

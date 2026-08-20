@@ -214,7 +214,7 @@ export default function EditProfilePage() {
         <button
           type="submit"
           disabled={saving}
-          className="self-start rounded-lg bg-blue-600 px-5 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
+          className="self-start rounded-lg bg-[#0f6b68] px-5 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-[#0b5451] disabled:opacity-50"
         >
           {saving ? t("profileEdit.saving") : t("profileEdit.save")}
         </button>
