@@ -203,38 +203,34 @@ export default function NotificationsPage() {
               return (
                 <div
                   key={n.id}
-                  className={`overflow-hidden rounded-xl border ${
-                    unread
-                      ? "border-zinc-700 bg-zinc-900"
-                      : "border-zinc-800 bg-zinc-900/50"
-                  }`}
+                  className="overflow-hidden rounded-xl bg-[#F2F2F2]"
                 >
                   <button
                     onClick={() => handleMarkOneRead(n)}
-                    className="w-full p-4 text-left"
+                    className="w-full px-3 py-1.5 text-left"
                   >
                     <div className="flex items-start gap-3">
                       <div
                         className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${
-                          unread ? "bg-blue-500" : "bg-zinc-700"
+                          unread ? "bg-[#0f6b68]" : "bg-zinc-400"
                         }`}
                       />
                       <div className="flex-1">
-                        <p className={`text-sm ${unread ? "text-white" : "text-zinc-300"}`}>
+                        <p className={`text-xs ${unread ? "text-zinc-900" : "text-zinc-700"}`}>
                           {message}
                         </p>
-                        <p className="mt-1 text-xs text-zinc-500">{formatDate(n.created_at)}</p>
+                        <p className="mt-0.5 text-[11px] text-zinc-600">{formatDate(n.created_at)}</p>
                       </div>
                     </div>
                   </button>
 
                   {canRespondTag && (
-                    <div className="border-t border-zinc-800 p-3">
+                    <div className="px-3 py-1">
                       <div className="flex gap-2">
                         <button
                           onClick={() => handleTagResponse(n, "approved")}
                           disabled={respondingTag === n.id}
-                          className="flex-1 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
+                          className="flex-1 rounded-lg bg-[#0f6b68] px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-[#0b5451] disabled:opacity-50"
                         >
                           {t("videoTags.approve")}
                         </button>
@@ -247,15 +243,15 @@ export default function NotificationsPage() {
                         </button>
                       </div>
                       {tagActionError && (
-                        <p className="mt-1 text-xs text-red-400">{tagActionError}</p>
+                        <p className="mt-1 text-xs text-red-600">{tagActionError}</p>
                       )}
                     </div>
                   )}
 
                   {canReply && (
-                    <div className="border-t border-zinc-800 p-3">
+                    <div className="px-3 py-1">
                       {sentFor === n.id ? (
-                        <p className="text-xs text-emerald-400">{t("notifications.replySent")}</p>
+                        <p className="text-xs text-emerald-600">{t("notifications.replySent")}</p>
                       ) : replyingTo === n.id ? (
                         <>
                           <textarea
@@ -269,7 +265,7 @@ export default function NotificationsPage() {
                             <button
                               onClick={() => handleSubmitReply(n)}
                               disabled={sending || !replyText.trim()}
-                              className="flex-1 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
+                              className="flex-1 rounded-lg bg-[#0f6b68] px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-[#0b5451] disabled:opacity-50"
                             >
                               {t("notifications.replySubmit")}
                             </button>
@@ -285,7 +281,7 @@ export default function NotificationsPage() {
                             </button>
                           </div>
                           {replyError && (
-                            <p className="mt-1 text-xs text-red-400">{replyError}</p>
+                            <p className="mt-1 text-xs text-red-600">{replyError}</p>
                           )}
                         </>
                       ) : (
@@ -295,7 +291,7 @@ export default function NotificationsPage() {
                             setReplyError(null);
                             setReplyingTo(n.id);
                           }}
-                          className="w-full rounded-lg border border-blue-500/50 px-3 py-1.5 text-xs font-semibold text-blue-400 transition-colors hover:bg-blue-500/10"
+                          className="w-full rounded-lg border border-[#0f6b68]/50 px-3 py-1.5 text-xs font-semibold text-[#0f6b68] transition-colors hover:bg-[#0f6b68]/10"
                         >
                           {t("notifications.reply")}
                         </button>
